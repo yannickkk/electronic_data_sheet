@@ -12,8 +12,8 @@ library(chron)
 
 ################ CHARGEMENT DE LA BASE DE DONNEES 
 
-#con<- dbConnect(PostgreSQL(), host="pggeodb-preprod.nancy.inra.fr", dbname="", user="", password="")
-con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="postgres", password="bvta;814")
+#con<- dbConnect(PostgreSQL(), host="xxxxx", dbname="", user="", password="")
+con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="xxxx", password="xxxx")
 
 ############### LISTE DE CHOIX
 
