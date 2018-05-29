@@ -12,7 +12,7 @@ library(chron)
 
 ################ CHARGEMENT DE LA BASE DE DONNEES 
 
-#con<- dbConnect(PostgreSQL(), host="xxxxx", dbname="", user="", password="")
+#con<- dbConnect(PostgreSQL(), host="pggeodb-preprod.nancy.inra.fr", dbname="", user="", password="")
 con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="xxxx", password="xxxx")
 
 ############### LISTE DE CHOIX
@@ -63,8 +63,10 @@ contentcaractanimal = fluidPage(
                   options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
  ####retravailler il faut que ans ces cas on puisse faire un choix dans la liste avec par défaut la valeur de l'ancien lieu de capture  
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", selectizeInput("idSite", h4("Site"), choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
-                              options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = "out_nAnimal2" ))),
-#######ici il faut que l'on puisse rentrer une valeur avec la valer de l'ancienne bague par défaut.
+                  options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = "out_nAnimal2" ))),
+# column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",h4("Site"), textOutput("out_nAnimal2" ))),
+ 
+ #######ici il faut que l'on puisse rentrer une valeur avec la valer de l'ancienne bague par défaut.
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", numericInput("idTagOrG", h4("Tag Oreille Gauche"), value= "out_idTagOrG"))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", numericInput("idTagOrG", h4("Tag Oreille Droite"), value= "out_idTagOrD"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 0", h4("RFID"),textOutput("out_idTagRfid"))),
@@ -471,9 +473,8 @@ server <- function(input, output,session) {
    # })
  
     output$out_nAnimal2 <- renderText({
-
       if ((input$nAnimal2)!="") {
-      str = paste0("select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq = '", input$nAnimal2, "'))")
+      str = paste0("select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq = '", input$nAnimal2, "' order by cap_date DESC))")
       resres = dbGetQuery(con,str)
       idSite2 <<- resres[1, 1]
       idSite2}
@@ -481,7 +482,7 @@ server <- function(input, output,session) {
     
     output$out_idTagOrG <- renderText({
       if ((input$nAnimal2)!="") {
-      str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"'")
+      str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
       resres = dbGetQuery(con,str)
       idTagOrG <<- resres[1, 1]
       idTagOrG}
@@ -489,7 +490,7 @@ server <- function(input, output,session) {
     
     output$out_idTagOrD <- renderText({
       if ((input$nAnimal2)!="") {
-        str = paste0("select cap_tag_droit from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq = '", input$nAnimal2,"'")
+        str = paste0("select cap_tag_droit from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq = '", input$nAnimal2,"' order by cap_date DESC")
         resres = dbGetQuery(con,str)
         idTagOrD <<- resres[1, 1]
         idTagOrD}
@@ -497,7 +498,7 @@ server <- function(input, output,session) {
 
     output$out_idTagRfid <- renderText({
       if ((input$nAnimal2)!="") {
-        str = paste0("select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id and ani_etiq='",input$nAnimal2,"'")
+        str = paste0("select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id and ani_etiq='",input$nAnimal2,"' order by cap_date DESC")
         resres = dbGetQuery(con,str)
         idTagRfid <<- resres[1, 1]
         idTagRfid}
