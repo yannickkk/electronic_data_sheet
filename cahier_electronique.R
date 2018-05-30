@@ -15,7 +15,7 @@ library(RPostgreSQL)
 library(shinyalert)
 library(chron) 
 ############################ CONNECTION A LA BDD LOCALE    ##################################
-con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="xxxx", password="xxxx")
+con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="XXXX", password="XXXX")
 ############################ LISTES DE CHOIX               #################################
 #               requêtes sql permettant d'alimenter les listes de choix
 ############################ rubrique animal               ###############################
@@ -73,7 +73,7 @@ contentcaractanimal = fluidPage(
     choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(12),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",
-              selectizeInput("nAnimal2",h4("N° Animal"), choices = dbGetQuery(con,"select ani_etiq from public.t_animal_ani"),
+              selectizeInput("nAnimal2",h4("N° Animal"), choices = dbGetQuery(con,"select ani_etiq from public.t_animal_ani order by ani_id DESC"),
                   options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
  ####retravailler il faut que ans ces cas on puisse faire un choix dans la liste avec par défaut la valeur de l'ancien lieu de capture  
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", selectizeInput("idSite", h4("Site"), choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
