@@ -230,17 +230,18 @@ contenttable = fluidPage(
 
 ##################           rubrique Historique           #################
 
-contenthistorique = fluidPage(
+contenthistorique <- fluidPage(
   #titlePanel("Historique"),
-    fluidRow(
+    #fluidRow(
+  
+  tabPanel("Historique de capture",
+           DT::dataTableOutput("historique")
+  #         conditionalPanel(
+  #    condition = "input.estnouvelanimal == 0",h4("Historique de capture"),DT::dataTableOutput("historique")
+          )
       
-            conditionalPanel(
-                condition = "input.estnouvelanimal == 0",
-      tabPanel("Historique de capture", DT::dataTableOutput("historique"))
-                            )
-            )
+           # )
                               )
-
 
 ##################           rubrique cheklist 1           #################
 
