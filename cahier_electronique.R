@@ -1,5 +1,10 @@
-################# CHARGEMENT DES LIBRAIRIES
-
+############################ FICHE DE CAPTURE FABAS        #####################################
+#Objet: saisie des données de capture pour les chevreuils de fabas
+#Réalisation: projet tuteuré Master 1 bioinformatique Université Paul Sabatier:
+#Tristan Berlin, Marie Jérémie, Samy Satge, Edi Tihić encadrés par yannick Chaval
+#date de réalisation: février-juin 2018
+#Edit->Folding->Collapse All/Edit->Folding->Expand All
+############################ CHARGEMENT DES LIBRAIRIES     ################################
 library(shiny)
 library(shinythemes)
 library(DT)
@@ -9,30 +14,39 @@ library(shinyTime)
 library(RPostgreSQL)
 library(shinyalert)
 library(chron) 
+############################ CONNECTION A LA BDD LOCALE    ##################################
+con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="postgres", password="bvta;814")
+############################ LISTES DE CHOIX               #################################
+#               requêtes sql permettant d'alimenter les listes de choix
+############################ rubrique animal               ###############################
+etatboischoices <- dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description")
+############################ rubrique blessures            ############################
+blegravchoices <- dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite")
 
-################ CHARGEMENT DE LA BASE DE DONNEES 
+bletraitchoices <- dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement ")
 
-#con<- dbConnect(PostgreSQL(), host="pggeodb-preprod.nancy.inra.fr", dbname="", user="", password="")
-con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="xxxx", password="xxxx")
+blelocalisationchoices <- dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation")
+############################ rubrique Prélèvements         #########################
+pretypechoice <- dbGetQuery(con,"select distinct (sat_type) from lu_tables.tr_samples_types_sat")
+############################ rubrique Collier              ##############################
 
-############### LISTE DE CHOIX
+############################ rubrique Table                #################################
 
-# liste de choix pour les selectInput, ces listes sont updates si l'utilisateur le souhaite en utilisant l'option autre dans la selection
-bleGravChoices = dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite")
-  
-#  list("superficielle", "legere","profonde", 
-#     "fracture", "fracture _consolidee",
-#     " plaie_fermee", " pelade")
+############################ rubrique Historique           ############################
 
-bleTraitChoices =  dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement ")
-#("allumisol", "serflex_allumisol","points", "euthanasie", "rien")
+############################ rubrique cheklist 1           ############################
 
-blelocalisationChoices = dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation")
+############################ rubrique Lâcher               ################################
 
-etatboischoices = dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description")
+############################ rubrique Cheklist 2           ############################
 
+############################ rubrique Capture              ############################
+                              
+############################ rubrique Sabot                ############################
 
-################## FORMULAIRE CARACTERISTIQUES DE L'ANIMAL
+##################              FORMULAIRES                ############################
+#               création de la mise ne page des formulaires
+##################           rubrique animal               ############################
 
 contentcaractanimal = fluidPage(
   #titlePanel("Caract. de l'animal"),
@@ -64,7 +78,7 @@ contentcaractanimal = fluidPage(
  ####retravailler il faut que ans ces cas on puisse faire un choix dans la liste avec par défaut la valeur de l'ancien lieu de capture  
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", selectizeInput("idSite", h4("Site"), choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
                   options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = "out_nAnimal2" ))),
-# column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",h4("Site"), textOutput("out_nAnimal2" ))),
+ # column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",h4("Site"), textOutput("out_nAnimal2" ))),
  
  #######ici il faut que l'on puisse rentrer une valeur avec la valer de l'ancienne bague par défaut.
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", numericInput("idTagOrG", h4("Tag Oreille Gauche"), value= "out_idTagOrG"))),
@@ -107,16 +121,14 @@ contentcaractanimal = fluidPage(
                  )
 )
 
-
-
-################## FORMULAIRE BLESSURES
+##################           rubrique blessures            #################
 
 contentblessures = fluidPage( 
  # titlePanel("Blessures"),
   fluidRow(
     
     column(3, selectizeInput("blelocalisation_sel", h4("Localisation"), 
-                             choices = blelocalisationChoices,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL) 
+                             choices = blelocalisationchoices,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL) 
            #bsModal("nouvelleLocalization_modal", "Entrer la localisation","", size = "large",wellPanel(
             # textInput("nouvelle_localisation_txt",""),
              #actionButton("ok_button", "OK"),
@@ -125,9 +137,9 @@ contentblessures = fluidPage(
            #textInput("blelocalisation_txt","")
     ),
     
-    column(3, selectInput("bleGrav_sel", h4("Gravite"), choices = bleGravChoices, selected = "superficielle")),
+    column(3, selectInput("bleGrav_sel", h4("Gravite"), choices = blegravchoices, selected = "superficielle")),
               #textInput("bleGrav_txt","") ),
-    column(3, selectizeInput("bleTrait_sel", h4("Traitement"), choices = bleTraitChoices,options = list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(3, selectizeInput("bleTrait_sel", h4("Traitement"), choices = bletraitchoices,options = list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
               #textInput("bleTrait_txt","")),
     column(3, actionButton("ajoutBle","Ajouter une blessure"))
   ),
@@ -143,8 +155,7 @@ contentblessures = fluidPage(
           ))
 
 
-
-################## FORMULAIRE PRELEVEMENTS
+##################           rubrique Prélèvements         #################
 
 contentprelevement = fluidPage(
   
@@ -156,7 +167,7 @@ contentprelevement = fluidPage(
   fluidRow(
     
     column(2, selectizeInput("type_prelev", h4("Type de prelevement"), 
-                            choices = dbGetQuery(con,"select distinct (sat_type) from lu_tables.tr_samples_types_sat"),options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+                            choices = pretypechoice ,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
     column(2, selectizeInput("local_prelev", h4("Localisation"), 
                             choices = dbGetQuery(con,"select distinct (sal_localisation) from lu_tables.tr_samples_localisation_sal"),options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
     column(2, selectizeInput("cont_prelev", h4("Contenant"), 
@@ -185,8 +196,7 @@ contentprelevement = fluidPage(
   
 
 
-
-################## FORMULAIRE COLLIER
+##################           rubrique Collier              #################
 
 contentcollier = fluidPage(
   #titlePanel("Caracteristique du collier"),
@@ -196,8 +206,8 @@ contentcollier = fluidPage(
     column(3, actionButton("ajoutColl","Confirmer la nouvelle pose"))
 ))
 
+##################           rubrique Table                #################
 
-################## FORMULAIRE COMPORTEMENT TABLE
 
 contenttable = fluidPage(
   #titlePanel("Comportement sur table"),
@@ -218,23 +228,22 @@ contenttable = fluidPage(
                           choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)) 
 ))
 
-
-################## FORMULAIRE HISTORIQUE :
+##################           rubrique Historique           #################
 
 contenthistorique = fluidPage(
   #titlePanel("Historique"),
     fluidRow(
       
             conditionalPanel(
-                condition = "input.estnouvelanimal == 1",
+                condition = "input.estnouvelanimal == 0",
       tabPanel("Historique de capture", DT::dataTableOutput("historique"))
                             )
             )
                               )
 
 
+##################           rubrique cheklist 1           #################
 
-################## FORMULAIRE CHECKLIST 1 :
 
 contentcheck1 =  fluidPage(fluidRow(
   titlePanel("Checklist - Caracteristiques"),
@@ -258,7 +267,7 @@ column(12,hr()),
 ))
 
 
-################## FORMULAIRE COMPORTEMENT AU LACHER :
+##################           rubrique Lâcher               #################
 
 
 ###submitButton(format(Sys.time(), "%X"))
@@ -305,7 +314,7 @@ contentlacher = fluidPage(
   
 
 
-################## FORMULAIRE CHECKLIST 2 :
+##################           rubrique Cheklist 2           #################
 
 
 contentcheck2 = fluidPage(fluidRow(
@@ -318,7 +327,7 @@ contentcheck2 = fluidPage(fluidRow(
   )
 
 
-################## FORMULAIRE COMPORTEMENT CAPTURE :
+##################           rubrique Capture              #################
 
 
 contentcapture = fluidPage(
@@ -355,7 +364,7 @@ contentcapture = fluidPage(
   ))
 
                 
-################## FORMULAIRE COMPORTEMENT SABOT :
+##################           rubrique Sabot                #################
 
 
 contentsabot = fluidPage(
@@ -401,7 +410,8 @@ contentsabot = fluidPage(
 )
 
 
-######## ORGANISATION DES RUBRIQUES
+##################        ORGANISATION DES RUBRIQUES       #################
+
 
 caractanimal = tabPanel("Caract. de l'animal",contentcaractanimal)
 blessures = tabPanel("Blessures",contentblessures)
@@ -416,8 +426,8 @@ comporcapture = tabPanel("Comportement capture",contentcapture)
 comporsabot = tabPanel("Comportement sabot",contentsabot)
 
 
+##################                    UI                   #################
 
-################## UI :
 ##Lumen or cerulean or sandstone
 
 ui <- shinyUI(navbarPage("Formulaires",
@@ -425,41 +435,37 @@ ui <- shinyUI(navbarPage("Formulaires",
    # Application title
    # titlePanel("Carnet Electronique"),
         #tabsetPanel(
-          tabPanel ("Animal", caractanimal),
-          tabPanel ("Blessures", blessures),
-          tabPanel ("Prelevement", prelevement),
+          tabPanel  ("Animal", caractanimal),
+          tabPanel  ("Blessures", blessures),
+          tabPanel  ("Prelevement", prelevement),
           tabPanel  ("Collier",caractcollier),
           tabPanel  ("Table",comportable),
           tabPanel  ("historique",historique),
           tabPanel  ("Checklist 1",checklist1),
-          tabPanel ( "Lâcher",comporlacher),
+          tabPanel  ("Lâcher",comporlacher),
           tabPanel  ("Checklist 2",checklist2),
           tabPanel  ("Capture",comporcapture),
-          tabPanel( "Sabot",comporsabot)
+          tabPanel  ("Sabot",comporsabot)
           #tabPanel("Summary", verbatimTextOutput("summary")),
           #tabPanel("Table", tableOutput("table"))
         )
 )
 
-
-
-
-################################################################################################ 
-################## SERVER :
-################################################################################################ 
-
+##################                  SERVER                 ################# 
 
 server <- function(input, output,session) {
+
+##################              RUBRIQUE ANIMAL                       #################
   
-   
    output$value = renderText({input$pSabotPlein-input$pSabotVide})
 
-## Caracteristiques :
-   
+################## date capture                                       ################   
    output$bla <- renderUI ({
      print("ba")
      print(input$date_capture)
            })
+
+################## controle sabot num sabot > 28                      ################   
    
    output$out_sabot <- renderUI({
         if (input$numSabot>28) {
@@ -471,7 +477,8 @@ server <- function(input, output,session) {
    # output$out_nAnimal <- renderUI({
    #   if (input$nAnimal){}
    # })
- 
+################## site de la capture précédente                      ################ 
+   
     output$out_nAnimal2 <- renderText({
       if ((input$nAnimal2)!="") {
       str = paste0("select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq = '", input$nAnimal2, "' order by cap_date DESC))")
@@ -479,7 +486,7 @@ server <- function(input, output,session) {
       idSite2 <<- resres[1, 1]
       idSite2}
     })
-    
+################## étiquette oreille gauche de la capture précédente  #####
     output$out_idTagOrG <- renderText({
       if ((input$nAnimal2)!="") {
       str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
@@ -487,7 +494,7 @@ server <- function(input, output,session) {
       idTagOrG <<- resres[1, 1]
       idTagOrG}
     })
-    
+################## étiquette oreille droite de la capture précédente  #####    
     output$out_idTagOrD <- renderText({
       if ((input$nAnimal2)!="") {
         str = paste0("select cap_tag_droit from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq = '", input$nAnimal2,"' order by cap_date DESC")
@@ -495,7 +502,7 @@ server <- function(input, output,session) {
         idTagOrD <<- resres[1, 1]
         idTagOrD}
     })
-
+################## tag rfid de la capture précédente                  #####
     output$out_idTagRfid <- renderText({
       if ((input$nAnimal2)!="") {
         str = paste0("select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id and ani_etiq='",input$nAnimal2,"' order by cap_date DESC")
@@ -503,35 +510,35 @@ server <- function(input, output,session) {
         idTagRfid <<- resres[1, 1]
         idTagRfid}
     })
-
+################## validation/alerte tour de coup                     #####
     output$out_cirCou <- renderUI({
       if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from t_capture_cap")) {
       shinyalert("STOP!", "Circonference elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
     }})
-    
+################## validation/alerte longueur patte                   #####    
     output$out_lPattArriere <- renderUI({
       if (input$lPattArriere > dbGetQuery(con,"select max(cap_lpa) from t_capture_cap")) {
         shinyalert("STOP!", "Longueur patte elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
       }})
-    
+################## validation/alerte longueur bois gauche             #####    
 
     output$out_lBoisGauche <- renderUI({
       if (input$lBoisGauche > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
         shinyalert("STOP!", "Longueur bois gauche elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
       }})
-
+################## validation/alerte longueur bois droit              ##### 
     output$out_lBoisDroit <- renderUI({
       if (input$lBoisDroit > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
         shinyalert("STOP!", "Longueur bois droit elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
       }})
-    
+################## récupération de l'heure                            #####    
     observeEvent(input$to_current_time_caract, {
       updateTimeInput(session, "time_caract", value = Sys.time())
     })
 
    
-## Blessures : 
-   
+##################           RUBRIQUE BLESSURES                       #################
+    
    blessure = data.frame()
    row.names(blessure) = NULL
    
@@ -570,9 +577,8 @@ server <- function(input, output,session) {
 
    }
    ) 
-   
-   
-######## PARTIE PRELEVEMENTS
+
+##################           RUBRIQUE PRELEVEMENTS                    #################
    
    prelevement = data.frame()
    row.names(prelevement) = NULL
@@ -598,16 +604,15 @@ server <- function(input, output,session) {
    })
   
    
-######## PARTIE TABLE
+##################           RUBRIQUE TABLE                           #################
    
    
 observeEvent(input$to_current_time_table, {
   updateTimeInput(session, "time_table", value = Sys.time())
    })
    
-######### Partie historique :
-   
-      
+##################           RUBRIQUE HISTORIQUE                      #################
+
      output$historique <- DT::renderDataTable({
         outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site, 
                                      t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, array_to_string( array_agg( distinct eqc_sen_id), ', ') as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court, 
@@ -619,9 +624,8 @@ observeEvent(input$to_current_time_table, {
         return(ret)
       })
       
-     
-######### PARTIE CHECKLIST 1
-     
+##################           RUBRIQUE CHECKLIST 1                     #################
+##################                    animal                          #################
      checklist1 = data.frame()
      row.names(checklist1) = NULL
      output$tablechecklist1 = DT::renderDT(expr = checklist1,server = F)
@@ -699,10 +703,9 @@ observeEvent(input$to_current_time_table, {
        output$tablechecklist1 = DT::renderDT(checklist1,server = F) 
        
      })
- 
-     
-    # CHECKLIST TABLE
-        
+
+##################                    table                           #################
+   
         checklist_table = data.frame()
         row.names(checklist_table) = NULL
         output$tablechecklist_table = DT::renderDT(expr = checklist_table,server = F)
@@ -741,12 +744,9 @@ observeEvent(input$to_current_time_table, {
           output$tablechecklist_table = DT::renderDT(checklist_table,server = F) 
           
         })
-          
-          
-          
-          
-####### Partie comportement lacher :
-     
+
+##################           RUBRIQUE LACHER                          #################
+
      observeEvent(input$to_current_time, {
        updateTimeInput(session, "time", value = Sys.time())
      })
@@ -843,10 +843,7 @@ observeEvent(input$to_current_time_table, {
        {shinyalert("PARFAIT!", "Toutes les donnees rentrees", type="success",confirmButtonText="Enregistrer les données", showCancelButton=T,cancelButtonText="Annuler",callbackR = modalCallback2)} }
      )
 
-
-######### CHECKLIST 2
-
-
+##################           RUBRIQUE CHECKLIST 2                     #################
 checklist2 = data.frame()
 row.names(checklist2) = NULL
 output$tablechecklist2 = DT::renderDT(expr = checklist2,server = F)
@@ -915,8 +912,7 @@ observeEvent(input$checklist_2, {
   output$tablechecklist2 = DT::renderDT(checklist2,server = F) 
 
   })
-
-######## CAPTURE
+##################           RUBRIQUE CAPTURE                         #################
 
 observeEvent(input$checklist_capture, { 
 
@@ -992,7 +988,7 @@ observeEvent(input$time_filet, {
 
 
 
-####### SABOT
+##################           RUBRIQUE SABOT                           #################
 
 observeEvent(input$time_sabot, {
   updateTimeInput(session, "cpt_heure_mise_sabot", value = Sys.time())
@@ -1033,9 +1029,7 @@ observeEvent(input$checklist_sabot, {
 })
 
 
-
-
-######## AJOUTER VALEURS DE LA CHECKLIST DANS BASE DE DONNEES
+##################           INTEGRATION DES DONNEES                  #################
 
 # pour obtenir le cpt_id suivant
 
@@ -1121,9 +1115,7 @@ idTagOrG=''
 idTagOrD=''
 
 }
-
-
-################## LANCEMENT DE L'APPLICATION :
+##################        LANCEMENT DE L'APPLICATION       ######
 
 #dbDisconnect(con)
 
