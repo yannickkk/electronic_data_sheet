@@ -15,7 +15,7 @@ library(RPostgreSQL)
 library(shinyalert)
 library(chron) 
 ############################ CONNECTION A LA BDD LOCALE    ##################################
-con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="postgres", password="bvta;814")
+con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="xxxx", password="xxxx")
 ############################ LISTES DE CHOIX               #################################
 #               requêtes sql permettant d'alimenter les listes de choix
 ############################ rubrique animal               ###############################
