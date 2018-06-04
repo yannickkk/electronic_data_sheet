@@ -15,7 +15,7 @@ library(RPostgreSQL)
 library(shinyalert)
 library(chron) 
 ############################ CONNECTION A LA BDD LOCALE    ##################################
-con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="XXXX", password="XXXX")
+con<- dbConnect(PostgreSQL(), host="localhost", dbname="db_chevreuils", user="postgres", password="bvta;814")
 ############################ LISTES DE CHOIX               #################################
 #               requêtes sql permettant d'alimenter les listes de choix
 ############################ rubrique animal               ###############################
@@ -57,46 +57,49 @@ contentcaractanimal = fluidPage(
     column(2, numericInput(inputId = "pSabotPlein", value = " ",label = h4("Poids Sabot Plein"),min=0,max=65 )),
     column(2, numericInput(inputId = "pSabotVide", value = " ",label = h4("Poids Sabot Vide"),min=0,max=50 )),
     column(2, h4("Poids Animal"),textOutput("value")),
-    column(12,hr()),
-    column(2, checkboxInput(inputId = "estNouvelAnimal", value = T,label = h4("Nouvel Animal"))),
-    column(2,actionButton("to_current_time_caract", "Afficher l'heure")),
-    column(2,timeInput("time_caract",h4("Heure"), seconds = FALSE)),
-    column(12,hr()),   
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 1",
-             numericInput(inputId = "nAnimal", value = " ",label = h4("N° Animal"),min=0 ))),
-    
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 1", selectizeInput("idSite", h4("Site"),choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
-             options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 1", numericInput("idTagOrG", h4("Tag Oreille Gauche"),value="0"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 1", numericInput("idTagOrD", h4("Tag Oreille Droite"),value="0"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 1", selectizeInput("idRFID", h4("RFID"),
-    choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(12),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",
+    column(2,timeInput("time_caract", h4("Heure table:"), seconds = FALSE),
+           actionButton("to_current_time_caract", "Afficher l'heure")),
+    #hr(),   
+    column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
+    
+    column(1, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("Capture"))),
+    column(1, radioButtons(inputId = "identifié", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
+    column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"))),
+    column(12,hr()),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui'",
+    numericInput(inputId = "nAnimal", value = " ",label = h4("N° Animal"),min=0 ))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", numericInput("idTagOrG", h4("Tag Oreille Gauche"),value="0"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", numericInput("idTagOrD", h4("Tag Oreille Droite"),value="0"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", selectizeInput("idRFID", h4("RFID"),
+    choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", selectizeInput("idSite", h4("Site"),choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
+    options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(12),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'",
               selectizeInput("nAnimal2",h4("N° Animal"), choices = dbGetQuery(con,"select ani_etiq from public.t_animal_ani order by ani_id DESC"),
                   options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
  ####retravailler il faut que ans ces cas on puisse faire un choix dans la liste avec par défaut la valeur de l'ancien lieu de capture  
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", selectizeInput("idSite", h4("Site"), choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
-                  options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = "out_nAnimal2" ))),
  # column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",h4("Site"), textOutput("out_nAnimal2" ))),
  
  #######ici il faut que l'on puisse rentrer une valeur avec la valer de l'ancienne bague par défaut.
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", numericInput("idTagOrG", h4("Tag Oreille Gauche"), value= "out_idTagOrG"))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0", numericInput("idTagOrG", h4("Tag Oreille Droite"), value= "out_idTagOrD"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 0", h4("RFID"),textOutput("out_idTagRfid"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 0", selectizeInput("idRFID", h4("RFID"),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", numericInput("idTagOrG", h4("Tag Oreille Gauche"), value= "out_idTagOrG"))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", numericInput("idTagOrG", h4("Tag Oreille Droite"), value= "out_idTagOrD"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", h4("RFID"),textOutput("out_idTagRfid"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", selectizeInput("idRFID", h4("RFID"),
     choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(12),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", selectizeInput("idSite", h4("Site"), choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
+    options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = "out_nAnimal2" )))
+ 
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", selectizeInput("idSite_new", , h4("Nouveau Site"),choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"), selected = "out_nAnimal2"))),
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", h4("Tag Oreille Gauche"), textOutput("out_idTagOrG"))),
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", h4("Tag Oreille Droite"), textOutput("out_idTagOrD"))),
     # column(2, conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", selectizeInput("idRFID", h4("Nouveau RFID"),
     # choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
 
-    column(12,hr()),
-    column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
-    column(2, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F")))
-          ),
+  #  column(12,hr()),
+  # column(2, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F")))
+         ),
   
   hr(),
   
