@@ -3,6 +3,7 @@
 #Réalisation: projet tuteuré Master 1 bioinformatique Université Paul Sabatier:
 #Tristan Berlin, Marie Jérémie, Samy Satge, Edi Tihić encadrés par yannick Chaval
 #date de réalisation: février-juin 2018
+#TEEESSSTT DE PUSH
 #Edit->Folding->Collapse All/Edit->Folding->Expand All
 ############################ CHARGEMENT DES LIBRAIRIES     ################################
 library(shiny)
