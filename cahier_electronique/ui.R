@@ -1,13 +1,3 @@
-library(shiny)
-library(shinythemes)
-library(DT)
-library(dplyr)
-library(shinyBS)
-library(shinyTime)
-library(RPostgreSQL)
-library(shinyalert)
-library(chron) 
-
 ##################              FORMULAIRES                ############################
 #               création de la mise ne page des formulaires
 ##################           rubrique animal               ############################
@@ -29,43 +19,39 @@ contentcaractanimal = fluidPage(
     
     column(1, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("Capture"))),
     column(1, radioButtons(inputId = "identifié", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
-    column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"))),
+    column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"), selected = character(0))),
     column(12,hr()),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui'",
-                              numericInput(inputId = "nAnimal", value = " ",label = h4("N° Animal"),min=0 ))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", numericInput("idTagOrG", h4("Tag Oreille Gauche"),value="0"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", numericInput("idTagOrD", h4("Tag Oreille Droite"),value="0"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", selectizeInput("idRFID", h4("RFID"),
-                                                                                            choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", selectizeInput("idSite", h4("Site"),choices = "",
-                                                                                           options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non') ",
+                              textInput(inputId = "nAnimal", value = " ",label = h4("N° Animal")))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput("idTagOrG", h4("Tag Oreille Gauche"),value="0"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput("idTagOrD", h4("Tag Oreille Droite"),value="0"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", selectizeInput("idRFID", h4("RFID"),
+                               choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifié == 'non'", selectizeInput("idSite", h4("Site"),choices = "",
+                              options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(12),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'",
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'",
                               selectizeInput("nAnimal2",h4("N° Animal"), choices = "",
                                              options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    ####retravailler il faut que ans ces cas on puisse faire un choix dans la liste avec par défaut la valeur de l'ancien lieu de capture  
-    # column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",h4("Site"), textOutput("out_nAnimal2" ))),
+    ####retravailler il faut que dans ces cas on puisse faire un choix dans la liste avec par défaut la valeur de l'ancien lieu de capture  
+    #column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",h4("Site"), textOutput("out_nAnimal2" ))),
     
-    #######ici il faut que l'on puisse rentrer une valeur avec la valer de l'ancienne bague par défaut.
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", numericInput("idTagOrG", h4("Tag Oreille Gauche"), value= "out_idTagOrG"))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", numericInput("idTagOrG", h4("Tag Oreille Droite"), value= "out_idTagOrD"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", h4("RFID"),textOutput("out_idTagRfid"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", selectizeInput("idRFID", h4("RFID"),
+    #######ici il faut que l'on puisse rentrer une valeur avec la valeur de l'ancienne bague par défaut.
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", h4("Tag Oreille Gauche"), textOutput("out_idTagOrG"))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", h4("Tag Oreille Droite"), textOutput("out_idTagOrD"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", h4("RFID"),textOutput("out_idTagRfid"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idRFID", h4("RFID"),
                                                                                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", selectizeInput("idSite", h4("Site"), choices = "",
-                                                                                           options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = "out_nAnimal2" )))
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", h4("Site"), textOutput("out_nAnimal2")))
     
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", selectizeInput("idSite_new", , h4("Nouveau Site"),choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"), selected = "out_nAnimal2"))),
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", h4("Tag Oreille Gauche"), textOutput("out_idTagOrG"))),
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", h4("Tag Oreille Droite"), textOutput("out_idTagOrD"))),
     # column(2, conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", selectizeInput("idRFID", h4("Nouveau RFID"),
     # choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    
-    #  column(12,hr()),
-    # column(2, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F")))
-  ),
+    ),
   
-  hr(),
+  column(12,hr()),
   
   fluidRow(
     column(2, numericInput("cirCou", value='0', h4("Circonference cou"),min=0, max=1)),

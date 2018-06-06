@@ -1,13 +1,3 @@
-library(shiny)
-library(shinythemes)
-library(DT)
-library(dplyr)
-library(shinyBS)
-library(shinyTime)
-library(RPostgreSQL)
-library(shinyalert)
-library(chron) 
-
 con <- dbConnect(PostgreSQL(), host="localhost", dbname="postgres", user="postgres", password="****")
 
 ##################                  SERVER                 ################# 
