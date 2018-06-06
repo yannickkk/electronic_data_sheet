@@ -10,7 +10,6 @@ library(chron)
 
 con <- dbConnect(PostgreSQL(), host="localhost", dbname="postgres", user="postgres", password="****")
 
-
 ##################                  SERVER                 ################# 
 
 server <- function(input, output,session) {
@@ -18,6 +17,15 @@ server <- function(input, output,session) {
   ##################              RUBRIQUE ANIMAL                       #################
   
   output$value = renderText({input$pSabotPlein-input$pSabotVide})
+  
+  updateSelectizeInput(session, "idRFID", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
+  updateSelectizeInput(session, "idSite", choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"))
+  updateSelectizeInput(session, "nAnimal2", choices = dbGetQuery(con,"select ani_etiq from public.t_animal_ani order by ani_id DESC"))
+  updateNumericInput(session, "cirCou", max = dbGetQuery(con,"select max(cap_circou) from t_capture_cap"))
+  updateNumericInput(session, "lPattArriere", max = dbGetQuery(con,"select max(cap_lpa) from t_capture_cap"))
+  updateNumericInput(session, "lBoisGauche", max = dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca"))
+  updateNumericInput(session, "lBoisDroit", max = dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca"))
+  updateSelectizeInput(session, "etatBois", choices = dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description"))
   
   ################## date capture                                       ################   
   output$bla <- renderUI ({
@@ -99,6 +107,10 @@ server <- function(input, output,session) {
   
   ##################           RUBRIQUE BLESSURES                       #################
   
+  updateSelectizeInput(session, "blelocalisation_sel", choices = dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation"))
+  updateSelectInput(session, "bleGrav_sel", choices = dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite"))
+  updateSelectizeInput(session, "bleTrait_sel", choices = dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement "))
+  
   blessure = data.frame()
   row.names(blessure) = NULL
   
@@ -140,6 +152,11 @@ server <- function(input, output,session) {
   
   ##################           RUBRIQUE PRELEVEMENTS                    #################
   
+  updateSelectizeInput(session, "type_prelev", choices = dbGetQuery(con,"select distinct (sat_type) from lu_tables.tr_samples_types_sat"))
+  updateSelectizeInput(session, "local_prelev", choices = dbGetQuery(con,"select distinct (sal_localisation) from lu_tables.tr_samples_localisation_sal"))
+  updateSelectizeInput(session, "cont_prelev", choices = dbGetQuery(con,"select distinct (sac_conditionnement) from lu_tables.tr_samples_contenant_sac"))
+  updateSelectizeInput(session, "solv_prelev", choices = dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas"))
+  
   prelevement = data.frame()
   row.names(prelevement) = NULL
   
@@ -166,6 +183,7 @@ server <- function(input, output,session) {
   
   ##################           RUBRIQUE TABLE                           #################
   
+  updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
   
   observeEvent(input$to_current_time_table, {
     updateTimeInput(session, "time_table", value = Sys.time())
@@ -306,6 +324,11 @@ server <- function(input, output,session) {
   })
   
   ##################           RUBRIQUE LACHER                          #################
+  
+  updateSelectizeInput(session, "habitat", choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_lache) from cmpt.t_capture_cpt"))
+  updateSelectizeInput(session, "habitat_perte", choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_pertevue) from cmpt.t_capture_cpt"))
+  updateSelectizeInput(session, "Notation_euro", choices = dbGetQuery(con,"select (ecl_comportement_lache) from lu_tables.tr_eurodeer_comp_lache_ecl"))
+  
   
   observeEvent(input$to_current_time, {
     updateTimeInput(session, "time", value = Sys.time())
@@ -474,7 +497,9 @@ server <- function(input, output,session) {
   })
   ##################           RUBRIQUE CAPTURE                         #################
   
-  observeEvent(input$checklist_capture, { 
+  updateSelectizeInput(session, "numSabot_capture", choices = dbGetQuery(con,"select distinct cap_num_sabot FROM public.t_capture_cap"))
+  
+   observeEvent(input$checklist_capture, { 
     
     cpt_capt=0
     
@@ -549,6 +574,8 @@ server <- function(input, output,session) {
   
   
   ##################           RUBRIQUE SABOT                           #################
+  
+  updateSelectizeInput(session, "cpt_dose_acepromazine", choices = dbGetQuery(con,"select distinct cpt_dose_acepromazine from cmpt.t_capture_cpt order by cpt_dose_acepromazine"))
   
   observeEvent(input$time_sabot, {
     updateTimeInput(session, "cpt_heure_mise_sabot", value = Sys.time())

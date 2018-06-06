@@ -8,38 +8,6 @@ library(RPostgreSQL)
 library(shinyalert)
 library(chron) 
 
-############################ CONNECTION A LA BDD LOCALE    ##################################
-con<- dbConnect(PostgreSQL(), host="localhost", dbname="postgres", user="postgres", password="****")
-
-############################ LISTES DE CHOIX               #################################
-#               requêtes sql permettant d'alimenter les listes de choix
-############################ rubrique animal               ###############################
-etatboischoices <- dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description")
-############################ rubrique blessures            ############################
-blegravchoices <- dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite")
-
-bletraitchoices <- dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement ")
-
-blelocalisationchoices <- dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation")
-############################ rubrique Prélèvements         #########################
-pretypechoice <- dbGetQuery(con,"select distinct (sat_type) from lu_tables.tr_samples_types_sat")
-############################ rubrique Collier              ##############################
-
-############################ rubrique Table                #################################
-
-############################ rubrique Historique           ############################
-
-############################ rubrique cheklist 1           ############################
-
-############################ rubrique Lâcher               ################################
-
-############################ rubrique Cheklist 2           ############################
-
-############################ rubrique Capture              ############################
-
-############################ rubrique Sabot                ############################
-
-
 ##################              FORMULAIRES                ############################
 #               création de la mise ne page des formulaires
 ##################           rubrique animal               ############################
@@ -68,12 +36,12 @@ contentcaractanimal = fluidPage(
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", numericInput("idTagOrG", h4("Tag Oreille Gauche"),value="0"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", numericInput("idTagOrD", h4("Tag Oreille Droite"),value="0"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", selectizeInput("idRFID", h4("RFID"),
-                                                                                            choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", selectizeInput("idSite", h4("Site"),choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
+                                                                                            choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", selectizeInput("idSite", h4("Site"),choices = "",
                                                                                            options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(12),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'",
-                              selectizeInput("nAnimal2",h4("N° Animal"), choices = dbGetQuery(con,"select ani_etiq from public.t_animal_ani order by ani_id DESC"),
+                              selectizeInput("nAnimal2",h4("N° Animal"), choices = "",
                                              options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     ####retravailler il faut que ans ces cas on puisse faire un choix dans la liste avec par défaut la valeur de l'ancien lieu de capture  
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal == 0",h4("Site"), textOutput("out_nAnimal2" ))),
@@ -83,8 +51,8 @@ contentcaractanimal = fluidPage(
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", numericInput("idTagOrG", h4("Tag Oreille Droite"), value= "out_idTagOrD"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", h4("RFID"),textOutput("out_idTagRfid"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", selectizeInput("idRFID", h4("RFID"),
-                                                                                            choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", selectizeInput("idSite", h4("Site"), choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"),
+                                                                                            choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non'", selectizeInput("idSite", h4("Site"), choices = "",
                                                                                            options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = "out_nAnimal2" )))
     
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal != 1 & input.nAnimal2 != \"\"", selectizeInput("idSite_new", , h4("Nouveau Site"),choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"), selected = "out_nAnimal2"))),
@@ -100,9 +68,9 @@ contentcaractanimal = fluidPage(
   hr(),
   
   fluidRow(
-    column(2, numericInput("cirCou", value='0', h4("Circonference cou"),min=0, max=(dbGetQuery(con,"select max(cap_circou) from t_capture_cap")))),
+    column(2, numericInput("cirCou", value='0', h4("Circonference cou"),min=0, max=1)),
     uiOutput("out_cirCou"),
-    column(2, numericInput("lPattArriere", value='0', h4("Longueur patte arriere"),min=0, max=(dbGetQuery(con,"select max(cap_lpa) from t_capture_cap")))),
+    column(2, numericInput("lPattArriere", value='0', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
     column(2, numericInput("tglucose", value="", h4("Taux de Glucose sanguin"), min=0))
   ),
@@ -111,11 +79,11 @@ contentcaractanimal = fluidPage(
     condition = "input.sexe == 'M'",
     
     fluidRow(
-      column(2, numericInput("lBoisGauche", value='0', h4("Longueur bois gauche"),min=0, max=(dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")))),
-      column(2, numericInput("lBoisDroit", value='0', h4("Longueur bois droit"),min=0, max=(dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")))),
+      column(2, numericInput("lBoisGauche", value='0', h4("Longueur bois gauche"),min=0, max=1)),
+      column(2, numericInput("lBoisDroit", value='0', h4("Longueur bois droit"),min=0, max=1)),
       #uiOutput("out_lBoisGauche"), 
       #uiOutput("out_lBoisDroit"),
-      column(2, selectizeInput("etatBois", h4("etat bois"), choices = etatboischoices , options = list(create = TRUE)))
+      column(2, selectizeInput("etatBois", h4("etat bois"), choices = "" , options = list(create = TRUE)))
     )
   )
 )
@@ -127,7 +95,7 @@ contentblessures = fluidPage(
   fluidRow(
     
     column(3, selectizeInput("blelocalisation_sel", h4("Localisation"), 
-                             choices = blelocalisationchoices,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL) 
+                             choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL) 
            #bsModal("nouvelleLocalization_modal", "Entrer la localisation","", size = "large",wellPanel(
            # textInput("nouvelle_localisation_txt",""),
            #actionButton("ok_button", "OK"),
@@ -136,9 +104,9 @@ contentblessures = fluidPage(
            #textInput("blelocalisation_txt","")
     ),
     
-    column(3, selectInput("bleGrav_sel", h4("Gravite"), choices = blegravchoices, selected = "superficielle")),
+    column(3, selectInput("bleGrav_sel", h4("Gravite"), choices = "", selected = "superficielle")),
     #textInput("bleGrav_txt","") ),
-    column(3, selectizeInput("bleTrait_sel", h4("Traitement"), choices = bletraitchoices,options = list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(3, selectizeInput("bleTrait_sel", h4("Traitement"), choices = "" ,options = list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     #textInput("bleTrait_txt","")),
     column(3, actionButton("ajoutBle","Ajouter une blessure"))
   ),
@@ -166,13 +134,13 @@ contentprelevement = fluidPage(
   fluidRow(
     
     column(2, selectizeInput("type_prelev", h4("Type de prelevement"), 
-                             choices = pretypechoice ,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+                             choices = "" ,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
     column(2, selectizeInput("local_prelev", h4("Localisation"), 
-                             choices = dbGetQuery(con,"select distinct (sal_localisation) from lu_tables.tr_samples_localisation_sal"),options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+                             choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
     column(2, selectizeInput("cont_prelev", h4("Contenant"), 
-                             choices = dbGetQuery(con,"select distinct (sac_conditionnement) from lu_tables.tr_samples_contenant_sac"),options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+                             choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
     column(2, selectizeInput("solv_prelev", h4("Solvant"), 
-                             choices = dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas"),options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+                             choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
     column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), 
                              choices =list( 1,2,3,4,5) ,selected = NULL)),
     column(3, actionButton("ajout_prelev","Ajouter un prelevement"))
@@ -224,7 +192,7 @@ contenttable = fluidPage(
     column(2,radioButtons("criautre", h4("Cri Autre"), choices = list("0", "1-2", ">2"), selected = F)),
     column(12,hr()),
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
-                            choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)) 
+                            choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)) 
   ))
 
 ##################           rubrique Historique           #################
@@ -302,13 +270,13 @@ contentlacher = fluidPage(
                             choices = list("0-10","11-50","51-100",">100","Nuit"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     
     column(2,selectizeInput("habitat", h4("Habitat lâcher"), 
-                            choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_lache) from cmpt.t_capture_cpt"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'),create = TRUE), selected = NULL)),
+                            choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'),create = TRUE), selected = NULL)),
     
     column(2, selectizeInput("habitat_perte", h4("Habitat perte de vue"), 
-                             choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_pertevue) from cmpt.t_capture_cpt"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'),create = TRUE), selected = NULL)),
+                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'),create = TRUE), selected = NULL)),
     
     column(2,selectizeInput("Notation_euro", h4("Notation Eurodeer"), 
-                            choices = dbGetQuery(con,"select (ecl_comportement_lache) from lu_tables.tr_eurodeer_comp_lache_ecl"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+                            choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,useShinyalert())
   ))
 
@@ -336,7 +304,7 @@ contentcapture = fluidPage(
   fluidRow(
     
     column(2,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
-    column(2,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = dbGetQuery(con,"select distinct cap_num_sabot FROM public.t_capture_cap"),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"),seconds = FALSE),
            actionButton("time_debut_filet", "Afficher l'heure")),
     
@@ -382,7 +350,7 @@ contentsabot = fluidPage(
     column(12,hr()),
     
     #Acepromazine
-    column(2,selectizeInput("cpt_dose_acepromazine",h4("Acepromazine"), choices = dbGetQuery(con,"select distinct cpt_dose_acepromazine from cmpt.t_capture_cpt order by cpt_dose_acepromazine"),options = (list(create = TRUE,placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'))), selected = NULL)),
+    column(2,selectizeInput("cpt_dose_acepromazine",h4("Acepromazine"), choices = "",options = (list(create = TRUE,placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'))), selected = NULL)),
     
     #Sur le dos
     column(1,radioButtons("cpt_sabot_retournement",h4("Sur le dos"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected =c("None selected" = ""))),
@@ -446,8 +414,6 @@ ui <- shinyUI(navbarPage("Formulaires",
                          tabPanel  ("Checklist 2",checklist2),
                          tabPanel  ("Capture",comporcapture),
                          tabPanel  ("Sabot",comporsabot)
-                         #tabPanel("Summary", verbatimTextOutput("summary")),
-                         #tabPanel("Table", tableOutput("table"))
 )
 )
 
