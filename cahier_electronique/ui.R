@@ -1,5 +1,6 @@
 ##################              FORMULAIRES                ############################
-#               création de la mise ne page des formulaires
+#               création de la mise en page des formulaires
+
 ##################           rubrique animal               ############################
 
 contentcaractanimal = fluidPage(
