@@ -41,8 +41,8 @@ contentcaractanimal = fluidPage(
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idTagOrG", h4("Tag Oreille Gauche"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idTagOrD", h4("Tag Oreille Droite"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)))
-    
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)))
     ),
   
   column(12,hr()),
@@ -53,6 +53,7 @@ contentcaractanimal = fluidPage(
     column(2, numericInput("lPattArriere", value='0', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
     column(2, numericInput("tglucose", value="", h4("Taux de Glucose sanguin"), min=0))
+    
   ),
   
   conditionalPanel(
