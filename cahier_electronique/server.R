@@ -17,6 +17,29 @@ server <- function(input, output,session) {
   updateNumericInput(session, "lBoisDroit", max = dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca"))
   updateSelectizeInput(session, "etatBois", choices = dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description"))
   
+  testNouvelAnimal = observeEvent(input$estNouvelAnimal, {
+    if (input$estNouvelAnimal=="non"){
+      updateRadioButtons(session, "identifié", choices = c("oui","non"), selected = "oui")
+    }
+    if (input$estNouvelAnimal=="oui"){
+      updateRadioButtons(session, "identifié", choices = c("oui","non"), selected = "non")
+    }  
+  })
+  
+  ################## Test de l'existence du numéro entré pour un nouvel animal                      ################   
+    
+listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
+  
+  output$animalExiste <- renderUI({
+    if (!is.null(input$nAnimal)) {
+      for (i in listAnimal) {
+        if (input$nAnimal %in% i)
+        {shinyalert("ANIMAL DEJA EXISTANT!", "Décocher '1ere capture' ou choisir un autre 'ani_etiq'", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
+      }
+    }
+  })
+  
+  
   ################## date capture                                       ################   
   output$bla <- renderUI ({
     print("ba")
@@ -39,6 +62,7 @@ server <- function(input, output,session) {
   
   output$out_nAnimal2 <- renderText({
     if ((input$nAnimal2)!="") {
+      #div()
       str = paste0("select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq = '", input$nAnimal2, "' order by cap_date DESC))")
       resres = dbGetQuery(con,str)
       idSite2 <<- resres[1, 1]
@@ -68,7 +92,7 @@ server <- function(input, output,session) {
       idTagRfid <<- resres[1, 1]
       idTagRfid}
   })
-  ################## validation/alerte tour de coup                     #####
+  ################## validation/alerte tour de cou                      #####
   output$out_cirCou <- renderUI({
     if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from t_capture_cap")) {
       shinyalert("STOP!", "Circonference elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
@@ -244,7 +268,7 @@ server <- function(input, output,session) {
       checklist1 <<- cbind(checklist1,data.frame("Longueur patte" = input$lPattArriere))}
     else {checklist1 <<- cbind(checklist1,data.frame("Longueur patte"= c("NULL")))}
     
-    if ((input$sexe)!="") {
+    if (!is.null(input$sexe)) {
       checklist1 <<- cbind(checklist1,data.frame("Sexe" = input$sexe))}
     else {checklist1 <<- cbind(checklist1,data.frame("Sexe"= c("NULL")))}
     

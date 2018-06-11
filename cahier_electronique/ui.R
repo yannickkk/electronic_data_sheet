@@ -7,9 +7,10 @@ contentcaractanimal = fluidPage(
   
   fluidRow(
     uiOutput("out_sabot"),
+    uiOutput("animalExiste"),
     column(2, numericInput(inputId = "numSabot", value =0,label = h4("N Sabot"),min=0,max=28 )),
-    column(2, numericInput(inputId = "pSabotPlein", value = " ",label = h4("Poids Sabot Plein"),min=0,max=65 )),
-    column(2, numericInput(inputId = "pSabotVide", value = " ",label = h4("Poids Sabot Vide"),min=0,max=50 )),
+    column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("Poids Sabot Plein"),min=0,max=65 )),
+    column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("Poids Sabot Vide"),min=0,max=50 )),
     column(2, h4("Poids Animal"),textOutput("value")),
     column(12),
     column(2,timeInput("time_caract", h4("Heure table:"), seconds = FALSE),
@@ -17,12 +18,12 @@ contentcaractanimal = fluidPage(
     #hr(),   
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
-    column(1, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("Capture"))),
-    column(1, radioButtons(inputId = "identifié", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
+    column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
+    column(2, radioButtons(inputId = "identifié", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
     column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"), selected = character(0))),
     column(12,hr()),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non') ",
-                              textInput(inputId = "nAnimal", value = " ",label = h4("N° Animal")))),
+                              textInput(inputId = "nAnimal", value = "",label = h4("N° Animal")))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput("idTagOrG", h4("Tag Oreille Gauche"),value="0"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput("idTagOrD", h4("Tag Oreille Droite"),value="0"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", selectizeInput("idRFID", h4("RFID"),
@@ -384,11 +385,11 @@ comporsabot = tabPanel("Comportement sabot",contentsabot)
 
 ##Lumen or cerulean or sandstone
 
-ui <- shinyUI(navbarPage("Formulaires",
+ui <- shinyUI(
                          #theme=shinytheme("sandstone"),
                          # Application title
                          # titlePanel("Carnet Electronique"),
-                         #tabsetPanel(
+                  tabsetPanel(
                          tabPanel  ("Animal", caractanimal),
                          tabPanel  ("Blessures", blessures),
                          tabPanel  ("Prelevement", prelevement),
@@ -400,6 +401,7 @@ ui <- shinyUI(navbarPage("Formulaires",
                          tabPanel  ("Checklist 2",checklist2),
                          tabPanel  ("Capture",comporcapture),
                          tabPanel  ("Sabot",comporsabot)
-)
+                 )
+            
 )
 
