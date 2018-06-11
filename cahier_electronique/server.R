@@ -1,4 +1,5 @@
-con <- dbConnect(PostgreSQL(), host="localhost", dbname="postgres", user="postgres", password="****")
+#con <- dbConnect(PostgreSQL(), host="localhost", dbname="postgres", user="postgres", password="****")
+
 
 ##################                  SERVER                 ################# 
 
@@ -16,6 +17,51 @@ server <- function(input, output,session) {
   updateNumericInput(session, "lBoisGauche", max = dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca"))
   updateNumericInput(session, "lBoisDroit", max = dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca"))
   updateSelectizeInput(session, "etatBois", choices = dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description"))
+  updateSelectizeInput(session, "idTagOrG", choices = dbGetQuery(con, "select distinct cap_tag_gauche from public.t_capture_cap"))
+  updateSelectizeInput(session, "idTagOrD", choices = dbGetQuery(con, "select distinct cap_tag_droit from public.t_capture_cap"))
+  updateSelectizeInput(session, "idRFID2", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id"))
+  updateSelectizeInput(session, "idSite2", choices = dbGetQuery(con, "select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani))"))
+  
+  ##################              Sélection site/RFID/tag à partir du numéro animal                       #################
+  
+  observeEvent(input$nAnimal2,{
+    if ((input$nAnimal2)!="") {
+      str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
+      resres = dbGetQuery(con,str)
+      idTagOrG <<- resres[1,1]
+      updateSelectizeInput(session, "idTagOrG", selected = idTagOrG)
+    }
+  })
+  
+  observeEvent(input$nAnimal2,{
+    if ((input$nAnimal2)!="") {
+      str = paste0("select cap_tag_droit from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq = '", input$nAnimal2,"' order by cap_date DESC")
+      resres = dbGetQuery(con,str)
+      idTagOrD <<- resres[1,1]
+      updateSelectizeInput(session, "idTagOrD", selected = idTagOrD)
+    }
+  })
+  
+  observeEvent(input$nAnimal2,{
+    if ((input$nAnimal2)!="") {
+      str = paste0("select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id and ani_etiq='",input$nAnimal2,"' order by cap_date DESC")
+      resres = dbGetQuery(con,str)
+      idTagRfid <<- resres[1, 1]
+      if (!is.null(idTagRfid)){
+        updateSelectizeInput(session, "idRFID2", selected = idTagRfid)
+      }
+      else (updateSelectizeInput(session, "idRFID2", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))
+    }
+  })
+  
+  observeEvent(input$nAnimal2,{
+    if ((input$nAnimal2)!="") {
+      str = paste0("select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq = '", input$nAnimal2, "' order by cap_date DESC))")
+      resres = dbGetQuery(con,str)
+      idSite2 <<- resres[1, 1]
+      updateSelectizeInput(session, "idSite2", selected = idSite2)
+    }
+  })
   
   testNouvelAnimal = observeEvent(input$estNouvelAnimal, {
     if (input$estNouvelAnimal=="non"){
@@ -24,6 +70,42 @@ server <- function(input, output,session) {
     if (input$estNouvelAnimal=="oui"){
       updateRadioButtons(session, "identifié", choices = c("oui","non"), selected = "non")
     }  
+  })
+  
+  ##################              Sélection nAnimal/RFID/site/tagG à partir du tagD                      #################
+  
+  observeEvent(input$idTagOrD,{
+    if ((input$idTagOrD)!="") {
+      str = paste0("select ani_etiq from public.t_animal_ani, public.t_capture_cap where cap_ani_id = ani_id and cap_tag_droit ='", input$idTagOrD,"' order by cap_date DESC")
+      resres = dbGetQuery(con,str)
+      nAnimalFound <<- resres[1,1]
+      updateSelectizeInput(session, "nAnimal2", selected = nAnimalFound)
+    }
+  })
+  
+  
+  ##################              Sélection nAnimal/RFID/site/tagD à partir du tagG                      #################
+  
+  observeEvent(input$idTagOrG,{
+    if ((input$idTagOrG)!="") {
+      str = paste0("select ani_etiq from public.t_animal_ani, public.t_capture_cap where cap_ani_id = ani_id and cap_tag_gauche ='", input$idTagOrG,"' order by cap_date DESC")
+      resres = dbGetQuery(con,str)
+      nAnimalFound <<- resres[1,1]
+      updateSelectizeInput(session, "nAnimal2", selected = nAnimalFound)
+    }
+  })
+  
+ 
+  
+  ##################              Sélection nAnimal/site/tagD/tagG à partir du RFID                      #################
+  
+  observeEvent(input$idRFID2,{
+    if ((input$idRFID2)!="") {
+      str = paste0("select ani_etiq from public.t_animal_ani, public.t_capture_cap, public.t_rfid_rfi where cap_id = rfi_cap_id and cap_ani_id = ani_id and rfi_tag_code ='", input$idRFID2,"'")
+      resres = dbGetQuery(con,str)
+      nAnimalFound <<- resres[1,1]
+      updateSelectizeInput(session, "nAnimal2", selected = nAnimalFound)
+    }
   })
   
   ################## Test de l'existence du numéro entré pour un nouvel animal                      ################   
@@ -53,16 +135,10 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
     } })
   
-  # Pour verifier que le numero de l'animal n'existe pas deja :
-  
-  # output$out_nAnimal <- renderUI({
-  #   if (input$nAnimal){}
-  # })
   ################## site de la capture précédente                      ################ 
   
   output$out_nAnimal2 <- renderText({
     if ((input$nAnimal2)!="") {
-      #div()
       str = paste0("select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq = '", input$nAnimal2, "' order by cap_date DESC))")
       resres = dbGetQuery(con,str)
       idSite2 <<- resres[1, 1]
@@ -71,7 +147,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   ################## étiquette oreille gauche de la capture précédente  #####
   output$out_idTagOrG <- renderText({
     if ((input$nAnimal2)!="") {
-      str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
+      str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
       resres = dbGetQuery(con,str)
       idTagOrG <<- resres[1, 1]
       idTagOrG}
