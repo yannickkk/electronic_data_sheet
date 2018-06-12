@@ -20,7 +20,7 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "idSite2", choices = dbGetQuery(con, "select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani))"))
   updateSelectizeInput(session, "idRFID_new", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
   updateSelectizeInput(session, "dents", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
-  updateSelectizeInput(session, "numSabot", choices = dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab")) 
+  updateSelectizeInput(session, "numSabot", choices = dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab order by sab_id")) 
   
   ################## Sélection site/RFID/tag à partir du n°animal                   #################
   
@@ -192,10 +192,21 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
         shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
       }} })
   
-  output$out_sabot <- renderUI({
-    if (input$numSabot>28) {
-      shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_num_sabot)
-    }})
+  # output$out_sabot <- renderUI({
+  #   if (input$numSabot>28) {
+  #     shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_num_sabot)
+  #   }})
+  
+  liste_sabot = dbGetQuery(con,"select distinct sab_valeur from lu_tables.tr_sabots_sab")
+  
+  output$sabotExiste <- renderUI({
+    if ((input$numSabot)!="") {
+      for (i in liste_sabot) {
+        if (!(input$numSabot %in% i))
+        {shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_num_sabot)} 
+      }
+    }
+  })
   
   modalCallback_num_sabot <- function(value) {
     if (value == FALSE) {
