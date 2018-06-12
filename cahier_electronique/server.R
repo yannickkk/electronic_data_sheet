@@ -199,7 +199,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   modalCallback_num_sabot <- function(value) {
     if (value == FALSE) {
-      updateNumericInput(session, "numSabot" , value = 0)}}
+      updateNumericInput(session, "numSabot" , value = 0)}
+    else (dbSendQuery(con,sprintf("INSERT INTO lu_tables.tr_sabots_sab (sab_valeur) VALUES ('%s')", input$numSabot))) }
   
   output$out_cirCou <- renderUI({
     if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from public.t_capture_cap")) {
