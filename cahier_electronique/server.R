@@ -189,7 +189,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   output$alert_poids <- renderUI({
     if (!is.na(input$pSabotPlein) && !is.na(input$pSabotVide)) {
       if ((input$pSabotPlein-input$pSabotVide)>40) {
-        shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
+        shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
       }} })
   
   output$out_sabot <- renderUI({
@@ -203,7 +203,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   output$out_cirCou <- renderUI({
     if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from public.t_capture_cap")) {
-      shinyalert("STOP!", "Circonference elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_circou)
+      shinyalert("STOP!", "Circonference élevée", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_circou)
     }})
   
   modalCallback_circou <- function(value) {
@@ -212,7 +212,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   output$out_lPattArriere <- renderUI({
     if (input$lPattArriere > dbGetQuery(con,"select max(cap_lpa) from t_capture_cap")) {
-      shinyalert("STOP!", "Longueur patte elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_lg_patte)
+      shinyalert("STOP!", "Longueur patte élevée", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_lg_patte)
     }})
 
   modalCallback_lg_patte <- function(value) {
@@ -232,7 +232,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   output$out_sabot_plein <- renderUI({
     if (!is.na(input$pSabotPlein)) {
       if (input$pSabotPlein>65) {
-        shinyalert("STOP!", " Poids Sabot plein elevé!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_sabot_plein )
+        shinyalert("STOP!", " Poids Sabot plein elevé!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_sabot_plein )
     }} })  
   
   modalCallback_sabot_plein <- function(value) {
@@ -242,7 +242,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   output$out_sabot_vide <- renderUI({
     if (!is.na(input$pSabotVide)) {
       if (input$pSabotVide>50) {
-        shinyalert("STOP!", " Poids Sabot vide elevé!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_sabot_vide )
+        shinyalert("STOP!", " Poids Sabot vide elevé!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_sabot_vide )
     }} }) 
   
   modalCallback_sabot_vide <- function(value) {
