@@ -24,6 +24,8 @@ contentcaractanimal = fluidPage(
   
   fluidRow(
     uiOutput("out_sabot"),
+    uiOutput("out_sabot_plein"),
+    uiOutput("out_sabot_vide"),
     uiOutput("animalExiste"),
     uiOutput("alert_poids"),
     uiOutput("tagDroitExiste"),

@@ -191,36 +191,45 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     print(input$date_capture)
   })
   
-  ################## Controle sabot num sabot > 28                      ################   
+  ################## Test données: num sabot >28 , tour de cou, lg patte, bois                     ################   
   
   output$out_sabot <- renderUI({
     if (input$numSabot>28) {
       shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
     } })
   
-
-
-  ################## Validation/alerte tour de cou                      #####
   output$out_cirCou <- renderUI({
     if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from t_capture_cap")) {
       shinyalert("STOP!", "Circonference elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
     }})
-  ################## Validation/alerte longueur patte                   #####    
+  
   output$out_lPattArriere <- renderUI({
     if (input$lPattArriere > dbGetQuery(con,"select max(cap_lpa) from t_capture_cap")) {
       shinyalert("STOP!", "Longueur patte elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
     }})
-  ################## Validation/alerte longueur bois gauche             #####    
-  
+
   output$out_lBoisGauche <- renderUI({
     if (input$lBoisGauche > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois gauche elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
     }})
-  ################## Validation/alerte longueur bois droit              ##### 
+
   output$out_lBoisDroit <- renderUI({
     if (input$lBoisDroit > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois droit elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
     }})
+  
+  output$out_sabot_plein <- renderUI({
+    if (!is.na(input$pSabotPlein)) {
+      if (input$pSabotPlein>65) {
+        shinyalert("STOP!", " Poids Sabot plein elevé!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
+    }} })  
+  
+  output$out_sabot_vide <- renderUI({
+    if (!is.na(input$pSabotVide)) {
+      if (input$pSabotVide>50) {
+        shinyalert("STOP!", " Poids Sabot vide elevé!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
+    }} })  
+
   ################## Récupération de l'heure                            #####    
   observeEvent(input$to_current_time_caract, {
     updateTimeInput(session, "time_caract", value = Sys.time())
