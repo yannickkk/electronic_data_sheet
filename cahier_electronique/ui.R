@@ -28,6 +28,7 @@ contentcaractanimal = fluidPage(
     uiOutput("alert_poids"),
     uiOutput("tagDroitExiste"),
     uiOutput("tagGaucheExiste"),
+    
     column(2, numericInput(inputId = "numSabot", value =0,label = h4("N Sabot"),min=0,max=28 )),
     column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("Poids Sabot Plein"),min=0,max=65 )),
     column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("Poids Sabot Vide"),min=0,max=50 )),

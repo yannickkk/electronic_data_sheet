@@ -127,7 +127,7 @@ server <- function(input, output,session) {
     }
   })
   
-  ################## Vérification tag métal                             ################## 
+  ################## Vérification des tags  (metal ou non)                          ################## 
   
   observeEvent(input$nAnimal2,{
     if ((input$nAnimal2)!="") {
@@ -148,11 +148,14 @@ server <- function(input, output,session) {
   })
 
 listTagD = dbGetQuery(con,"select distinct cap_tag_droit from public.t_capture_cap")
+names(listTagD)<-c("nom")
 listTagG = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_cap")
+names(listTagG)<-c("nom")
+listTag = rbind(listTagD,listTagG)
 
   output$tagDroitExiste <- renderUI({
     if (!is.null(input$idTagOrD)) {
-      for (i in listTagD) {
+      for (i in listTag) {
         if (input$idTagOrD %in% i)
         {shinyalert("TAG DROIT DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
       }
@@ -161,13 +164,12 @@ listTagG = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_
   
   output$tagGaucheExiste <- renderUI({
     if (!is.null(input$idTagOrG)) {
-      for (i in listTagG) {
+      for (i in listTag) {
         if (input$idTagOrG %in% i)
         {shinyalert("TAG GAUCHE DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
       }
     }
   })
-  
       
   ################## Test de l'existence du numéro entré pour un nouvel animal      ################   
     
