@@ -118,7 +118,7 @@ contentblessures = fluidPage(
            #textInput("blelocalisation_txt","")
     ),
     
-    column(3, selectInput("bleGrav_sel", h4("Gravite"), choices = "", selected = "superficielle")),
+    column(3, selectizeInput("bleGrav_sel", h4("Gravite"), choices = "", options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     #textInput("bleGrav_txt","") ),
     column(3, selectizeInput("bleTrait_sel", h4("Traitement"), choices = "" ,options = list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     #textInput("bleTrait_txt","")),
@@ -172,9 +172,6 @@ contentprelevement = fluidPage(
       sidebarPanel(actionButton("sup_prelev", "Supprimer prelevement"))
     ))
 )
-
-
-
 
 
 ##################           Rubrique Collier              #################

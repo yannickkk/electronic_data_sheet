@@ -257,8 +257,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   ##################           RUBRIQUE BLESSURES                       #################
   
-  updateSelectizeInput(session, "blelocalisation_sel", choices = dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation"))
-  updateSelectInput(session, "bleGrav_sel", choices = dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite"))
+  updateSelectizeInput(session, "blelocalisation_sel", choices = dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_loc_bll order by bll_localisation"))
+  updateSelectizeInput(session, "bleGrav_sel", choices = dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite"))
   updateSelectizeInput(session, "bleTrait_sel", choices = dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement "))
   
   blessure = data.frame()
@@ -303,7 +303,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   ##################           RUBRIQUE PRELEVEMENTS                    #################
   
   updateSelectizeInput(session, "type_prelev", choices = dbGetQuery(con,"select distinct (sat_type) from lu_tables.tr_samples_types_sat"))
-  updateSelectizeInput(session, "local_prelev", choices = dbGetQuery(con,"select distinct (sal_localisation) from lu_tables.tr_samples_localisation_sal"))
+  updateSelectizeInput(session, "local_prelev", choices = dbGetQuery(con,"select distinct (sal_localisation) from lu_tables.tr_samples_loc_sal"))
   updateSelectizeInput(session, "cont_prelev", choices = dbGetQuery(con,"select distinct (sac_conditionnement) from lu_tables.tr_samples_contenant_sac"))
   updateSelectizeInput(session, "solv_prelev", choices = dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas"))
   
