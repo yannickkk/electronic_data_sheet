@@ -23,18 +23,16 @@ contentcaractanimal = fluidPage(
     ),
   
   fluidRow(
-    # tags$style("#idTagOrG {background-color:blue;}"),
-   # tags$style(type='text/css', ".selectize-input { color: #dd4b39;}"),
     uiOutput("out_sabot"),
     uiOutput("animalExiste"),
+    uiOutput("alert_poids"),
     column(2, numericInput(inputId = "numSabot", value =0,label = h4("N Sabot"),min=0,max=28 )),
     column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("Poids Sabot Plein"),min=0,max=65 )),
     column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("Poids Sabot Vide"),min=0,max=50 )),
-    column(2, h4("Poids Animal"),textOutput("value")),
+    column(2, h4("Poids Animal"),textOutput("poids_ani")),
     column(12),
     column(2,timeInput("time_caract", h4("Heure table:"), seconds = FALSE),
            actionButton("to_current_time_caract", "Afficher l'heure")),
-    #hr(),   
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
     column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),

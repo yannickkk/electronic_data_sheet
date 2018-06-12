@@ -6,8 +6,6 @@ server <- function(input, output,session) {
   
   ##################              RUBRIQUE ANIMAL                       #################
   
-  output$value = renderText({input$pSabotPlein-input$pSabotVide})
-  
   updateSelectizeInput(session, "idRFID", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
   updateSelectizeInput(session, "idSite", choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"))
   updateSelectizeInput(session, "nAnimal2", choices = dbGetQuery(con,"select ani_etiq from public.t_animal_ani order by ani_id DESC"))
@@ -22,7 +20,17 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "idSite2", choices = dbGetQuery(con, "select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani))"))
   updateSelectizeInput(session, "idRFID_new", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
   
-  ##################              Sélection site/RFID/tag à partir du numéro animal                       #################
+  ################## Calcul du poids et alerte quand < 40 kgs################## 
+  
+  output$poids_ani = renderText({input$pSabotPlein-input$pSabotVide})
+  
+  output$alert_poids <- renderUI({
+    if (!is.na(input$pSabotPlein) && !is.na(input$pSabotVide)) {
+       if ((input$pSabotPlein-input$pSabotVide)>40) {
+          shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
+    }} })
+  
+  ################## Sélection site/RFID/tag à partir du numéro animal              #################
   
   observeEvent(input$nAnimal2,{
     if ((input$nAnimal2)!="") {
@@ -73,8 +81,6 @@ server <- function(input, output,session) {
       updateRadioButtons(session, "sexe", selected = sexe)
     }
   })
-  
-  
   
   testNouvelAnimal = observeEvent(input$estNouvelAnimal, {
     if (input$estNouvelAnimal=="non"){
@@ -135,74 +141,43 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   })
   
   
-  ################## date capture                                       ################   
+  ################## Date capture                                       ################   
   output$bla <- renderUI ({
     print("ba")
     print(input$date_capture)
   })
   
-  ################## controle sabot num sabot > 28                      ################   
+  ################## Controle sabot num sabot > 28                      ################   
   
   output$out_sabot <- renderUI({
     if (input$numSabot>28) {
       shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
     } })
   
-  ################## site de la capture précédente                      ################ 
-  
-  # output$out_nAnimal2 <- renderText({
-  #   if ((input$nAnimal2)!="") {
-  #     str = paste0("select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq = '", input$nAnimal2, "' order by cap_date DESC))")
-  #     resres = dbGetQuery(con,str)
-  #     idSite2 <<- resres[1, 1]
-  #     idSite2}
-  # })
-  ################## étiquette oreille gauche de la capture précédente  #####
-  # output$out_idTagOrG <- renderText({
-  #   if ((input$nAnimal2)!="") {
-  #     str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
-  #     resres = dbGetQuery(con,str)
-  #     idTagOrG <<- resres[1, 1]
-  #     idTagOrG}
-  # })
-  ################## étiquette oreille droite de la capture précédente  #####    
-  # output$out_idTagOrD <- renderText({
-  #   if ((input$nAnimal2)!="") {
-  #     str = paste0("select cap_tag_droit from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq = '", input$nAnimal2,"' order by cap_date DESC")
-  #     resres = dbGetQuery(con,str)
-  #     idTagOrD <<- resres[1, 1]
-  #     idTagOrD}
-  # })
-  ################## tag rfid de la capture précédente                  #####
-  # output$out_idTagRfid <- renderText({
-  #   if ((input$nAnimal2)!="") {
-  #     str = paste0("select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id and ani_etiq='",input$nAnimal2,"' order by cap_date DESC")
-  #     resres = dbGetQuery(con,str)
-  #     idTagRfid <<- resres[1, 1]
-  #     idTagRfid}
-  # })
-  ################## validation/alerte tour de cou                      #####
+
+
+  ################## Validation/alerte tour de cou                      #####
   output$out_cirCou <- renderUI({
     if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from t_capture_cap")) {
       shinyalert("STOP!", "Circonference elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
     }})
-  ################## validation/alerte longueur patte                   #####    
+  ################## Validation/alerte longueur patte                   #####    
   output$out_lPattArriere <- renderUI({
     if (input$lPattArriere > dbGetQuery(con,"select max(cap_lpa) from t_capture_cap")) {
       shinyalert("STOP!", "Longueur patte elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
     }})
-  ################## validation/alerte longueur bois gauche             #####    
+  ################## Validation/alerte longueur bois gauche             #####    
   
   output$out_lBoisGauche <- renderUI({
     if (input$lBoisGauche > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois gauche elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
     }})
-  ################## validation/alerte longueur bois droit              ##### 
+  ################## Validation/alerte longueur bois droit              ##### 
   output$out_lBoisDroit <- renderUI({
     if (input$lBoisDroit > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois droit elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
     }})
-  ################## récupération de l'heure                            #####    
+  ################## Récupération de l'heure                            #####    
   observeEvent(input$to_current_time_caract, {
     updateTimeInput(session, "time_caract", value = Sys.time())
   })
