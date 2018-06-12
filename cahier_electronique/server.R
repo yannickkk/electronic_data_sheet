@@ -20,19 +20,9 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "idSite2", choices = dbGetQuery(con, "select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani))"))
   updateSelectizeInput(session, "idRFID_new", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
   updateSelectizeInput(session, "dents", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
+  updateSelectizeInput(session, "numSabot", choices = dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab")) 
   
-  
-  ################## Calcul du poids et alerte quand < 40 kgs           ################## 
-  
-  output$poids_ani = renderText({input$pSabotPlein-input$pSabotVide})
-  
-  output$alert_poids <- renderUI({
-    if (!is.na(input$pSabotPlein) && !is.na(input$pSabotVide)) {
-       if ((input$pSabotPlein-input$pSabotVide)>40) {
-          shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
-    }} })
-  
-  ################## Sélection site/RFID/tag à partir du numéro animal              #################
+  ################## Sélection site/RFID/tag à partir du n°animal                   #################
   
   observeEvent(input$nAnimal2,{
     if ((input$nAnimal2)!="") {
@@ -186,28 +176,49 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   
   ################## Date capture                                       ################   
-  output$bla <- renderUI ({
+ 
+   output$bla <- renderUI ({
     print("ba")
     print(input$date_capture)
   })
   
-  ################## Test données: num sabot >28 , tour de cou, lg patte, bois                     ################   
+  ################## Test données: poids, num sabot , tour de cou, lg patte, bois   ################   
+  
+  output$poids_ani = renderText({input$pSabotPlein-input$pSabotVide})
+  
+  output$alert_poids <- renderUI({
+    if (!is.na(input$pSabotPlein) && !is.na(input$pSabotVide)) {
+      if ((input$pSabotPlein-input$pSabotVide)>40) {
+        shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
+      }} })
   
   output$out_sabot <- renderUI({
     if (input$numSabot>28) {
-      shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
-    } })
+      shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_num_sabot)
+    }})
+  
+  modalCallback_num_sabot <- function(value) {
+    if (value == FALSE) {
+      updateNumericInput(session, "numSabot" , value = 0)}}
   
   output$out_cirCou <- renderUI({
-    if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from t_capture_cap")) {
-      shinyalert("STOP!", "Circonference elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
+    if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from public.t_capture_cap")) {
+      shinyalert("STOP!", "Circonference elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_circou)
     }})
+  
+  modalCallback_circou <- function(value) {
+    if (value == FALSE) {
+      updateNumericInput(session, "cirCou" , value = 0)}}
   
   output$out_lPattArriere <- renderUI({
     if (input$lPattArriere > dbGetQuery(con,"select max(cap_lpa) from t_capture_cap")) {
-      shinyalert("STOP!", "Longueur patte elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
+      shinyalert("STOP!", "Longueur patte elevee", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_lg_patte)
     }})
 
+  modalCallback_lg_patte <- function(value) {
+    if (value == FALSE) {
+      updateNumericInput(session, "lPattArriere" , value = 0)}}
+  
   output$out_lBoisGauche <- renderUI({
     if (input$lBoisGauche > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois gauche elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
@@ -221,14 +232,22 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   output$out_sabot_plein <- renderUI({
     if (!is.na(input$pSabotPlein)) {
       if (input$pSabotPlein>65) {
-        shinyalert("STOP!", " Poids Sabot plein elevé!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
+        shinyalert("STOP!", " Poids Sabot plein elevé!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_sabot_plein )
     }} })  
+  
+  modalCallback_sabot_plein <- function(value) {
+    if (value == FALSE) {
+      updateNumericInput(session, "pSabotPlein" , value = 0)}}
   
   output$out_sabot_vide <- renderUI({
     if (!is.na(input$pSabotVide)) {
       if (input$pSabotVide>50) {
-        shinyalert("STOP!", " Poids Sabot vide elevé!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE )
-    }} })  
+        shinyalert("STOP!", " Poids Sabot vide elevé!", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_sabot_vide )
+    }} }) 
+  
+  modalCallback_sabot_vide <- function(value) {
+    if (value == FALSE) {
+      updateNumericInput(session, "pSabotVide" , value = 0)}}
 
   ################## Récupération de l'heure                            #####    
   observeEvent(input$to_current_time_caract, {
@@ -334,7 +353,9 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   })
   
   ##################           RUBRIQUE CHECKLIST 1                     #################
-  ##################                    animal                          #################
+  
+  ###### Animal  
+  
   checklist1 = data.frame()
   row.names(checklist1) = NULL
   output$tablechecklist1 = DT::renderDT(expr = checklist1,server = F)
@@ -413,7 +434,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     
   })
   
-  ##################                    table                           #################
+  ###### Table                           
   
   checklist_table = data.frame()
   row.names(checklist_table) = NULL

@@ -1,7 +1,7 @@
-##################              FORMULAIRES                ############################
+##################              USER INTERFACE             ############################
 #               création de la mise en page des formulaires
 
-##################           rubrique animal               ############################
+##################           Rubrique Animal               ############################
 
 contentcaractanimal = fluidPage(
   #titlePanel("Caract. de l'animal"),
@@ -31,20 +31,21 @@ contentcaractanimal = fluidPage(
     uiOutput("tagDroitExiste"),
     uiOutput("tagGaucheExiste"),
     
-    column(2, numericInput(inputId = "numSabot", value =0,label = h4("N Sabot"),min=0,max=28 )),
-    column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("Poids Sabot Plein"),min=0,max=65 )),
-    column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("Poids Sabot Vide"),min=0,max=50 )),
+    #column(2, numericInput(inputId = "numSabot", value =0,label = h4("N° Sabot"),min=0,max=28)),
+    column(2, selectizeInput("numSabot", h4("N° Sabot"), choices ="", options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("Poids Sabot Plein"),min=0,max=65)),
+    column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("Poids Sabot Vide"),min=0,max=50)),
     column(2, h4("Poids Animal"),textOutput("poids_ani")),
     column(12),
-    column(2,timeInput("time_caract", h4("Heure table:"), seconds = FALSE),
-           actionButton("to_current_time_caract", "Afficher l'heure")),
+    #column(2,timeInput("time_caract", h4("Heure table:"), seconds = FALSE),actionButton("to_current_time_caract", "Afficher l'heure")),
+    column(2,textInput("time_caract", h4("Heure table:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
     column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
     column(2, radioButtons(inputId = "identifié", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
     column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"), selected = character(0))),
     column(12,hr()),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non') ",
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')",
                               textInput(inputId = "nAnimal", value = "",label = h4("N° Animal")))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput("idTagOrG", h4("Tag Oreille Gauche"),value="Entrez Tag Gauche"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput("idTagOrD", h4("Tag Oreille Droite"),value="Entrez Tag Droit"))),
@@ -101,7 +102,7 @@ contentcaractanimal = fluidPage(
   )
 )
 
-##################           rubrique blessures            #################
+##################           Rubrique Blessures            #################
 
 contentblessures = fluidPage( 
   # titlePanel("Blessures"),
@@ -135,7 +136,7 @@ contentblessures = fluidPage(
   ))
 
 
-##################           rubrique Prélèvements         #################
+##################           Rubrique Prélèvements         #################
 
 contentprelevement = fluidPage(
   
@@ -176,7 +177,7 @@ contentprelevement = fluidPage(
 
 
 
-##################           rubrique Collier              #################
+##################           Rubrique Collier              #################
 
 contentcollier = fluidPage(
   #titlePanel("Caracteristique du collier"),
@@ -186,7 +187,7 @@ contentcollier = fluidPage(
     column(3, actionButton("ajoutColl","Confirmer la nouvelle pose"))
   ))
 
-##################           rubrique Table                #################
+##################           Rubrique Table                #################
 
 
 contenttable = fluidPage(
@@ -208,7 +209,7 @@ contenttable = fluidPage(
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)) 
   ))
 
-##################           rubrique Historique           #################
+##################           Rubrique Historique           #################
 
 contenthistorique <- fluidPage(
   #titlePanel("Historique"),
@@ -223,7 +224,7 @@ contenthistorique <- fluidPage(
   # )
 )
 
-##################           rubrique cheklist 1           #################
+##################           Rubrique Checklist 1          #################
 
 
 contentcheck1 =  fluidPage(fluidRow(
@@ -248,7 +249,7 @@ contentcheck1 =  fluidPage(fluidRow(
 ))
 
 
-##################           rubrique Lâcher               #################
+##################           Rubrique Lâcher               #################
 
 
 ###submitButton(format(Sys.time(), "%X"))
@@ -295,7 +296,7 @@ contentlacher = fluidPage(
 
 
 
-##################           rubrique Cheklist 2           #################
+##################           Rubrique Checklist 2          #################
 
 
 contentcheck2 = fluidPage(fluidRow(
@@ -308,7 +309,7 @@ contentcheck2 = fluidPage(fluidRow(
 )
 
 
-##################           rubrique Capture              #################
+##################           Rubrique Capture              #################
 
 
 contentcapture = fluidPage(
@@ -345,7 +346,7 @@ contentcapture = fluidPage(
   ))
 
 
-##################           rubrique Sabot                #################
+##################           Rubrique Sabot                #################
 
 
 contentsabot = fluidPage(
