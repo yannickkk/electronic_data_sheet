@@ -22,7 +22,7 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "dents", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
   
   
-  ################## Calcul du poids et alerte quand < 40 kgs################## 
+  ################## Calcul du poids et alerte quand < 40 kgs           ################## 
   
   output$poids_ani = renderText({input$pSabotPlein-input$pSabotVide})
   
@@ -39,7 +39,6 @@ server <- function(input, output,session) {
       str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
       resres = dbGetQuery(con,str)
       idTagOrG2 <<- resres[1,1]
-      #tags$style("#idTagOrG2 {color: #dd4b39;}")
       updateSelectizeInput(session, "idTagOrG2",  selected = (idTagOrG2))
     }
   })
@@ -79,7 +78,6 @@ server <- function(input, output,session) {
       str = paste0("select ani_sexe from public.t_animal_ani where ani_etiq ='", input$nAnimal2, "'")
       resres = dbGetQuery(con,str)
       sexe <<- resres[1, 1]
-      print(sexe)
       updateRadioButtons(session, "sexe", selected = sexe)
     }
   })
@@ -129,6 +127,48 @@ server <- function(input, output,session) {
     }
   })
   
+  ################## Vérification tag métal                             ################## 
+  
+  observeEvent(input$nAnimal2,{
+    if ((input$nAnimal2)!="") {
+      str = paste0("select cap_tag_droit_metal from public.t_capture_cap, public.t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"'")
+      resres = dbGetQuery(con,str)
+      tag_droit_metal <<- resres[1,1]
+      updateCheckboxInput(session, "metal_tag_d2", value = tag_droit_metal)
+    }
+  })
+  
+  observeEvent(input$nAnimal2,{
+    if ((input$nAnimal2)!="") {
+      str = paste0("select cap_tag_gauche_metal from public.t_capture_cap, public.t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"'")
+      resres = dbGetQuery(con,str)
+      tag_gauche_metal <<- resres[1,1]
+      updateCheckboxInput(session, "metal_tag_g2", value = tag_gauche_metal)
+    }
+  })
+
+listTagD = dbGetQuery(con,"select distinct cap_tag_droit from public.t_capture_cap")
+listTagG = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_cap")
+
+  output$tagDroitExiste <- renderUI({
+    if (!is.null(input$idTagOrD)) {
+      for (i in listTagD) {
+        if (input$idTagOrD %in% i)
+        {shinyalert("TAG DROIT DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
+      }
+    }
+  })
+  
+  output$tagGaucheExiste <- renderUI({
+    if (!is.null(input$idTagOrG)) {
+      for (i in listTagG) {
+        if (input$idTagOrG %in% i)
+        {shinyalert("TAG GAUCHE DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
+      }
+    }
+  })
+  
+      
   ################## Test de l'existence du numéro entré pour un nouvel animal      ################   
     
 listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
