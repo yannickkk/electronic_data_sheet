@@ -64,6 +64,18 @@ server <- function(input, output,session) {
     }
   })
   
+  observeEvent(input$nAnimal2, {
+    if ((input$nAnimal2)!="") {
+      str = paste0("select ani_sexe from public.t_animal_ani where ani_etiq ='", input$nAnimal2, "'")
+      resres = dbGetQuery(con,str)
+      sexe <<- resres[1, 1]
+      print(sexe)
+      updateRadioButtons(session, "sexe", selected = sexe)
+    }
+  })
+  
+  
+  
   testNouvelAnimal = observeEvent(input$estNouvelAnimal, {
     if (input$estNouvelAnimal=="non"){
       updateRadioButtons(session, "identifié", choices = c("oui","non"), selected = "oui")
