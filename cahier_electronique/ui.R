@@ -68,7 +68,9 @@ contentcaractanimal = fluidPage(
     uiOutput("out_cirCou"),
     column(2, numericInput("lPattArriere", value='0', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
-    column(2, numericInput("tglucose", value="", h4("Taux de Glucose sanguin"), min=0))
+    column(2, numericInput("tglucose", value="", h4("Taux de Glucose sanguin"), min=0)),
+    column(2, selectizeInput("dents", h4("Dents"), choices ="", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2, textInput("remarque_ani", h4("Remarques"), value = ""))
     
   ),
   
