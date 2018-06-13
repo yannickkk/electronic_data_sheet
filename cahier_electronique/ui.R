@@ -39,7 +39,6 @@ contentcaractanimal = fluidPage(
     uiOutput("tagDroitExiste"),
     uiOutput("tagGaucheExiste"),
     
-    #column(2, numericInput(inputId = "numSabot", value =0,label = h4("N° Sabot"),min=0,max=28)),
     column(2, selectizeInput("numSabot", h4("N° Sabot"), choices ="", options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("Poids Sabot Plein"),min=0,max=65)),
     column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("Poids Sabot Vide"),min=0,max=50)),
@@ -47,7 +46,6 @@ contentcaractanimal = fluidPage(
     
     column(12),
     
-    #column(2,timeInput("time_caract", h4("Heure table:"), seconds = FALSE),actionButton("to_current_time_caract", "Afficher l'heure")),
     column(2,textInput("time_caract", h4("Heure table:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
@@ -117,13 +115,14 @@ contentcaractanimal = fluidPage(
 ##################           Rubrique Blessures            #################
 
 contentblessures = fluidPage( 
-  # titlePanel("Blessures"),
    fluidRow(
 
      column(2,uiOutput("casc_ble1")),
      column(2,uiOutput("casc_ble2")),
-     column(3,selectizeInput("traitement", "Traitement", choices = "", multiple=TRUE, options=list(create=TRUE))),
-     column(3,actionButton("ajoutBle","Ajouter une blessure"), actionButton("sup_Bles", "Supprimer blessure")),
+     column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
+     column(12,hr()),
+     column(3,offset = 1, actionButton("ajoutBle","Ajouter une blessure"), actionButton("sup_Bles", "Supprimer blessure")),
+     column(12,hr()),
      dataTableOutput("tableblessure")
    )
 )
@@ -134,22 +133,22 @@ contentprelevement = fluidPage(
   
   fluidRow(
     column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))
-  ),
+    column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(12,hr())
+    ),
   
   fluidRow(
      column(2,uiOutput("control1")),
      column(2,uiOutput("control2")),
      column(2,uiOutput("control3")),
      column(2,uiOutput("control4")),
-     #column(2,tableOutput("table_prel"))
-     column(2, selectizeInput("nbre_echant", ("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,selected = NULL)),
-     column(3, actionButton("ajout_prelev","Ajouter un prelevement"), actionButton("sup_prelev", "Supprimer un prelevement")),
+     column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,selected = NULL)),
+     column(12,hr()),
+     column(3,offset = 3, actionButton("ajout_prelev",("Ajouter un prelevement")), actionButton("sup_prelev", "Supprimer un prelevement")),
+     column(12,hr()),
      dataTableOutput("tableprelevement")
    )
   
-  # if (input.type_prelev=="sang" && input.local_prelev=="jugulaire" && input.cont_prelev=="tube rouge" && input.solv_prelev=="sec") {} 
-
 )
 
 

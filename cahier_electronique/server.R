@@ -2,7 +2,9 @@ source("connect.R")
 
 ##################                  SERVER                 ################# 
 
- df_prelevement <- data.frame(dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"), 
+## Dataframe pour les prélevements :
+
+df_prelevement <- data.frame(dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"), 
                               dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"),
                               dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"))
                               
@@ -10,11 +12,13 @@ colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi")
  
 option4 <- dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas, lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac where sas_sat_id=sat_id and sas_sac_id=sac_id")
 
+## Dataframe pour les blessures :
 
 df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"),
                           dbGetQuery(con, "select blg_gravite from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"))
 
 colnames(df_blessure)<-c("ble_local","ble_gravite")
+
 
 server <- function(input, output,session) {
 
@@ -106,7 +110,6 @@ server <- function(input, output,session) {
     }
   })
   
-  
   ################## Sélection nAnimal/RFID/site/tagD à partir du tagG              #################
   
   observeEvent(input$idTagOrG2,{
@@ -117,8 +120,6 @@ server <- function(input, output,session) {
       updateSelectizeInput(session, "nAnimal2", selected = nAnimalFound)
     }
   })
-  
- 
   
   ################## Sélection nAnimal/site/tagD/tagG à partir du RFID              #################
   
@@ -206,11 +207,6 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
         shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
       }} })
   
-  # output$out_sabot <- renderUI({
-  #   if (input$numSabot>28) {
-  #     shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_num_sabot)
-  #   }})
-  
   liste_sabot = dbGetQuery(con,"select distinct sab_valeur from lu_tables.tr_sabots_sab")
   
   output$sabotExiste <- renderUI({
@@ -218,8 +214,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       for (i in liste_sabot) {
         if (!(input$numSabot %in% i))
         {shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_num_sabot)} 
-      }
-    }
+      }}
   })
   
   modalCallback_num_sabot <- function(value) {
@@ -276,17 +271,13 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       updateNumericInput(session, "pSabotVide" , value = 0)}}
 
   ################## Récupération de l'heure                            #####    
-  observeEvent(input$to_current_time_caract, {
+ 
+   observeEvent(input$to_current_time_caract, {
     updateTimeInput(session, "time_caract", value = Sys.time())
   })
   
-  
   ##################           RUBRIQUE BLESSURES                       #################
   
-  # updateSelectizeInput(session, "blelocalisation_sel", choices = dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation"))
-  # updateSelectizeInput(session, "bleGrav_sel", choices = dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite"))
-  # updateSelectizeInput(session, "bleTrait_sel", choices = dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement "))
-   
    blessure = data.frame()
    row.names(blessure) = NULL
    
@@ -307,6 +298,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
         list_ble = paste(u,list_ble,sep=" ~ ")
       }
       blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble)))
+      updateSelectizeInput(session,"locali", options=list(selected=NULL))
+      updateSelectizeInput(session,"traitement", options=list(selected=NULL))
     }
       
     if ((length(input$traitement))==1)
@@ -318,8 +311,10 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     #print(blessure[1][1])
   })
   
+  ### Mise en forme des blessures en cascade :
+  
   output$casc_ble1 <- renderUI({
-    selectizeInput("locali", ("Localisation"), choices = df_blessure$ble_local,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+    selectizeInput("locali", h4("Localisation"), choices = df_blessure$ble_local,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
   })
   
   output$casc_ble2 <- renderUI({
@@ -329,17 +324,13 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     ))
       return("Select")
     choice2 <- df_blessure[df_blessure$ble_local == x,  "ble_gravite"]
-    selectizeInput("grave", ("gravité"), choices = choice2, options=list(create= TRUE))
+    selectizeInput("grave", h4("gravité"), choices = choice2, options=list(create= TRUE))
   })
   
   updateSelectizeInput(session,"traitement", choices = (dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")))
   
-  ##################           RUBRIQUE PRELEVEMENTS                    #################
   
-  # updateSelectizeInput(session, "type_prelev", choices = dbGetQuery(con,"select distinct (sat_type) from lu_tables.tr_samples_types_sat"))
-  # updateSelectizeInput(session, "local_prelev", choices = dbGetQuery(con,"select distinct (sal_localisation) from lu_tables.tr_samples_localisation_sal"))
-  # updateSelectizeInput(session, "cont_prelev", choices = dbGetQuery(con,"select distinct (sac_conditionnement) from lu_tables.tr_samples_contenant_sac"))
-  # updateSelectizeInput(session, "solv_prelev", choices = dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas"))
+  ##################           RUBRIQUE PRELEVEMENTS                    #################
   
   prelevement = data.frame()
   row.names(prelevement) = NULL
@@ -356,15 +347,17 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   observeEvent(input$ajout_prelev, {
     prelevement <<- rbind(prelevement, data.frame("Type" = c(input$typetype), "Localisation" =c(input$localoca), "Contenant" = c(input$concon),"Solvant" = c(input$solsol),"Nombre d'echantillons" = c(input$nbre_echant)))
     output$tableprelevement = DT::renderDT(prelevement,server = F)
+    updateSelectizeInput(session,"typetype", options=list(selected=NULL))
+    updateSelectizeInput(session,"solsol", options=list(selected=NULL))
   })
   
-  ### Mise en forme des prélevements :
+  ### Mise en forme des prélevements en cascade :
   
   output$table_prel <- renderTable({df_prelevement})
   
   
     output$control1 <- renderUI({
-    selectizeInput("typetype", ("Type"), choices = df_prelevement$prel_type,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+    selectizeInput("typetype", h4("Type"), choices = df_prelevement$prel_type,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
 
     })
   
@@ -375,8 +368,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     ))
       return("Select")
     choice2 <- df_prelevement[df_prelevement$prel_type == x,  "prel_local"]
-    # updateSelectizeInput(session,"localoca", choices = choice2)
-    selectizeInput("localoca", ("Localisation"), choices = choice2, options=list(create= TRUE))
+    selectizeInput("localoca", h4("Localisation"), choices = choice2, options=list(create= TRUE))
     
   })
   
@@ -390,9 +382,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       return("Select")
     
     choice3 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y, "prel_condi"]
-    selectizeInput("concon", ("Conditionnement"), choices = choice3,options=list(create= TRUE))
+    selectizeInput("concon", h4("Conditionnement"), choices = choice3, options=list(create= TRUE))
     
-    # updateSelectizeInput(session, "concon", choices = choice3)
   })
   
    output$control4 <- renderUI({
@@ -407,13 +398,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   #     return("Select")
   # 
   #   choice4 <- df_prelevement[df_prelevement$a == x & df_prelevement$b == y & df_prelevement$c == z, "d"]
-     selectizeInput("solsol", ("Solvant"), choices = option4,options=list(create= TRUE))
-    
-    # updateSelectizeInput(session,"solsol", choices = choice4)
+     selectizeInput("solsol", h4("Solvant"), choices = option4, options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create= TRUE), selected = NULL)
    })
-  
-  
-  
   
   
   ##################           RUBRIQUE TABLE                           #################
