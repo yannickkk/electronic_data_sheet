@@ -118,48 +118,16 @@ contentcaractanimal = fluidPage(
 
 contentblessures = fluidPage( 
   # titlePanel("Blessures"),
-  # fluidRow(
-  #   
-  #   column(3, selectizeInput("blelocalisation_sel", h4("Localisation"), 
-  #                            choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL) 
-  #          #bsModal("nouvelleLocalization_modal", "Entrer la localisation","", size = "large",wellPanel(
-  #          # textInput("nouvelle_localisation_txt",""),
-  #          #actionButton("ok_button", "OK"),
-  #          #actionButton("quit_button", "Quitter")
-  #          #))
-  #          #textInput("blelocalisation_txt","")
-  #   )
-  #   
-  # #   column(3, selectizeInput("bleGrav_sel", h4("Gravite"), choices = "", options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-  # #   #textInput("bleGrav_txt","") ),
-  # #   column(3, selectizeInput("bleTrait_sel", h4("Traitement"), choices = "" ,options = list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-  # #   #textInput("bleTrait_txt","")),
-  # #   column(3, actionButton("ajoutBle","Ajouter une blessure"))
-  # # ),
-  # # 
-  # # hr(),
-  # # 
-  # # fluidRow(
-  # #   sidebarLayout(
-  # #     mainPanel(
-  # #       dataTableOutput("tableblessure")),
-  # #     sidebarPanel(actionButton("sup_Bles", "Supprimer blessure"))
-  # #   )
-  # # )
-  # )
+   fluidRow(
 
-fluidRow(
-  
-  column(2,uiOutput("casc_ble1")),
-  column(2,uiOutput("casc_ble2")),
-  column(3,selectizeInput("traitement", "Traitement", choices = "", multiple=TRUE, options=list(create=TRUE)))
-  
-  # column(2,uiOutput("control3")),
-  # column(2,uiOutput("control4")),
-  # #column(2,textOutput("result")),
-  # column(2,tableOutput("table_prel"))
+     column(2,uiOutput("casc_ble1")),
+     column(2,uiOutput("casc_ble2")),
+     column(3,selectizeInput("traitement", "Traitement", choices = "", multiple=TRUE, options=list(create=TRUE))),
+     column(3,actionButton("ajoutBle","Ajouter une blessure"), actionButton("sup_Bles", "Supprimer blessure")),
+     dataTableOutput("tableblessure")
+   )
 )
-)
+
 ##################           Rubrique Prélèvements         #################
 
 contentprelevement = fluidPage(
@@ -169,42 +137,19 @@ contentprelevement = fluidPage(
     column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))
   ),
   
-  # fluidRow(
-  #   
-  #   column(2, selectizeInput("type_prelev", h4("Type de prelevement"), 
-  #                            choices = "" ,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-  #   column(2, selectizeInput("local_prelev", h4("Localisation"), 
-  #                            choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-  #   column(2, selectizeInput("cont_prelev", h4("Contenant"), 
-  #                            choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-  #   column(2, selectizeInput("solv_prelev", h4("Solvant"), 
-  #                            choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-  #   column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), 
-  #                            choices =list( 1,2,3,4,5) ,selected = NULL)),
-  #   column(3, actionButton("ajout_prelev","Ajouter un prelevement"))
-  # ),
+  fluidRow(
+     column(2,uiOutput("control1")),
+     column(2,uiOutput("control2")),
+     column(2,uiOutput("control3")),
+     column(2,uiOutput("control4")),
+     #column(2,tableOutput("table_prel"))
+     column(2, selectizeInput("nbre_echant", ("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,selected = NULL)),
+     column(3, actionButton("ajout_prelev","Ajouter un prelevement"), actionButton("sup_prelev", "Supprimer un prelevement")),
+     dataTableOutput("tableprelevement")
+   )
   
   # if (input.type_prelev=="sang" && input.local_prelev=="jugulaire" && input.cont_prelev=="tube rouge" && input.solv_prelev=="sec") {} 
-  
-  
-  hr(),
-#   
-#   fluidRow(
-#     sidebarLayout(
-#       mainPanel(
-#         dataTableOutput("tableprelevement")),
-#       sidebarPanel(actionButton("sup_prelev", "Supprimer prelevement"))
-#     ))
-# )
-fluidRow(
-  
-column(2,uiOutput("control1")),
-column(2,uiOutput("control2")),
-       column(2,uiOutput("control3")),
-               column(2,uiOutput("control4")),
-              #column(2,textOutput("result")),
-column(2,tableOutput("table_prel"))
-)
+
 )
 
 

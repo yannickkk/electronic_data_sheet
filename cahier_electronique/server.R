@@ -6,38 +6,18 @@ source("connect.R")
                               dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"),
                               dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"))
                               
-# xy.list <- split(option2, seq(nrow(option2)))
- #option2 <- as.list(as.data.frame(t(option2)))
-
- colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi")
+colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi")
  
 option4 <- dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas, lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac where sas_sat_id=sat_id and sas_sac_id=sac_id")
 
-#" select * from lu_tables.tr_samples_contenant_sac,lu_tables.tr_samples_types_sat,lu_tables.tr_samples_localisation_sal where sac_sat_id=sal_sat_id and sat_id=sal_sat_id  "
-
-
-
-# df_prelevement <- data.frame(a =c("poils","poils","sang","sang", "feces","feces", "peau", "mucus","mucus","tiques"))
-# 
-# option1 <- c("cou","miroir","jugulaire","oreille","sabot","anus","oreille","nez","vagin","oreille")
-# option3 <- c("alu","alu", "eppendorf", "tube rouge","tube violet","pilulier 25","zip_loc","eppendorf", "eppendorf", "ecouvillon")
-# option4 <- c("sec","sec","sec","EDTA","sec","sec","alcool","sec","sec","sec")
-# df_prelevement$b <- c(option1, rep("", (nrow(df_prelevement)-length(option1))))
-# df_prelevement$c <- c(option3, rep("", nrow(df_prelevement)-length(option3))) #converts to character
-# df_prelevement$d <- c(option4, rep("", nrow(df_prelevement)-length(option4))) #converts to character
-
 
 df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"),
-dbGetQuery(con, "select blg_gravite from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"))
-
-##coucou2 <- dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_types_sat where sal_sat_id=sat_id order by sal_sat_id")
+                          dbGetQuery(con, "select blg_gravite from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"))
 
 colnames(df_blessure)<-c("ble_local","ble_gravite")
 
 server <- function(input, output,session) {
-  #print(df_prelevement)
-  #print(xy.list)
-  #str(df_prelevement)
+
   ##################              RUBRIQUE ANIMAL                       #################
   
   updateSelectizeInput(session, "idRFID", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
@@ -306,50 +286,40 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   # updateSelectizeInput(session, "blelocalisation_sel", choices = dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation"))
   # updateSelectizeInput(session, "bleGrav_sel", choices = dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite"))
   # updateSelectizeInput(session, "bleTrait_sel", choices = dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement "))
-  # 
-  # blessure = data.frame()
-  # row.names(blessure) = NULL
-  # 
-  # output$tableblessure = DT::renderDT(expr = blessure,server = F)
-  # observe({
-  #   # if(length(input$sexe)>1) {
-  #   #   updateCheckboxGroupInput(session,"sexe", selected= tail(input$sexe,1))
-  #   # }
-  # })
-  # 
-  # sup_Ligne = observeEvent(input$sup_Bles, {
-  #   if (!is.null(input$tableblessure_rows_selected)) {
-  #     blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
-  #     output$tableblessure = DT::renderDT(blessure,server = F)
-  #   }
-  # }
-  # )
-  # observeEvent (input$blelocalisation_sel, {
-  #   if (!is.null(input$blelocalisation_sel)) {
-  #     if( input$blelocalisation_sel == "Autre localisation"){
-  #       toggleModal(session,"nouvelleLocalization_modal","open")
-  #       # showModal(modalDialog(
-  #       #   title = "Entrer la localisation",
-  #       #   textInput("nouvelle_localisation_txt",""),
-  #       #   
-  #       #   easyClose = TRUE
-  #       # 
-  #       # ))
-  #     }
-  #   }
-  # })
-  # 
-  # observeEvent(input$ajoutBle, {
-  #   blessure <<- rbind(blessure,data.frame("Localisation" = c(input$blelocalisation_sel), "Gravite" =c(input$bleGrav_sel), "Traitement" = c(input$bleTrait_sel)))
-  #   output$tableblessure = DT::renderDT(blessure,server = F)
-  #   
-  # }
-  # )
-  
+   
+   blessure = data.frame()
+   row.names(blessure) = NULL
+   
+   output$tableblessure = DT::renderDT(expr = blessure,server = F)
+   
+   sup_Ligne = observeEvent(input$sup_Bles, {
+    if (!is.null(input$tableblessure_rows_selected)) {
+      blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
+      output$tableblessure = DT::renderDT(blessure,server = F)
+    }
+  })
+
+  observeEvent(input$ajoutBle, {
+    if ((length(input$traitement))>1)
+    {
+      list_ble = ""
+      for (u in input$traitement) {
+        list_ble = paste(u,list_ble,sep=" ~ ")
+      }
+      blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble)))
+    }
+      
+    if ((length(input$traitement))==1)
+      {
+        blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement)))
+    }
+    
+    output$tableblessure = DT::renderDT(blessure,server = F)
+    #print(blessure[1][1])
+  })
   
   output$casc_ble1 <- renderUI({
     selectizeInput("locali", ("Localisation"), choices = df_blessure$ble_local,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
-    
   })
   
   output$casc_ble2 <- renderUI({
@@ -366,10 +336,10 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   ##################           RUBRIQUE PRELEVEMENTS                    #################
   
-  updateSelectizeInput(session, "type_prelev", choices = dbGetQuery(con,"select distinct (sat_type) from lu_tables.tr_samples_types_sat"))
-  updateSelectizeInput(session, "local_prelev", choices = dbGetQuery(con,"select distinct (sal_localisation) from lu_tables.tr_samples_localisation_sal"))
-  updateSelectizeInput(session, "cont_prelev", choices = dbGetQuery(con,"select distinct (sac_conditionnement) from lu_tables.tr_samples_contenant_sac"))
-  updateSelectizeInput(session, "solv_prelev", choices = dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas"))
+  # updateSelectizeInput(session, "type_prelev", choices = dbGetQuery(con,"select distinct (sat_type) from lu_tables.tr_samples_types_sat"))
+  # updateSelectizeInput(session, "local_prelev", choices = dbGetQuery(con,"select distinct (sal_localisation) from lu_tables.tr_samples_localisation_sal"))
+  # updateSelectizeInput(session, "cont_prelev", choices = dbGetQuery(con,"select distinct (sac_conditionnement) from lu_tables.tr_samples_contenant_sac"))
+  # updateSelectizeInput(session, "solv_prelev", choices = dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas"))
   
   prelevement = data.frame()
   row.names(prelevement) = NULL
@@ -384,7 +354,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   })
   
   observeEvent(input$ajout_prelev, {
-    prelevement <<- rbind(prelevement,data.frame("Type" = c(input$type_prelev), "Localisation" =c(input$local_prelev), "Contenant" = c(input$cont_prelev),"Solvant" = c(input$solv_prelev),"Nombre d'echantillons" = c(input$nbre_echant)))
+    prelevement <<- rbind(prelevement, data.frame("Type" = c(input$typetype), "Localisation" =c(input$localoca), "Contenant" = c(input$concon),"Solvant" = c(input$solsol),"Nombre d'echantillons" = c(input$nbre_echant)))
     output$tableprelevement = DT::renderDT(prelevement,server = F)
   })
   
