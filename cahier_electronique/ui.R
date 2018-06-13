@@ -201,7 +201,7 @@ fluidRow(
 column(2,uiOutput("control1")),
 column(2,uiOutput("control2")),
        column(2,uiOutput("control3")),
-              column(2,uiOutput("control4")),
+               column(2,uiOutput("control4")),
               #column(2,textOutput("result")),
 column(2,tableOutput("table_prel"))
 )
