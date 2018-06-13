@@ -2,16 +2,23 @@ source("connect.R")
 
 ##################                  SERVER                 ################# 
 # 
-# df_prelevement <- data.frame(option1 = dbGetQuery(con, "select  (sat_type) from lu_tables.tr_samples_types_sat"),
+#  df_prelevement <- data.frame(option1 = dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_localisation_sal where sal_sat_id=sat_id order by sal_sat_id"))
+#  option2 <- dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_types_sat where sal_sat_id=sat_id order by sal_sat_id")
+#  print(option2)
+# # xy.list <- split(option2, seq(nrow(option2)))
+#  option2 <- as.list(as.data.frame(t(option2)))
 # 
-# option2 =dbGetQuery(con, "select  (sal_localisation) from lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_types_sat where sal_sat_id=sat_id"),
-# option3 = dbGetQuery(con, "select  (sac_conditionnement) from lu_tables.tr_samples_contenant_sac,lu_tables.tr_samples_types_sat where sac_sat_id=sat_id"),
-# option4 = dbGetQuery(con,"select  (sas_solvant) from lu_tables.tr_samples_solvant_sas, lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac where sas_sat_id=sat_id and sas_sac_id=sac_id"))
-# print(class(option2))
+#  print(option2)
+# option3 <- dbGetQuery(con, "select (sac_conditionnement) from lu_tables.tr_samples_contenant_sac,lu_tables.tr_samples_types_sat where sac_sat_id=sat_id")
+#  option4 <- dbGetQuery(con,"select  (sas_solvant) from lu_tables.tr_samples_solvant_sas, lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac where sas_sat_id=sat_id and sas_sac_id=sac_id")
+#  print(class(option2))
+#  
+# " select * from lu_tables.tr_samples_contenant_sac,lu_tables.tr_samples_types_sat,lu_tables.tr_samples_localisation_sal where sac_sat_id=sal_sat_id and sat_id=sal_sat_id  "
 
 
-df_prelevement <- data.frame(a =c("poils","poils","sang","sang", "feces","feces", "peau", "mucus","mucus","tiques")) 
-     
+
+df_prelevement <- data.frame(a =c("poils","poils","sang","sang", "feces","feces", "peau", "mucus","mucus","tiques"))
+
 option1 <- c("cou","miroir","jugulaire","oreille","sabot","anus","oreille","nez","vagin","oreille")
 option3 <- c("alu","alu", "eppendorf", "tube rouge","tube violet","pilulier 25","zip_loc","eppendorf", "eppendorf", "ecouvillon")
 option4 <- c("sec","sec","sec","EDTA","sec","sec","alcool","sec","sec","sec")
@@ -20,8 +27,15 @@ df_prelevement$c <- c(option3, rep("", nrow(df_prelevement)-length(option3))) #c
 df_prelevement$d <- c(option4, rep("", nrow(df_prelevement)-length(option4))) #converts to character
 
 
+df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"),
+dbGetQuery(con, "select blg_gravite from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"))
+
+##coucou2 <- dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_types_sat where sal_sat_id=sat_id order by sal_sat_id")
+
+colnames(df_blessure)<-c("ble_local","ble_gravite")
+
 server <- function(input, output,session) {
-  print(df_prelevement)
+  #print(df_prelevement)
   #print(xy.list)
   #str(df_prelevement)
   ##################              RUBRIQUE ANIMAL                       #################
@@ -289,48 +303,66 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   ##################           RUBRIQUE BLESSURES                       #################
   
-  updateSelectizeInput(session, "blelocalisation_sel", choices = dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation"))
-  updateSelectizeInput(session, "bleGrav_sel", choices = dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite"))
-  updateSelectizeInput(session, "bleTrait_sel", choices = dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement "))
+  # updateSelectizeInput(session, "blelocalisation_sel", choices = dbGetQuery(con,"select distinct bll_localisation from lu_tables.tr_blessure_localisation_bll order by bll_localisation"))
+  # updateSelectizeInput(session, "bleGrav_sel", choices = dbGetQuery(con,"select distinct blg_gravite from lu_tables.tr_blessure_gravite_blg order by  blg_gravite"))
+  # updateSelectizeInput(session, "bleTrait_sel", choices = dbGetQuery(con,"select distinct blt_traitement from lu_tables.tr_blessure_traitement_blt order by blt_traitement "))
+  # 
+  # blessure = data.frame()
+  # row.names(blessure) = NULL
+  # 
+  # output$tableblessure = DT::renderDT(expr = blessure,server = F)
+  # observe({
+  #   # if(length(input$sexe)>1) {
+  #   #   updateCheckboxGroupInput(session,"sexe", selected= tail(input$sexe,1))
+  #   # }
+  # })
+  # 
+  # sup_Ligne = observeEvent(input$sup_Bles, {
+  #   if (!is.null(input$tableblessure_rows_selected)) {
+  #     blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
+  #     output$tableblessure = DT::renderDT(blessure,server = F)
+  #   }
+  # }
+  # )
+  # observeEvent (input$blelocalisation_sel, {
+  #   if (!is.null(input$blelocalisation_sel)) {
+  #     if( input$blelocalisation_sel == "Autre localisation"){
+  #       toggleModal(session,"nouvelleLocalization_modal","open")
+  #       # showModal(modalDialog(
+  #       #   title = "Entrer la localisation",
+  #       #   textInput("nouvelle_localisation_txt",""),
+  #       #   
+  #       #   easyClose = TRUE
+  #       # 
+  #       # ))
+  #     }
+  #   }
+  # })
+  # 
+  # observeEvent(input$ajoutBle, {
+  #   blessure <<- rbind(blessure,data.frame("Localisation" = c(input$blelocalisation_sel), "Gravite" =c(input$bleGrav_sel), "Traitement" = c(input$bleTrait_sel)))
+  #   output$tableblessure = DT::renderDT(blessure,server = F)
+  #   
+  # }
+  # )
   
-  blessure = data.frame()
-  row.names(blessure) = NULL
   
-  output$tableblessure = DT::renderDT(expr = blessure,server = F)
-  observe({
-    # if(length(input$sexe)>1) {
-    #   updateCheckboxGroupInput(session,"sexe", selected= tail(input$sexe,1))
-    # }
-  })
-  
-  sup_Ligne = observeEvent(input$sup_Bles, {
-    if (!is.null(input$tableblessure_rows_selected)) {
-      blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
-      output$tableblessure = DT::renderDT(blessure,server = F)
-    }
-  }
-  )
-  observeEvent (input$blelocalisation_sel, {
-    if (!is.null(input$blelocalisation_sel)) {
-      if( input$blelocalisation_sel == "Autre localisation"){
-        toggleModal(session,"nouvelleLocalization_modal","open")
-        # showModal(modalDialog(
-        #   title = "Entrer la localisation",
-        #   textInput("nouvelle_localisation_txt",""),
-        #   
-        #   easyClose = TRUE
-        # 
-        # ))
-      }
-    }
-  })
-  
-  observeEvent(input$ajoutBle, {
-    blessure <<- rbind(blessure,data.frame("Localisation" = c(input$blelocalisation_sel), "Gravite" =c(input$bleGrav_sel), "Traitement" = c(input$bleTrait_sel)))
-    output$tableblessure = DT::renderDT(blessure,server = F)
+  output$casc_ble1 <- renderUI({
+    selectizeInput("locali", ("Localisation"), choices = df_blessure$ble_local,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
     
-  }
-  ) 
+  })
+  
+  output$casc_ble2 <- renderUI({
+    x <- input$locali
+    if (any(
+      is.null(x)
+    ))
+      return("Select")
+    choice2 <- df_blessure[df_blessure$ble_local == x,  "ble_gravite"]
+    selectizeInput("grave", ("gravité"), choices = choice2, options=list(create= TRUE))
+  })
+  
+  updateSelectizeInput(session,"traitement", choices = (dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")))
   
   ##################           RUBRIQUE PRELEVEMENTS                    #################
   
@@ -361,9 +393,10 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   output$table_prel <- renderTable({df_prelevement})
   
   
-  output$control1 <- renderUI({
-    selectInput("typetype", ("Type"), choices = df_prelevement$a)
-  })
+    output$control1 <- renderUI({
+    selectizeInput("typetype", ("Type"), choices = df_prelevement$a,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+
+    })
   
   output$control2 <- renderUI({
     x <- input$typetype
@@ -371,9 +404,10 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       is.null(x)
     ))
       return("Select")
-    choice2 <- df_prelevement[df_prelevement$a == x, 
-                  "b"]
-    selectInput("localoca", ("localisation"), choices = choice2)
+    choice2 <- df_prelevement[df_prelevement$a == x,  "b"]
+    # updateSelectizeInput(session,"localoca", choices = choice2)
+    selectizeInput("localoca", ("Localisation"), choices = choice2, options=list(create= TRUE))
+    
   })
   
   output$control3 <- renderUI({
@@ -382,13 +416,13 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     if (any(
       is.null(x),
       is.null(y)
-    )) 
+    ))
       return("Select")
     
-    choice3 <- df_prelevement[df_prelevement$a == x & df_prelevement$b == y,
-                  "c"]
+    choice3 <- df_prelevement[df_prelevement$a == x & df_prelevement$b == y, "c"]
+    selectizeInput("concon", ("Conditionnement"), choices = choice3,options=list(create= TRUE))
     
-    selectInput("concon", ("conditionnement"), choices = choice3)
+    # updateSelectizeInput(session, "concon", choices = choice3)
   })
   
   output$control4 <- renderUI({
@@ -399,13 +433,13 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       is.null(x),
       is.null(y),
       is.null(z)
-    )) 
+    ))
       return("Select")
+
+    choice4 <- df_prelevement[df_prelevement$a == x & df_prelevement$b == y & df_prelevement$c == z, "d"]
+    selectizeInput("solsol", ("Solvant"), choices = choice4,options=list(create= TRUE))
     
-    choice4 <- df_prelevement[df_prelevement$a == x & df_prelevement$b == y & df_prelevement$c == z,
-                              "d"]
-    
-    selectInput("solsol", ("solvant"), choices = choice4)
+    # updateSelectizeInput(session,"solsol", choices = choice4)
   })
   
   
