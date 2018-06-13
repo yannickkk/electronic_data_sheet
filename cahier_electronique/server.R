@@ -1,9 +1,29 @@
 source("connect.R")
 
 ##################                  SERVER                 ################# 
+# 
+# df_prelevement <- data.frame(option1 = dbGetQuery(con, "select  (sat_type) from lu_tables.tr_samples_types_sat"),
+# 
+# option2 =dbGetQuery(con, "select  (sal_localisation) from lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_types_sat where sal_sat_id=sat_id"),
+# option3 = dbGetQuery(con, "select  (sac_conditionnement) from lu_tables.tr_samples_contenant_sac,lu_tables.tr_samples_types_sat where sac_sat_id=sat_id"),
+# option4 = dbGetQuery(con,"select  (sas_solvant) from lu_tables.tr_samples_solvant_sas, lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac where sas_sat_id=sat_id and sas_sac_id=sac_id"))
+# print(class(option2))
+
+
+df_prelevement <- data.frame(a =c("poils","poils","sang","sang", "feces","feces", "peau", "mucus","mucus","tiques")) 
+     
+option1 <- c("cou","miroir","jugulaire","oreille","sabot","anus","oreille","nez","vagin","oreille")
+option3 <- c("alu","alu", "eppendorf", "tube rouge","tube violet","pilulier 25","zip_loc","eppendorf", "eppendorf", "ecouvillon")
+option4 <- c("sec","sec","sec","EDTA","sec","sec","alcool","sec","sec","sec")
+df_prelevement$b <- c(option1, rep("", (nrow(df_prelevement)-length(option1))))
+df_prelevement$c <- c(option3, rep("", nrow(df_prelevement)-length(option3))) #converts to character
+df_prelevement$d <- c(option4, rep("", nrow(df_prelevement)-length(option4))) #converts to character
+
 
 server <- function(input, output,session) {
-  
+  print(df_prelevement)
+  #print(xy.list)
+  #str(df_prelevement)
   ##################              RUBRIQUE ANIMAL                       #################
   
   updateSelectizeInput(session, "idRFID", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
@@ -331,16 +351,65 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     }
   })
   
-  # observeEvent (input$type_prelev, {
-  #   if (!is.null(input$type_prelev)) {
-  #     if( input$type_prelev == "Autre localisation"){
-  #       toggleModal(session,"nouvelleLocalization_modal","open")}
-  #  }}) 
-  
   observeEvent(input$ajout_prelev, {
     prelevement <<- rbind(prelevement,data.frame("Type" = c(input$type_prelev), "Localisation" =c(input$local_prelev), "Contenant" = c(input$cont_prelev),"Solvant" = c(input$solv_prelev),"Nombre d'echantillons" = c(input$nbre_echant)))
     output$tableprelevement = DT::renderDT(prelevement,server = F)
   })
+  
+  ### Mise en forme des prélevements :
+  
+  output$table_prel <- renderTable({df_prelevement})
+  
+  
+  output$control1 <- renderUI({
+    selectInput("typetype", ("Type"), choices = df_prelevement$a)
+  })
+  
+  output$control2 <- renderUI({
+    x <- input$typetype
+    if (any(
+      is.null(x)
+    ))
+      return("Select")
+    choice2 <- df_prelevement[df_prelevement$a == x, 
+                  "b"]
+    selectInput("localoca", ("localisation"), choices = choice2)
+  })
+  
+  output$control3 <- renderUI({
+    x <- input$typetype
+    y <- input$localoca
+    if (any(
+      is.null(x),
+      is.null(y)
+    )) 
+      return("Select")
+    
+    choice3 <- df_prelevement[df_prelevement$a == x & df_prelevement$b == y,
+                  "c"]
+    
+    selectInput("concon", ("conditionnement"), choices = choice3)
+  })
+  
+  output$control4 <- renderUI({
+    x <- input$typetype
+    y <- input$localoca
+    z <- input$concon
+    if (any(
+      is.null(x),
+      is.null(y),
+      is.null(z)
+    )) 
+      return("Select")
+    
+    choice4 <- df_prelevement[df_prelevement$a == x & df_prelevement$b == y & df_prelevement$c == z,
+                              "d"]
+    
+    selectInput("solsol", ("solvant"), choices = choice4)
+  })
+  
+  
+  
   
   
   ##################           RUBRIQUE TABLE                           #################

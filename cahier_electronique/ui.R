@@ -157,33 +157,44 @@ contentprelevement = fluidPage(
     column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))
   ),
   
-  fluidRow(
-    
-    column(2, selectizeInput("type_prelev", h4("Type de prelevement"), 
-                             choices = "" ,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-    column(2, selectizeInput("local_prelev", h4("Localisation"), 
-                             choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-    column(2, selectizeInput("cont_prelev", h4("Contenant"), 
-                             choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-    column(2, selectizeInput("solv_prelev", h4("Solvant"), 
-                             choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-    column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), 
-                             choices =list( 1,2,3,4,5) ,selected = NULL)),
-    column(3, actionButton("ajout_prelev","Ajouter un prelevement"))
-  ),
+  # fluidRow(
+  #   
+  #   column(2, selectizeInput("type_prelev", h4("Type de prelevement"), 
+  #                            choices = "" ,options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+  #   column(2, selectizeInput("local_prelev", h4("Localisation"), 
+  #                            choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+  #   column(2, selectizeInput("cont_prelev", h4("Contenant"), 
+  #                            choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+  #   column(2, selectizeInput("solv_prelev", h4("Solvant"), 
+  #                            choices = "",options=list(placeholder='Choisir une valeur :',create = TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+  #   column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), 
+  #                            choices =list( 1,2,3,4,5) ,selected = NULL)),
+  #   column(3, actionButton("ajout_prelev","Ajouter un prelevement"))
+  # ),
   
   # if (input.type_prelev=="sang" && input.local_prelev=="jugulaire" && input.cont_prelev=="tube rouge" && input.solv_prelev=="sec") {} 
   
   
   hr(),
+#   
+#   fluidRow(
+#     sidebarLayout(
+#       mainPanel(
+#         dataTableOutput("tableprelevement")),
+#       sidebarPanel(actionButton("sup_prelev", "Supprimer prelevement"))
+#     ))
+# )
+fluidRow(
   
-  fluidRow(
-    sidebarLayout(
-      mainPanel(
-        dataTableOutput("tableprelevement")),
-      sidebarPanel(actionButton("sup_prelev", "Supprimer prelevement"))
-    ))
+column(2,uiOutput("control1")),
+column(2,uiOutput("control2")),
+column(2,uiOutput("control3")),
+column(2, uiOutput("control4")),
+              #column(2,textOutput("result")),
+                     column(2,tableOutput("table_prel"))
 )
+)
+
 
 
 ##################           Rubrique Collier              #################
