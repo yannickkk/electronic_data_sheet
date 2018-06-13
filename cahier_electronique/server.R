@@ -295,7 +295,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     {
       list_ble = ""
       for (u in input$traitement) {
-        list_ble = paste(u,list_ble,sep=" ~ ")
+        list_ble = paste(u,list_ble,sep=" ")
       }
       blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble)))
       updateSelectizeInput(session,"locali", options=list(selected=NULL))

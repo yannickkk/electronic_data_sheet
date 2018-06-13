@@ -93,9 +93,13 @@ contentcaractanimal = fluidPage(
     uiOutput("out_cirCou"),
     column(2, numericInput("lPattArriere", value='0', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
-    column(2, numericInput("tglucose", value="", h4("Taux de Glucose sanguin"), min=0)),
+    column(2, numericInput("tglucose", value="", h4("Taux de Glucose"), min=0)),
     column(2, selectizeInput("dents", h4("Dents"), choices ="", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2, textInput("remarque_ani", h4("Remarques"), value = ""))
+    column(2, textInput("remarque_ani", h4("Remarques"), value = "")),
+    column(12),
+    column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))
+    # column(12,hr())
     
   ),
   
@@ -121,7 +125,8 @@ contentblessures = fluidPage(
      column(2,uiOutput("casc_ble2")),
      column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
      column(12,hr()),
-     column(3,offset = 1, actionButton("ajoutBle","Ajouter une blessure"), actionButton("sup_Bles", "Supprimer blessure")),
+     column(3,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
+     column(3,actionButton("sup_Bles", "Supprimer blessure")),
      column(12,hr()),
      dataTableOutput("tableblessure")
    )
@@ -131,11 +136,6 @@ contentblessures = fluidPage(
 
 contentprelevement = fluidPage(
   
-  fluidRow(
-    column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(12,hr())
-    ),
   
   fluidRow(
      column(2,uiOutput("control1")),
@@ -144,7 +144,8 @@ contentprelevement = fluidPage(
      column(2,uiOutput("control4")),
      column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,selected = NULL)),
      column(12,hr()),
-     column(3,offset = 3, actionButton("ajout_prelev",("Ajouter un prelevement")), actionButton("sup_prelev", "Supprimer un prelevement")),
+     column(2,offset = 3, actionButton("ajout_prelev",("Ajouter prelevement"))),
+     column(2,actionButton("sup_prelev", "Supprimer prelevement")),
      column(12,hr()),
      dataTableOutput("tableprelevement")
    )
