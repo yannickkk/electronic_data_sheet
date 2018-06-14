@@ -47,7 +47,7 @@ server <- function(input, output,session) {
     if ((input$nAnimal2)!="") {
       str = paste0("select cap_tag_gauche from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
       resres = dbGetQuery(con,str)
-      idTagOrG2 <<- resres[1,1]
+      idTagOrG2 <- resres[1,1]
       updateSelectizeInput(session, "idTagOrG2",  selected = (idTagOrG2))
     }
   })
@@ -56,7 +56,7 @@ server <- function(input, output,session) {
     if ((input$nAnimal2)!="") {
       str = paste0("select cap_tag_droit from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq = '", input$nAnimal2,"' order by cap_date DESC")
       resres = dbGetQuery(con,str)
-      idTagOrD2 <<- resres[1,1]
+      idTagOrD2 <- resres[1,1]
       updateSelectizeInput(session, "idTagOrD2", selected = idTagOrD2)
     }
   })
@@ -65,7 +65,7 @@ server <- function(input, output,session) {
     if ((input$nAnimal2)!="") {
       str = paste0("select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id and ani_etiq='",input$nAnimal2,"' order by cap_date DESC")
       resres = dbGetQuery(con,str)
-      idTagRfid <<- resres[1, 1]
+      idTagRfid <- resres[1, 1]
       if (!is.null(idTagRfid)){
         updateSelectizeInput(session, "idRFID2", selected = idTagRfid)
       }
@@ -77,7 +77,7 @@ server <- function(input, output,session) {
     if ((input$nAnimal2)!="") {
       str = paste0("select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and ani_etiq = '", input$nAnimal2, "' order by cap_date DESC))")
       resres = dbGetQuery(con,str)
-      idSite2 <<- resres[1, 1]
+      idSite2 <- resres[1, 1]
       updateSelectizeInput(session, "idSite2", selected = idSite2)
     }
   })
@@ -86,7 +86,7 @@ server <- function(input, output,session) {
     if ((input$nAnimal2)!="") {
       str = paste0("select ani_sexe from public.t_animal_ani where ani_etiq ='", input$nAnimal2, "'")
       resres = dbGetQuery(con,str)
-      sexe <<- resres[1, 1]
+      sexe <- resres[1, 1]
       updateRadioButtons(session, "sexe", selected = sexe)
     }
   })
@@ -106,7 +106,7 @@ server <- function(input, output,session) {
     if ((input$idTagOrD2)!="") {
       str = paste0("select ani_etiq from public.t_animal_ani, public.t_capture_cap where cap_ani_id = ani_id and cap_tag_droit ='", input$idTagOrD2,"' order by cap_date DESC")
       resres = dbGetQuery(con,str)
-      nAnimalFound <<- resres[1,1]
+      nAnimalFound <- resres[1,1]
       updateSelectizeInput(session, "nAnimal2", selected = nAnimalFound)
     }
   })
@@ -117,7 +117,7 @@ server <- function(input, output,session) {
     if ((input$idTagOrG2)!="") {
       str = paste0("select ani_etiq from public.t_animal_ani, public.t_capture_cap where cap_ani_id = ani_id and cap_tag_gauche ='", input$idTagOrG2,"' order by cap_date DESC")
       resres = dbGetQuery(con,str)
-      nAnimalFound <<- resres[1,1]
+      nAnimalFound <- resres[1,1]
       updateSelectizeInput(session, "nAnimal2", selected = nAnimalFound)
     }
   })
@@ -128,7 +128,7 @@ server <- function(input, output,session) {
     if ((input$idRFID2)!="") {
       str = paste0("select ani_etiq from public.t_animal_ani, public.t_capture_cap, public.t_rfid_rfi where cap_id = rfi_cap_id and cap_ani_id = ani_id and rfi_tag_code ='", input$idRFID2,"'")
       resres = dbGetQuery(con,str)
-      nAnimalFound <<- resres[1,1]
+      nAnimalFound <- resres[1,1]
       updateSelectizeInput(session, "nAnimal2", selected = nAnimalFound)
     }
   })
@@ -139,7 +139,7 @@ server <- function(input, output,session) {
     if ((input$nAnimal2)!="") {
       str = paste0("select cap_tag_droit_metal from public.t_capture_cap, public.t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"'")
       resres = dbGetQuery(con,str)
-      tag_droit_metal <<- resres[1,1]
+      tag_droit_metal <- resres[1,1]
       updateCheckboxInput(session, "metal_tag_d2", value = tag_droit_metal)
     }
   })
@@ -148,7 +148,7 @@ server <- function(input, output,session) {
     if ((input$nAnimal2)!="") {
       str = paste0("select cap_tag_gauche_metal from public.t_capture_cap, public.t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"'")
       resres = dbGetQuery(con,str)
-      tag_gauche_metal <<- resres[1,1]
+      tag_gauche_metal <- resres[1,1]
       updateCheckboxInput(session, "metal_tag_g2", value = tag_gauche_metal)
     }
   })
@@ -939,4 +939,4 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   idTagOrG=''
   idTagOrD=''
   
-  }
+}

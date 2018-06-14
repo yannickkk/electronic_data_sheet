@@ -75,13 +75,13 @@ contentcaractanimal = fluidPage(
   
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-   
-    column(2),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui' && input.idRFID2 == '' && input.nAnimal2 !=''",  selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui' && input.idRFID2 != ''", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+  
+    column(12),
     
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE ))),
+    column(2,offset = 2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'",  checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE ))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", checkboxInput("metal_tag_d2", "Tag D. métal", value = FALSE )))
     ),
   
@@ -406,3 +406,6 @@ ui <- shinyUI(
             
 )
 
+
+
+onStop(function() dbDisconnect(con))
