@@ -191,13 +191,6 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   })
   
   
-    #########          Date capture                                                   ##########   
- 
-   output$bla <- renderUI ({
-    print("ba")
-    print(input$date_capture)
-  })
-  
     #########          Test données: poids, num sabot , tour de cou, lg patte, bois   ######### 
   
   output$poids_ani = renderText({input$pSabotPlein-input$pSabotVide})
@@ -277,6 +270,31 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     updateTimeInput(session, "time_caract", value = Sys.time())
   })
   
+    #########          Récupération du site                                           #########    
+  
+  liste_date <- dbGetQuery(con,"select cap_date from t_capture_cap")
+  
+  observeEvent(input$nAnimal2, {
+    for (i in liste_date) {
+      if (input$date_caract %in% i) {
+        str = paste0("select distinct sit_nom_court from public.tr_site_capture_sit, public.t_capture_cap where sit_id=cap_sit_id and cap_date = '", input$date_caract,"'")
+        resres = dbGetQuery(con,str)
+        same_date <- resres[1,1]
+        updateSelectizeInput(session, "idSite2", selected = same_date)
+      }
+    }
+  })
+  
+  observeEvent(input$nAnimal, {
+    for (i in liste_date) {
+      if (input$date_caract %in% i) {
+        str = paste0("select distinct sit_nom_court from public.tr_site_capture_sit, public.t_capture_cap where sit_id=cap_sit_id and cap_date = '", input$date_caract,"'")
+        resres = dbGetQuery(con,str)
+        same_date <- resres[1,1]
+        updateSelectizeInput(session, "idSite", selected = same_date)
+      }
+    }
+  })
   
   ##################           RUBRIQUE BLESSURES                       #################
   
