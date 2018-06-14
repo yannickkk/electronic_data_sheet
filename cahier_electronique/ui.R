@@ -127,7 +127,8 @@ contentblessures = fluidPage(
      column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
      column(2,actionButton("sup_Bles", "Supprimer blessure")),
      column(12,hr()),
-     dataTableOutput("tableblessure")
+     dataTableOutput("tableblessure"),
+     column(12,textInput("liste_blessures",h4("Liste des blessures"),value = "", width = "100%"))
    )
 )
 

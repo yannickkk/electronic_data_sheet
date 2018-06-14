@@ -311,6 +311,20 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     
     output$tableblessure = DT::renderDT(blessure,server = F)
     #print(blessure[1][1])
+   # print(blessure$Liste)
+  })
+  
+  
+  observeEvent(input$ajoutBle, {
+    i=1
+    liste_blessures =""
+    while (i <= nrow(blessure)) {
+      liste_blessures <- paste0(liste_blessures, blessure[i,]$Liste, " ~ ")
+      print(liste_blessures)
+      i=i+1
+      updateTextInput(session, "liste_blessures", value = liste_blessures)
+    }
+
   })
   
   ### Mise en forme des blessures en cascade :
