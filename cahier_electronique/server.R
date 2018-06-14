@@ -40,7 +40,8 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "dents", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
   updateSelectizeInput(session, "numSabot", choices = dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab order by sab_id")) 
   
-  ################## Sélection site/RFID/tag à partir du n°animal                   #################
+  
+    #########          Sélection site/RFID/tag à partir du n°animal                   #########
   
   observeEvent(input$nAnimal2,{
     if ((input$nAnimal2)!="") {
@@ -99,7 +100,7 @@ server <- function(input, output,session) {
     }  
   })
   
-  ################## Sélection nAnimal/RFID/site/tagG à partir du tagD              #################
+    #########          Sélection nAnimal/RFID/site/tagG à partir du tagD              #########
   
   observeEvent(input$idTagOrD2,{
     if ((input$idTagOrD2)!="") {
@@ -110,7 +111,7 @@ server <- function(input, output,session) {
     }
   })
   
-  ################## Sélection nAnimal/RFID/site/tagD à partir du tagG              #################
+    #########          Sélection nAnimal/RFID/site/tagD à partir du tagG              #########
   
   observeEvent(input$idTagOrG2,{
     if ((input$idTagOrG2)!="") {
@@ -121,7 +122,7 @@ server <- function(input, output,session) {
     }
   })
   
-  ################## Sélection nAnimal/site/tagD/tagG à partir du RFID              #################
+    #########          Sélection nAnimal/site/tagD/tagG à partir du RFID              #########
   
   observeEvent(input$idRFID2,{
     if ((input$idRFID2)!="") {
@@ -132,7 +133,7 @@ server <- function(input, output,session) {
     }
   })
   
-  ################## Vérification des tags  (metal ou non)                          ################## 
+    #########          Vérification des tags  (metal ou non)                          ######### 
   
   observeEvent(input$nAnimal2,{
     if ((input$nAnimal2)!="") {
@@ -176,7 +177,7 @@ listTag = rbind(listTagD,listTagG)
     }
   })
       
-  ################## Test de l'existence du numéro entré pour un nouvel animal      ################   
+    #########          Vérification existence numéro nouvel animal                    ##########   
     
 listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
@@ -190,14 +191,14 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   })
   
   
-  ################## Date capture                                       ################   
+    #########          Date capture                                                   ##########   
  
    output$bla <- renderUI ({
     print("ba")
     print(input$date_capture)
   })
   
-  ################## Test données: poids, num sabot , tour de cou, lg patte, bois   ################   
+    #########          Test données: poids, num sabot , tour de cou, lg patte, bois   ######### 
   
   output$poids_ani = renderText({input$pSabotPlein-input$pSabotVide})
   
@@ -270,11 +271,12 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     if (value == FALSE) {
       updateNumericInput(session, "pSabotVide" , value = 0)}}
 
-  ################## Récupération de l'heure                            #####    
+    #########          Récupération de l'heure                                        #########    
  
    observeEvent(input$to_current_time_caract, {
     updateTimeInput(session, "time_caract", value = Sys.time())
   })
+  
   
   ##################           RUBRIQUE BLESSURES                       #################
   
@@ -414,10 +416,10 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   output$historique <- DT::renderDataTable({
     outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site, 
-                                  t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, array_to_string( array_agg( distinct eqc_sen_id), ', ') as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court, 
-                                  teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle
-                                  FROM public.v_aniposi_gpsgsm, public.t_equipement_conf_eqc ) as t where t.ani_etiq = '",input$nAnimal2,"' group by t.ani_etiq, t.ani_sexe, t.cap_date, t.cap_poids, t.cap_lpa, t.cap_age_classe, t.sit_nom_court, 
-                                  t.teq_nom_court, t.cap_annee_suivi, t.eqa_date_debut, t.eqa_date_fin, t.temps_suivi, t.eqt_id_usuel, t.mar_libelle, t.mod_libelle order by cap_date"))
+                                  t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court, 
+                                  teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association, sen_id,eqc_annee_suivi
+                                  FROM public.v_aniposi_gpsgsm, public.t_equipement_conf_eqc, lu_tables.tr_sensors_sen ) as t where t.ani_etiq = '",input$nAnimal2,"' and eqc_sen_id=sen_id and t.cap_annee_suivi=eqc_annee_suivi group by t.ani_etiq, t.ani_sexe, t.cap_date, t.cap_poids, t.cap_lpa, t.cap_age_classe, t.sit_nom_court, 
+                                  t.teq_nom_court, t.cap_annee_suivi, t.eqa_date_debut, t.eqa_date_fin, t.temps_suivi, t.eqt_id_usuel, t.mar_libelle, t.mod_libelle,t.sen_association order by cap_date"))
     
     ret <- DT::datatable(outp)
     return(ret)

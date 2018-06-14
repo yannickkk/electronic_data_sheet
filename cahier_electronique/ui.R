@@ -1,4 +1,4 @@
-##################              USER INTERFACE             ############################
+##################              USER INTERFACE                 ################# 
 
 #       Objet: Saisie des données de capture pour les chevreuils de Fabas
 #       Réalisation: projet tuteuré Master 1 Bioinformatique Université Paul Sabatier
@@ -9,8 +9,7 @@
 
 # Création de la mise en page des formulaires
 
-
-##################           Rubrique Animal               ############################
+  ##################           Rubrique Animal               ############################
 
 contentcaractanimal = fluidPage(
   tags$head(
@@ -116,7 +115,7 @@ contentcaractanimal = fluidPage(
   )
 )
 
-##################           Rubrique Blessures            #################
+  ##################           Rubrique Blessures            #################
 
 contentblessures = fluidPage( 
    fluidRow(
@@ -125,14 +124,14 @@ contentblessures = fluidPage(
      column(2,uiOutput("casc_ble2")),
      column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
      column(12,hr()),
-     column(3,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
-     column(3,actionButton("sup_Bles", "Supprimer blessure")),
+     column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
+     column(2,actionButton("sup_Bles", "Supprimer blessure")),
      column(12,hr()),
      dataTableOutput("tableblessure")
    )
 )
 
-##################           Rubrique Prélèvements         #################
+  ##################           Rubrique Prélèvements         #################
 
 contentprelevement = fluidPage(
   
@@ -153,7 +152,7 @@ contentprelevement = fluidPage(
 )
 
 
-##################           Rubrique Collier              #################
+  ##################           Rubrique Collier              #################
 
 contentcollier = fluidPage(
   #titlePanel("Caracteristique du collier"),
@@ -163,7 +162,7 @@ contentcollier = fluidPage(
     column(3, actionButton("ajoutColl","Confirmer la nouvelle pose"))
   ))
 
-##################           Rubrique Table                #################
+  ##################           Rubrique Table                #################
 
 
 contenttable = fluidPage(
@@ -185,10 +184,9 @@ contenttable = fluidPage(
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)) 
   ))
 
-##################           Rubrique Historique           #################
+  ##################           Rubrique Historique           #################
 
 contenthistorique <- fluidPage(
-  #titlePanel("Historique"),
   #fluidRow(
   
   tabPanel("Historique de capture",
@@ -196,11 +194,10 @@ contenthistorique <- fluidPage(
            #         conditionalPanel(
            #    condition = "input.estnouvelanimal == 0",h4("Historique de capture"),DT::dataTableOutput("historique")
   )
-  
   # )
 )
 
-##################           Rubrique Checklist 1          #################
+  ##################           Rubrique Checklist 1          #################
 
 
 contentcheck1 =  fluidPage(fluidRow(
@@ -225,7 +222,7 @@ contentcheck1 =  fluidPage(fluidRow(
 ))
 
 
-##################           Rubrique Lâcher               #################
+  ##################           Rubrique Lâcher               #################
 
 
 ###submitButton(format(Sys.time(), "%X"))
@@ -272,7 +269,7 @@ contentlacher = fluidPage(
 
 
 
-##################           Rubrique Checklist 2          #################
+  ##################           Rubrique Checklist 2          #################
 
 
 contentcheck2 = fluidPage(fluidRow(
@@ -285,7 +282,7 @@ contentcheck2 = fluidPage(fluidRow(
 )
 
 
-##################           Rubrique Capture              #################
+  ##################           Rubrique Capture              #################
 
 
 contentcapture = fluidPage(
@@ -322,7 +319,7 @@ contentcapture = fluidPage(
   ))
 
 
-##################           Rubrique Sabot                #################
+  ##################           Rubrique Sabot                #################
 
 
 contentsabot = fluidPage(
@@ -368,7 +365,7 @@ contentsabot = fluidPage(
 )
 
 
-##################        ORGANISATION DES RUBRIQUES       #################
+  ##################        ORGANISATION DES RUBRIQUES       #################
 
 
 caractanimal = tabPanel("Caract. de l'animal",contentcaractanimal)
@@ -384,7 +381,7 @@ comporcapture = tabPanel("Comportement capture",contentcapture)
 comporsabot = tabPanel("Comportement sabot",contentsabot)
 
 
-##################                    UI                   #################
+  ##################                    UI                   #################
 
 ##Lumen or cerulean or sandstone
 
