@@ -299,14 +299,14 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       for (u in input$traitement) {
         list_ble = paste(u,list_ble,sep=" ")
       }
-      blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste0(c(input$locali)," - ",c(input$grave), " - ",c(list_ble))))
+      blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste0(c(input$locali),"-",c(input$grave), "-",c(list_ble))))
       updateSelectizeInput(session,"locali", options=list(selected=NULL))
       updateSelectizeInput(session,"traitement", options=list(selected=NULL))
     }
       
     if ((length(input$traitement))==1)
       {
-        blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste0(c(input$locali)," - ",c(input$grave), " - ",c(input$traitement))))
+        blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste0(c(input$locali),"-",c(input$grave), "-",c(input$traitement))))
     }
     
     output$tableblessure = DT::renderDT(blessure,server = F)
@@ -319,7 +319,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     i=1
     liste_blessures =""
     while (i <= nrow(blessure)) {
-      liste_blessures <- paste0(liste_blessures, blessure[i,]$Liste, " ~ ")
+      liste_blessures <- paste0(liste_blessures, blessure[i,]$Liste, "~")
       i=i+1
       updateTextInput(session, "liste_blessures", value = liste_blessures)
     }
