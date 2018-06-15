@@ -101,10 +101,10 @@ server <- function(input, output,session) {
   
   testNouvelAnimal = observeEvent(input$estNouvelAnimal, {
     if (input$estNouvelAnimal=="non"){
-      updateRadioButtons(session, "identifié", choices = c("oui","non"), selected = "oui")
+      updateRadioButtons(session, "identifie", choices = c("oui","non"), selected = "oui")
     }
     if (input$estNouvelAnimal=="oui"){
-      updateRadioButtons(session, "identifié", choices = c("oui","non"), selected = "non")
+      updateRadioButtons(session, "identifie", choices = c("oui","non"), selected = "non")
     }  
   })
   
@@ -491,9 +491,15 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
      selectizeInput("position_temp", h4("Positionnement"), choices = choice2, options=list(create= TRUE))
    })
    
+    observeEvent(input$identifie, {
+   if (input$identifie == "oui") {
+     updateRadioButtons(session,"cribague", selected = "NA")
+   }  
+    })
    
   observeEvent(input$to_current_time_table, {
     updateTimeInput(session, "time_table", value = Sys.time())
+
   })
   
   ##################           RUBRIQUE HISTORIQUE                      #################

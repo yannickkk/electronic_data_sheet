@@ -49,40 +49,40 @@ contentcaractanimal = fluidPage(
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
     column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
-    column(2, radioButtons(inputId = "identifié", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
+    column(2, radioButtons(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
     column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"), selected = character(0))),
    
     column(12,hr()),
     
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput(inputId = "nAnimal", value = "",label = h4("N° Animal")))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput("idTagOrG", h4("Tag Oreille Gauche"),value=""))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", textInput("idTagOrD", h4("Tag Oreille Droite"),value=""))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifié == 'non')", selectizeInput("idRFID", h4("RFID"),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput(inputId = "nAnimal", value = "",label = h4("N° Animal")))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput("idTagOrG", h4("Tag Oreille Gauche"),value=""))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput("idTagOrD", h4("Tag Oreille Droite"),value=""))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", selectizeInput("idRFID", h4("RFID"),
                               choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifié == 'non'", selectizeInput("idSite", h4("Site"),choices = "",
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifie == 'non'", selectizeInput("idSite", h4("Site"),choices = "",
                               options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
    
     column(12),
     column(1,offset = 1),
     
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifié == 'non'", checkboxInput("metal_tag_g", "Tag G. métal", value = FALSE ))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifié == 'non'", checkboxInput("metal_tag_d", "Tag D. métal", value = FALSE ))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifie == 'non'", checkboxInput("metal_tag_g", "Tag G. métal", value = FALSE ))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifie == 'non'", checkboxInput("metal_tag_d", "Tag D. métal", value = FALSE ))),
     
     column(12),
     
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'",selectizeInput("nAnimal2",h4("N° Animal"), choices = "",
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",selectizeInput("nAnimal2",h4("N° Animal"), choices = "",
                               options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
   
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui' && input.nAnimal2 !=''",  selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui' && input.idRFID2 != ''", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' && input.nAnimal2 !=''",  selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' && input.idRFID2 != ''", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
   
     column(12),
     
-    column(2,offset = 2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'",  checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE ))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifié == 'oui'", checkboxInput("metal_tag_d2", "Tag D. métal", value = FALSE )))
+    column(2,offset = 2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",  checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE ))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("metal_tag_d2", "Tag D. métal", value = FALSE )))
     ),
   
   column(12,hr()),
@@ -167,17 +167,14 @@ contentcollier = fluidPage(
   ##################           Rubrique Table                #################
 
 contenttable = fluidPage(
-  #titlePanel("Comportement sur table"),
   
   fluidRow(
     column(2,uiOutput("casc_temp1")),
     column(2,uiOutput("casc_temp2")),
-    #column(3,numericInput("rectTemp", value=" ", h4("Temperature rectale"),step = 1)),  
-    #column(3,numericInput("ExtTemp", value=" ", h4("Temperature exterieure"),step = 1)),
     column(12,hr()),
     column(1,radioButtons("lutte",h4("Lutte"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
     column(1,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected =character(0))),
-    column(1,radioButtons("cribague",h4("Cri Bague"), choices  = list(NA,"0", "1-2", ">2"))),
+    column(1,radioButtons("cribague",h4("Cri Bague"), choices  = list("NA","0", "1-2", ">2"),  selected =character(0))),
     column(1,radioButtons("criautre", h4("Cri Autre"), choices = list("0", "1-2", ">2"), selected = F)),
     column(12,hr()),
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
