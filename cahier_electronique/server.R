@@ -441,8 +441,20 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
    affichage_colliers <- observeEvent(input$new_collier, {
        output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
-       output$collier_choisi = renderPrint(input$tablecollier_rows_selected)
+       #output$collier_choisi = renderPrint(input$tablecollier_rows_selected)
   })
+   
+   affichage_choix_collier <- observeEvent(input$tablecollier_rows_selected, {
+     if (!is.null(input$tablecollier_rows_selected)) {
+       ligne_selection = input$tablecollier_rows_selected
+       collier_tech = liste_collier[ligne_selection,2]
+       collier_col_b = liste_collier[ligne_selection,7]
+       collier_col_c = liste_collier[ligne_selection,8]
+       cat_col = paste(collier_tech, collier_col_b, collier_col_c, sep = "-" )
+       output$collier_choisi = renderPrint(cat_col)
+     }
+   })
+   
    
    observeEvent(input$valide_collier,{
      if ((input$new_collier)=='oui' && is.null(input$tablecollier_rows_selected)) {
