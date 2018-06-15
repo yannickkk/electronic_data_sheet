@@ -502,6 +502,21 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
 
   })
   
+  observeEvent(input$criautre, {
+    if (!is.null(input$criautre) && !is.null(input$cribague)) {
+      if (((input$cribague == "NA" || input$cribague == "0")) && (input$criautre == "0")) {
+        cri_synthese = FALSE }
+      else {cri_synthese = TRUE }
+  }})
+  
+  observeEvent(input$cribague, {
+    if (!is.null(input$criautre) && !is.null(input$cribague)) {
+      if (((input$cribague == "NA" || input$cribague == "0")) && (input$criautre == "0")) {
+        cri_synthese = FALSE }
+      else {cri_synthese = TRUE }
+ } })
+
+  
   ##################           RUBRIQUE HISTORIQUE                      #################
   
   output$historique <- DT::renderDataTable({
