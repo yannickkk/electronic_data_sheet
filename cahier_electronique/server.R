@@ -12,12 +12,20 @@ colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi")
  
 option4 <- dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas, lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac where sas_sat_id=sat_id and sas_sac_id=sac_id")
 
+
 ## Dataframe pour les blessures :
 
 df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"),
                           dbGetQuery(con, "select blg_gravite from lu_tables.tr_blessure_localisation_bll, lu_tables.tr_blessure_gravite_blg where blg_bll_id=bll_id"))
 
 colnames(df_blessure)<-c("ble_local","ble_gravite")
+
+
+## Dataframe pour les temperature :
+
+df_temperature <- data.frame(sonde = c("rouge","blanche"),position = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_loc_tel"))
+                          
+colnames(df_temperature)<-c("sonde","position")
 
 
 server <- function(input, output,session) {
@@ -441,7 +449,6 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
    affichage_colliers <- observeEvent(input$new_collier, {
        output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
-       #output$collier_choisi = renderPrint(input$tablecollier_rows_selected)
   })
    
    affichage_choix_collier <- observeEvent(input$tablecollier_rows_selected, {
@@ -469,7 +476,22 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   ##################           RUBRIQUE TABLE                           #################
   
   updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
-  
+   
+   output$casc_temp1 <- renderUI({
+     selectizeInput("sonde_temp", h4("Sonde"), choices = df_temperature$sonde ,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+   })
+   
+   output$casc_temp2 <- renderUI({
+     x <- input$sonde_temp
+     if (any(
+       is.null(x)
+     ))
+       return("Select")
+     choice2 <- df_temperature[df_temperature$sonde == x,  "position"]
+     selectizeInput("position_temp", h4("Positionnement"), choices = choice2, options=list(create= TRUE))
+   })
+   
+   
   observeEvent(input$to_current_time_table, {
     updateTimeInput(session, "time_table", value = Sys.time())
   })
@@ -484,8 +506,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     #                               t.teq_nom_court, t.cap_annee_suivi, t.eqa_date_debut, t.eqa_date_fin, t.temps_suivi, t.eqt_id_usuel, t.mar_libelle, t.mod_libelle,t.sen_association order by cap_date"))
     # 
     
-    ret <- DT::datatable(outp)
-    return(ret)
+    # ret <- DT::datatable(outp)
+    # return(ret)
   })
   
   ##################           RUBRIQUE CHECKLIST 1                     #################

@@ -170,20 +170,23 @@ contenttable = fluidPage(
   #titlePanel("Comportement sur table"),
   
   fluidRow(
-    
-    column(2,timeInput("time_table", h4("Heure:"),seconds = FALSE),
-           actionButton("to_current_time_table", "Afficher l'heure")),  
-    column(3,numericInput("rectTemp", value=" ", h4("Temperature rectale"),step = 1)),  
-    column(3,numericInput("ExtTemp", value=" ", h4("Temperature exterieure"),step = 1)),
+    column(2,uiOutput("casc_temp1")),
+    column(2,uiOutput("casc_temp2")),
+    #column(3,numericInput("rectTemp", value=" ", h4("Temperature rectale"),step = 1)),  
+    #column(3,numericInput("ExtTemp", value=" ", h4("Temperature exterieure"),step = 1)),
     column(12,hr()),
-    column(2,radioButtons("lutte",h4("Lutte"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
-    column(2,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected =character(0))),
-    column(2,radioButtons("cribague",h4("Cri Bague"), choices  = list(NA,"0", "1-2", ">2"))),
-    column(2,radioButtons("criautre", h4("Cri Autre"), choices = list("0", "1-2", ">2"), selected = F)),
+    column(1,radioButtons("lutte",h4("Lutte"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
+    column(1,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected =character(0))),
+    column(1,radioButtons("cribague",h4("Cri Bague"), choices  = list(NA,"0", "1-2", ">2"))),
+    column(1,radioButtons("criautre", h4("Cri Autre"), choices = list("0", "1-2", ">2"), selected = F)),
     column(12,hr()),
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
-                            choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)) 
-  ))
+                            choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
+    column(2,timeInput("time_table", h4("Heure:"),seconds = FALSE),
+           actionButton("to_current_time_table", "Afficher l'heure")),
+    column(12,hr()),
+    column(12, checkboxInput("suivi_temp", h4("Suivi des températures"), value = F))
+     ))
 
   ##################           Rubrique Historique           #################
 
