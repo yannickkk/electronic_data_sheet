@@ -444,6 +444,16 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
        output$collier_choisi = renderPrint(input$tablecollier_rows_selected)
   })
    
+   observeEvent(input$valide_collier,{
+     if ((input$new_collier)=='oui' && is.null(input$tablecollier_rows_selected)) {
+         shinyalert("STOP!", "Collier non sélectionné!", type = "error",confirmButtonText="Valider",showConfirmButton = F, showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
+     }
+     if ((input$new_collier)=='oui' && !is.null(input$tablecollier_rows_selected)) {
+       shinyalert("PARFAIT!", "Collier bien sélectionné!", type ="success" ,confirmButtonText="Valider", showCancelButton=F,cancelButtonText="Annuler",html=TRUE )
+     } 
+     
+  })
+   
   ##################           RUBRIQUE TABLE                           #################
   
   updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))

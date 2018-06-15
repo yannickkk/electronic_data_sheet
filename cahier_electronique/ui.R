@@ -159,7 +159,9 @@ contentcollier = fluidPage(
     column(2, radioButtons(inputId = "new_collier", choices = c("oui","non"), selected = "non",label = h4("Nouveau collier"),inline = TRUE)),
     column(12,hr()),
     column(12, conditionalPanel(condition = "input.new_collier == 'oui'", DT::dataTableOutput("tablecollier"))),
-    column(3,  conditionalPanel(condition = "input.new_collier == 'oui'",h4("Le collier choisi est : "), verbatimTextOutput('collier_choisi')))
+    column(3,  conditionalPanel(condition = "input.new_collier == 'oui'",h4("Le collier choisi est : "), verbatimTextOutput('collier_choisi'))),
+    column(12, conditionalPanel(condition = "input.new_collier == 'oui'", actionButton("valide_collier", label="Valider le collier"))),
+    useShinyalert()
     
   ))
 
