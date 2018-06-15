@@ -152,15 +152,15 @@ contentprelevement = fluidPage(
   
 )
 
-
   ##################           Rubrique Collier              #################
 
 contentcollier = fluidPage(
-  #titlePanel("Caracteristique du collier"),
   fluidRow(
     #titlePanel("Pose de collier"),
     column(3, checkboxInput(inputId = "new_collier", value = F,label = h4("Nouveau collier"))),
-    column(3, actionButton("ajoutColl","Confirmer la nouvelle pose"))
+    column(3, actionButton("ajoutColl","Confirmer la nouvelle pose")),
+    dataTableOutput("tablecollier")
+    
   ))
 
   ##################           Rubrique Table                #################

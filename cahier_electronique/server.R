@@ -297,8 +297,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   ##################           RUBRIQUE BLESSURES                       #################
   
-   blessure = data.frame()
-   row.names(blessure) = NULL
+  blessure = data.frame()
+  row.names(blessure) = NULL
    
    output$tableblessure = DT::renderDT(expr = blessure,server = F)
    
@@ -434,6 +434,12 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
    })
   
   
+   
+  ##################           RUBRIQUE COLLIER                         #################
+  
+  liste_collier <- dbGetQuery(con,"select eqc_annee_suivi, teq_nom_court, eqc_remarque, sen_association, eqt_id_usuel, eqc_drop_off, eqc_couleur_boitier, eqc_couleur_collier, eqc_memoire from public.t_equipement_conf_eqc, public.t_equipement_eqt, public.tr_type_equipement_teq, lu_tables.tr_sensors_sen where eqc_eqt_id=eqt_id and eqc_sen_id=sen_id and eqt_teq_id=teq_id" )
+  output$tablecollier = DT::renderDT(expr = liste_collier,server = F)
+   
   ##################           RUBRIQUE TABLE                           #################
   
   updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
@@ -445,11 +451,12 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   ##################           RUBRIQUE HISTORIQUE                      #################
   
   output$historique <- DT::renderDataTable({
-    outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site, 
-                                  t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court, 
-                                  teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association, sen_id,eqc_annee_suivi, cpt_annee_suivi,cpt_ani_etiq
-                                  FROM public.v_aniposi_gpsgsm, public.t_equipement_conf_eqc, lu_tables.tr_sensors_sen, cmpt.t_capture_cpt ) as t where t.ani_etiq =  '",input$nAnimal2,"' and eqc_sen_id=sen_id and cpt_annee_suivi=eqc_annee_suivi and cpt_ani_etiq=ani_etiq group by t.ani_etiq, t.ani_sexe, t.cap_date, t.cap_poids, t.cap_lpa, t.cap_age_classe, t.sit_nom_court, 
-                                  t.teq_nom_court, t.cap_annee_suivi, t.eqa_date_debut, t.eqa_date_fin, t.temps_suivi, t.eqt_id_usuel, t.mar_libelle, t.mod_libelle,t.sen_association order by cap_date"))
+    # outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site, 
+    #                               t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court, 
+    #                               teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association, sen_id,eqc_annee_suivi, cpt_annee_suivi,cpt_ani_etiq
+    #                               FROM public.v_aniposi_gpsgsm, public.t_equipement_conf_eqc, lu_tables.tr_sensors_sen, cmpt.t_capture_cpt ) as t where t.ani_etiq =  '",input$nAnimal2,"' and eqc_sen_id=sen_id and cpt_annee_suivi=eqc_annee_suivi and cpt_ani_etiq=ani_etiq group by t.ani_etiq, t.ani_sexe, t.cap_date, t.cap_poids, t.cap_lpa, t.cap_age_classe, t.sit_nom_court, 
+    #                               t.teq_nom_court, t.cap_annee_suivi, t.eqa_date_debut, t.eqa_date_fin, t.temps_suivi, t.eqt_id_usuel, t.mar_libelle, t.mod_libelle,t.sen_association order by cap_date"))
+    # 
     
     ret <- DT::datatable(outp)
     return(ret)
