@@ -438,7 +438,11 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   ##################           RUBRIQUE COLLIER                         #################
   
   liste_collier <- dbGetQuery(con,"select eqc_annee_suivi, teq_nom_court, eqc_remarque, sen_association, eqt_id_usuel, eqc_drop_off, eqc_couleur_boitier, eqc_couleur_collier, eqc_memoire from public.t_equipement_conf_eqc, public.t_equipement_eqt, public.tr_type_equipement_teq, lu_tables.tr_sensors_sen where eqc_eqt_id=eqt_id and eqc_sen_id=sen_id and eqt_teq_id=teq_id" )
-  output$tablecollier = DT::renderDT(expr = liste_collier,server = F)
+  
+   affichage_colliers <- observeEvent(input$new_collier, {
+       output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
+       output$collier_choisi = renderPrint(input$tablecollier_rows_selected)
+  })
    
   ##################           RUBRIQUE TABLE                           #################
   
