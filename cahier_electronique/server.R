@@ -301,6 +301,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     }
   })
   
+  
+  
     #########          Alerte perte de poids                                          #########
   
   output$perte_poids <- renderUI({

@@ -7,6 +7,8 @@ library(shinyTime)
 library(RPostgreSQL)
 library(shinyalert)
 library(chron)
+source("connect.R")
+
 
 dbSendQuery(con,"
 DROP SCHEMA IF EXISTS historique cascade;
@@ -14,7 +16,7 @@ CREATE SCHEMA historique;
 
 DROP TABLE IF EXISTS historique.t_ani_gpsgsm;
 
-CREATE TABLE historique.t_ani_gpsgsm AS 
+CREATE TABLE historique.t_ani_gpsgsm AS
 SELECT t_animal_ani.ani_id,
 t_animal_ani.ani_etiq,
 --t_capture_cap.cap_bague,
@@ -82,7 +84,7 @@ IS 'Table contenant toutes les informations des individus équipés de GPS et de
 
 DROP TABLE IF EXISTS historique.t_aniposi_gpsgsm;
 
-CREATE TABLE historique.t_aniposi_gpsgsm AS 
+CREATE TABLE historique.t_aniposi_gpsgsm AS
 SELECT v_posi_gpsgsm.cpos_id,
 --v_ani_gpsgsm.ani_id,
 t_ani_gpsgsm.ani_etiq,
@@ -156,7 +158,7 @@ t_ani_gpsgsm.eqa_date_fin
 --tr_parcellaire_par.par_annee
 FROM historique.t_ani_gpsgsm
 JOIN v_posi_gpsgsm ON t_ani_gpsgsm.ani_id = v_posi_gpsgsm.ani_id AND t_ani_gpsgsm.cap_annee_suivi = v_posi_gpsgsm.cpos_annee_suivi
---LEFT JOIN tr_parcellaire_par ON v_posi_gpsgsm.pos_localisation_par_id = tr_parcellaire_par.par_id AND v_posi_gpsgsm.cpos_annee_suivi = 
+--LEFT JOIN tr_parcellaire_par ON v_posi_gpsgsm.pos_localisation_par_id = tr_parcellaire_par.par_id AND v_posi_gpsgsm.cpos_annee_suivi =
   -- tr_parcellaire_par.par_annee
 ORDER BY t_ani_gpsgsm.ani_id, v_posi_gpsgsm.cpos_date, v_posi_gpsgsm.cpos_heure
 WITH DATA;
