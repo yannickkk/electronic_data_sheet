@@ -79,7 +79,7 @@ OWNER TO ychaval;
 --GRANT ALL ON TABLE historique.t_ani_gpsgsm TO cefs_ecriture;
 
 COMMENT ON TABLE historique.t_ani_gpsgsm
-IS 'Table contenant toutes les informations des individus équipés de GPS et de GSM (en dehors des locs) - si 2 captures la même année seule la première est conservée';
+IS 'Table contenant toutes les informations des individus equipes de GPS et de GSM (en dehors des locs) - si 2 captures la meme annee seule la premiere est conservee';
 
 
 DROP TABLE IF EXISTS historique.t_aniposi_gpsgsm;
@@ -170,5 +170,5 @@ OWNER TO ychaval;
 --GRANT ALL ON TABLE historique.t_aniposi_gpsgsm TO cefs_ecriture;
 
 COMMENT ON table historique.t_aniposi_gpsgsm
-IS 'Table contenant toutes les informations des individus équipés de GPS et de GSM y compris les localisations, les distances et l assolement lorsque présent';
+IS 'Table contenant toutes les informations des individus equipes de GPS et de GSM y compris les localisations, les distances et l assolement lorsque present';
 ")
