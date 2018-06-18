@@ -22,7 +22,7 @@ colnames(df_blessure)<-c("ble_local","ble_gravite")
 
 ## Dataframe pour les temperature :
 
-df_temperature <- data.frame(sonde = c("rouge","blanche"),position = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_loc_tel"))
+df_temperature <- data.frame(sonde = c("rouge","blanche"),position = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"))
                           
 colnames(df_temperature)<-c("sonde","position")
 
@@ -206,6 +206,9 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
         shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
       }} })
   
+  
+  ### Sabot
+  
   liste_sabot = dbGetQuery(con,"select distinct sab_valeur from lu_tables.tr_sabots_sab")
   
   output$sabotExiste <- renderUI({
@@ -221,6 +224,29 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       updateNumericInput(session, "numSabot" , value = 0)}
     else (dbSendQuery(con,sprintf("INSERT INTO lu_tables.tr_sabots_sab (sab_valeur) VALUES ('%s')", input$numSabot))) }
   
+  output$out_sabot_plein <- renderUI({
+    if (!is.na(input$pSabotPlein)) {
+      if (input$pSabotPlein>65) {
+        shinyalert("STOP!", " Poids Sabot plein elevé!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_sabot_plein )
+      }} })  
+  
+  modalCallback_sabot_plein <- function(value) {
+    if (value == FALSE) {
+      updateNumericInput(session, "pSabotPlein" , value = 0)}}
+  
+  output$out_sabot_vide <- renderUI({
+    if (!is.na(input$pSabotVide)) {
+      if (input$pSabotVide>50) {
+        shinyalert("STOP!", " Poids Sabot vide elevé!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_sabot_vide )
+      }} }) 
+  
+  modalCallback_sabot_vide <- function(value) {
+    if (value == FALSE) {
+      updateNumericInput(session, "pSabotVide" , value = 0)}}
+  
+  
+  ### Cou
+  
   output$out_cirCou <- renderUI({
     if (input$cirCou > dbGetQuery(con,"select max(cap_circou) from public.t_capture_cap")) {
       shinyalert("STOP!", "Circonference élevée", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_circou)
@@ -229,6 +255,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   modalCallback_circou <- function(value) {
     if (value == FALSE) {
       updateNumericInput(session, "cirCou" , value = 0)}}
+  
+  ### Patte
   
   output$out_lPattArriere <- renderUI({
     if (input$lPattArriere > dbGetQuery(con,"select max(cap_lpa) from t_capture_cap")) {
@@ -239,6 +267,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     if (value == FALSE) {
       updateNumericInput(session, "lPattArriere" , value = 0)}}
   
+  ### Bois
+  
   output$out_lBoisGauche <- renderUI({
     if (input$lBoisGauche > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois gauche elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
@@ -248,26 +278,20 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     if (input$lBoisDroit > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois droit elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
     }})
+
+liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description")
   
-  output$out_sabot_plein <- renderUI({
-    if (!is.na(input$pSabotPlein)) {
-      if (input$pSabotPlein>65) {
-        shinyalert("STOP!", " Poids Sabot plein elevé!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_sabot_plein )
-    }} })  
+  observeEvent(input$etatBois, {
+    for (i in liste_etatbois) {
+      if (!(input$etatBois %in% i)) {
+        if (input$etatBois != "")
+        {shinyalert("WAIT!", "Est-ce un nouvel état de bois ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_etatbois)} 
+      }}
+  })
   
-  modalCallback_sabot_plein <- function(value) {
-    if (value == FALSE) {
-      updateNumericInput(session, "pSabotPlein" , value = 0)}}
-  
-  output$out_sabot_vide <- renderUI({
-    if (!is.na(input$pSabotVide)) {
-      if (input$pSabotVide>50) {
-        shinyalert("STOP!", " Poids Sabot vide elevé!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_sabot_vide )
-    }} }) 
-  
-  modalCallback_sabot_vide <- function(value) {
-    if (value == FALSE) {
-      updateNumericInput(session, "pSabotVide" , value = 0)}}
+  modalCallback_new_etatbois <- function(value) {
+    if (value == TRUE) {
+      (dbSendQuery(con,sprintf("INSERT INTO lu_tables.tr_etat_bois_etb (etb_description) VALUES ('%s')", input$etatBois))) }}
 
     #########          Récupération de l'heure                                        #########    
  
@@ -301,7 +325,31 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     }
   })
   
+  liste_site <- dbGetQuery(con, "select distinct sit_nom_court from public.tr_site_capture_sit")
   
+  observeEvent(input$idSite, {
+    for (i in liste_site) {
+      if (!(input$idSite %in% i)) {
+         if (input$idSite != "")
+           {shinyalert("NOUVEAU SITE?", "Est-ce un nouveau site ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_site)} 
+    }}
+  })
+  
+  modalCallback_new_site <- function(value) {
+    if (value == TRUE) {
+     (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite))) }}
+  
+  observeEvent(input$idSite2, {
+    for (i in liste_site) {
+      if (!(input$idSite2 %in% i)) {
+        if (input$idSite2 != "")
+        {shinyalert("NOUVEAU SITE?", "Est-ce un nouveau site ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_site2)} 
+      }}
+  })
+  
+  modalCallback_new_site2 <- function(value) {
+    if (value == TRUE) {
+      (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite2))) }}
   
     #########          Alerte perte de poids                                          #########
   
@@ -353,7 +401,6 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     #print(blessure$Liste)
   })
   
-  
   observeEvent(input$ajoutBle, {
     i=1
     liste_blessures =""
@@ -383,6 +430,22 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   updateSelectizeInput(session,"traitement", choices = (dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")))
   
+  
+    #########          Ajout d'un nouveau traitement                                  ########
+  
+  liste_traitement = dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")
+  
+  observeEvent(input$traitement, {
+    for (i in liste_traitement) {
+      if (!(input$traitement %in% i)) {
+        if (input$traitement != "")
+        {shinyalert("WAIT!", "Est-ce un nouveau type de traitement ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_traitement)} 
+      }}
+  })
+  
+  modalCallback_traitement <- function(value) {
+    if (value == TRUE) {
+      (dbSendQuery(con,sprintf("INSERT INTO lu_tables.tr_blessure_traitement_blt (blt_traitement) VALUES ('%s')", input$traitement))) }}
   
   ##################           RUBRIQUE PRELEVEMENTS                    #################
   
