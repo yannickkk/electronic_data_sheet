@@ -37,11 +37,12 @@ contentcaractanimal = fluidPage(
     uiOutput("alert_poids"),
     uiOutput("tagDroitExiste"),
     uiOutput("tagGaucheExiste"),
+    uiOutput("perte_poids"),
     
     column(2, selectizeInput("numSabot", h4("N° Sabot"), choices ="", options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("Poids Sabot Plein"),min=0,max=65)),
     column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("Poids Sabot Vide"),min=0,max=50)),
-    column(2, h4("Poids Animal"),textOutput("poids_ani")),
+    column(2, h4("Poids Animal"), textOutput("poids_ani")),
     
     column(12),
     

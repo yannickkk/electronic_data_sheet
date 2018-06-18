@@ -303,6 +303,20 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     }
   })
   
+    #########          Alerte perte de poids                                          #########
+  
+  output$perte_poids <- renderUI({
+    if (!is.null(input$nAnimal2)) {
+      str = paste0("select cap_poids from public.t_capture_cap, t_animal_ani where cap_ani_id = ani_id and  ani_etiq ='", input$nAnimal2,"' order by cap_date DESC")
+      resres = dbGetQuery(con,str)
+      verif_poids <- resres[1,1]
+      if (!is.na(input$pSabotPlein) && !is.na(input$pSabotVide)) {
+        #test_poids = verif_poids - (input$pSabotPlein - input$pSabotVide)
+        if ((verif_poids - (input$pSabotPlein - input$pSabotVide)) > 1) 
+          {shinyalert("PERTE DE POIDS!", "L'animal a perdu du poids par rapport à la capture précédente", type = "warning", showCancelButton=F, showConfirmButton = T)}
+    }}
+  })
+  
   ##################           RUBRIQUE BLESSURES                       #################
   
   blessure = data.frame()
