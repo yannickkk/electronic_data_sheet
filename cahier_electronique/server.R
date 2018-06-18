@@ -407,9 +407,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   output$table_prel <- renderTable({df_prelevement})
   
-  
     output$control1 <- renderUI({
-    selectizeInput("typetype", h4("Type"), choices = df_prelevement$prel_type,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+    selectizeInput("typetype", h4("Type"), choices = df_prelevement$prel_type, options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')))
 
     })
   
@@ -420,8 +419,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     ))
       return("Select")
     choice2 <- df_prelevement[df_prelevement$prel_type == x,  "prel_local"]
-    selectizeInput("localoca", h4("Localisation"), choices = choice2, options=list(create= TRUE))
-    
+    selectizeInput("localoca", h4("Localisation"), choices = choice2, options=list(create= TRUE), selected=1)
   })
   
   output$control3 <- renderUI({
@@ -435,7 +433,6 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     
     choice3 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y, "prel_condi"]
     selectizeInput("condi", h4("Conditionnement"), choices = choice3, options=list(create= TRUE))
-    
   })
   
    output$control4 <- renderUI({
@@ -450,7 +447,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       return("Select")
 
     choice4 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y & df_prelevement$prel_condi == z, "prel_solv"]
-     selectizeInput("solsol", h4("Solvant"), choices = choice4, list(create= TRUE))
+    selectizeInput("solsol", h4("Solvant"), choices = choice4, list(create= TRUE))
    })
   
   

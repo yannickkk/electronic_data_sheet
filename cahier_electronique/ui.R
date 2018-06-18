@@ -143,7 +143,7 @@ contentprelevement = fluidPage(
      column(2,uiOutput("control2")),
      column(2,uiOutput("control3")),
      column(2,uiOutput("control4")),
-     column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,selected = NULL)),
+     column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,options=list(create=T), selected = NULL)),
      column(12,hr()),
      column(2,offset = 3, actionButton("ajout_prelev",("Ajouter prelevement"))),
      column(2,actionButton("sup_prelev", "Supprimer prelevement")),
