@@ -4,14 +4,13 @@ source("connect.R")
 
 ## Dataframe pour les prélevements :
 
-df_prelevement <- data.frame(dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"), 
-                              dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"),
-                              dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sat_id"))
-                              
-colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi")
- 
-option4 <- dbGetQuery(con,"select distinct (sas_solvant) from lu_tables.tr_samples_solvant_sas, lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac where sas_sat_id=sat_id and sas_sac_id=sac_id")
+df_prelevement <- data.frame(dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"), 
+                              dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
+                              dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
+dbGetQuery(con,"select sas_solvant from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_solvant_sas where sat_id=sac_sat_id and sat_id=sal_sat_id and sas_sat_id=sat_id and sac_id=sas_sac_id order by sac_id"))
 
+colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi", "prel_solv")
+ 
 
 ## Dataframe pour les blessures :
 
@@ -47,7 +46,6 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "idRFID_new", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
   updateSelectizeInput(session, "dents", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
   updateSelectizeInput(session, "numSabot", choices = dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab order by sab_id")) 
-  
   
     #########          Sélection site/RFID/tag à partir du n°animal                   #########
   
@@ -399,7 +397,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   })
   
   observeEvent(input$ajout_prelev, {
-    prelevement <<- rbind(prelevement, data.frame("Type" = c(input$typetype), "Localisation" =c(input$localoca), "Contenant" = c(input$concon),"Solvant" = c(input$solsol),"Nombre d'echantillons" = c(input$nbre_echant)))
+    prelevement <<- rbind(prelevement, data.frame("Type" = c(input$typetype), "Localisation" =c(input$localoca), "Contenant" = c(input$condi),"Solvant" = c(input$solsol),"Nombre d'echantillons" = c(input$nbre_echant)))
     output$tableprelevement = DT::renderDT(prelevement,server = F)
     updateSelectizeInput(session,"typetype", options=list(selected=NULL))
     updateSelectizeInput(session,"solsol", options=list(selected=NULL))
@@ -436,23 +434,23 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       return("Select")
     
     choice3 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y, "prel_condi"]
-    selectizeInput("concon", h4("Conditionnement"), choices = choice3, options=list(create= TRUE))
+    selectizeInput("condi", h4("Conditionnement"), choices = choice3, options=list(create= TRUE))
     
   })
   
    output$control4 <- renderUI({
-  #   x <- input$typetype
-  #   y <- input$localoca
-  #   z <- input$concon
-  #   if (any(
-  #     is.null(x),
-  #     is.null(y),
-  #     is.null(z)
-  #   ))
-  #     return("Select")
-  # 
-  #   choice4 <- df_prelevement[df_prelevement$a == x & df_prelevement$b == y & df_prelevement$c == z, "d"]
-     selectizeInput("solsol", h4("Solvant"), choices = option4, options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create= TRUE), selected = NULL)
+    x <- input$typetype
+    y <- input$localoca
+    z <- input$condi
+    if (any(
+      is.null(x),
+      is.null(y),
+      is.null(z)
+    ))
+      return("Select")
+
+    choice4 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y & df_prelevement$prel_condi == z, "prel_solv"]
+     selectizeInput("solsol", h4("Solvant"), choices = choice4, list(create= TRUE))
    })
   
   
