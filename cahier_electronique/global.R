@@ -8,7 +8,7 @@ library(RPostgreSQL)
 library(shinyalert)
 library(chron)
 
-dbSendQuery("
+dbSendQuery(con,"
 DROP SCHEMA IF EXISTS historique cascade;
 CREATE SCHEMA historique;
 
