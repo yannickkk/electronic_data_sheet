@@ -758,8 +758,11 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     ### Bilan
  
     observeEvent(input$valid_checklist1, ignoreInit = T, {
-      if ( (nrow(checklist_prel)!=0) || (nrow(checklist_table)!=0) || (nrow(checklist1)!=0)) 
-      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)} 
+      if ( ((checklist_prel[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_table[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist1[1][1])!="PAS DE DONNEES MANQUANTES")) 
+      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)}
+      else      
+      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE)}
+
     })
   })
   
