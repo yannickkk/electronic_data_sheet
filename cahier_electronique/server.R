@@ -531,7 +531,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
        collier_tech = liste_collier[ligne_selection,2]
        collier_col_b = liste_collier[ligne_selection,7]
        collier_col_c = liste_collier[ligne_selection,8]
-       cat_col = paste(collier_tech, collier_col_b, collier_col_c, sep = "-" )
+       cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c) )
        output$collier_choisi = renderPrint(cat_col)
      }
    })
@@ -600,7 +600,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   row.names(checklist1) = NULL
   output$tablechecklist1 = DT::renderDT(expr = checklist1,server = F)
   
-  temptemp = observeEvent(input$checklist_1, { 
+  observeEvent(input$checklist_1, { 
     
     checklist1 = data.frame()
     #output$tablechecklist1 = DT::renderDT(expr = NULL,server = F)
