@@ -361,7 +361,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
       if (!is.na(input$pSabotPlein) && !is.na(input$pSabotVide)) {
         #test_poids = verif_poids - (input$pSabotPlein - input$pSabotVide)
         if ((verif_poids - (input$pSabotPlein - input$pSabotVide)) > 1) 
-          {shinyalert("PERTE DE POIDS!", "L'animal a perdu du poids par rapport à la capture précédente", type = "warning", showCancelButton=F, showConfirmButton = T)}
+          {shinyalert("PERDU PLUS D'UN KILO!", "L'animal a perdu du poids par rapport à la capture précédente", type = "warning", showCancelButton=F, showConfirmButton = T)}
     }}
   })
   
@@ -615,74 +615,75 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   
   observeEvent(input$checklist_1, { 
     
-    if ((input$numSabot)!=0) {
-      checklist1 <<- data.frame("Numero Sabot" = input$numSabot)}
-    else {checklist1 <<- data.frame("Numero Sabot"= c("NULL"))}
+    checklist1 = data.frame()
+    output$tablechecklist1 = DT::renderDT(expr = NULL,server = F)
     
-    if (!is.na(input$nAnimal) & (input$estNouvelAnimal == 1)) {
-      checklist1 <<- cbind(checklist1,data.frame("N°Animal" = input$nAnimal))}
-    else if (is.na(input$nAnimal) & (input$estNouvelAnimal == 1)) {checklist1 <<- cbind(checklist1,data.frame("N°Animal"= c("NULL")))}
+    if ((input$numSabot)=="") {
+      checklist1 = data.frame("Valeur_manquante"= c("Numéro de Sabot"))}
     
-    if ((input$estNouvelAnimal == 0) & !is.na(input$nAnimal2)) {
-      checklist1 <<- cbind(checklist1,data.frame("N°Animal" = input$nAnimal2))}
-    else if ((input$estNouvelAnimal == 0) & is.na(input$nAnimal2)){checklist1 <<- cbind(checklist1,data.frame("n°Animal"= c("NULL")))}
+    if ((input$nAnimal)=="" & (input$estNouvelAnimal == 'oui')) {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Numéro de l'animal")))}
     
-    if ((input$estNouvelAnimal == 0) & (idSite2)!="") {
-      checklist1 <<- cbind(checklist1,data.frame("Site" = idSite2))}
-    else if ((idSite2=="") & (input$estNouvelAnimal==0)){checklist1 <<- cbind(checklist1,data.frame("Site"= c("NULL")))}
+    if ((input$estNouvelAnimal == 'non') & (input$nAnimal2)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Numéro de l'animal")))}
+
+    if ((input$estNouvelAnimal == 'non') & (input$idSite2)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Nom du site")))}
+
+    if ((input$estNouvelAnimal == 'oui') & (input$idSite)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Nom du site")))}
+
+    if ((input$identifie == 'non') & (input$idRFID)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("RFID")))}
     
-    if ((input$estNouvelAnimal == 1) & (input$idSite)!="") {
-      checklist1 <<- cbind(checklist1,data.frame("Site" = input$idSite))}
-    else if ((input$idSite)=="" & (input$estNouvelAnimal==1)){checklist1 <<- cbind(checklist1,data.frame("Site"= c("NULL")))}
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idRFID2)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("RFID")))}
     
-    # if ((input$idRFID)!="") {
-    #   checklist1 <<- cbind(checklist1,data.frame("idRFID" = input$idRFID))}
-    # else {checklist1 <<- cbind(checklist1,data.frame("idRFID"= c("NULL")))}
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'non') & (input$idRFID2)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Nouveau RFID")))}
+
+    if ((input$estNouvelAnimal == 'oui') & (input$idTagOrG)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Tag Gauche")))}
     
-    if ((input$idTagOrG)!="0" & input$estNouvelAnimal == 1) {
-      checklist1 <<- cbind(checklist1,data.frame("Tag Gauche" = input$idTagOrG))}
-    else if ((input$idTagOrG)=="0" & input$estNouvelAnimal == 1){checklist1 <<- cbind(checklist1,data.frame("Tag Gauche"= c("NULL")))}
+    if ((input$estNouvelAnimal == 'oui') & (input$idTagOrD)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Tag Droit")))}
     
-    if ((input$idTagOrD)!="0" & input$estNouvelAnimal == 1) {
-      checklist1 <<- cbind(checklist1,data.frame("Tag Droit" = input$idTagOrD))}
-    else if ((input$idTagOrD=="0") & input$estNouvelAnimal == 1){checklist1 <<- cbind(checklist1,data.frame("Tag Droit"= c("NULL")))}
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'non') & (input$idTagOrD)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Tag Droit")))}
     
-    if (((idTagOrG!="")|(!is.na(idTagOrG))|!is.null(idTagOrG)) & input$estNouvelAnimal == 0) {
-      checklist1 <<- cbind(checklist1,data.frame("Tag Gauche" = idTagOrG))}
-    else if ((idTagOrG=='') & input$estNouvelAnimal == 0) {checklist1 <<- cbind(checklist1,data.frame("Tag Gauche"= c("NULL")))}
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'non') & (input$idTagOrG)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Tag Gauche")))}
     
-    if (((idTagOrD!="")|(!is.na(idTagOrD))|!is.null(idTagOrD)) & input$estNouvelAnimal == 0) {
-      checklist1 <<- cbind(checklist1,data.frame("Tag Droit" = idTagOrD))}
-    else if (idTagOrD=="" & input$estNouvelAnimal == 0) {checklist1 <<- cbind(checklist1,data.frame("Tag Droit"= c("NULL")))}
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idTagOrD2)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Tag Droit")))}
     
-    if (!is.na(input$lPattArriere)) {
-      checklist1 <<- cbind(checklist1,data.frame("Longueur patte" = input$lPattArriere))}
-    else {checklist1 <<- cbind(checklist1,data.frame("Longueur patte"= c("NULL")))}
-    
-    if (!is.null(input$sexe)) {
-      checklist1 <<- cbind(checklist1,data.frame("Sexe" = input$sexe))}
-    else {checklist1 <<- cbind(checklist1,data.frame("Sexe"= c("NULL")))}
-    
-    if ((input$lBoisGauche!=0) & (input$sexe=='M')) {
-      checklist1 <<- cbind(checklist1,data.frame("Longueur bois G" = input$lBoisGauche))}
-    else if ((input$lBoisGauche==0)& (input$sexe=='M')) {checklist1 <<- cbind(checklist1,data.frame("Longueur bois G"= c("NULL")))}
-    
-    if ((input$lBoisDroit!=0) & (input$sexe=='M')) {
-      checklist1 <<- cbind(checklist1,data.frame("Longueur bois D" = input$lBoisDroit))}
-    else if ((input$lBoisDroit==0) & (input$sexe=='M')) {checklist1 <<- cbind(checklist1,data.frame("Longueur bois D"= c("NULL")))}
-    
-    if (((input$etatBois)!="") &(input$sexe=='M')){
-      checklist1 <<- cbind(checklist1,data.frame("Etat bois" = input$etatBois))}
-    else if (((input$etatBois)=="")& (input$sexe=='M')) {checklist1 <<- cbind(checklist1,data.frame("Etat bois"= c("NULL")))}
-    
-    if (!is.na(input$tglucose)) {
-      checklist1 <<- cbind(checklist1,data.frame("Glucose" = input$tglucose))}
-    else {checklist1 <<- cbind(checklist1,data.frame("Glucose"= c("NULL")))}
-    
-    if ((input$cirCou)!=0) {
-      checklist1 <<- cbind(checklist1,data.frame("Cou" = input$cirCou))}
-    else {checklist1 <<- cbind(checklist1,data.frame("Cou"= c("NULL")))}
-    
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idTagOrG2)=="") {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Tag Gauche")))}
+
+    if (is.na(input$lPattArriere)) {
+      checklist1 = rbind(checklist1,data.frame("Valeur_manquante"= c("Longueur patte")))}
+
+    if (is.null(input$sexe)) {
+      checklist1 =  rbind(checklist1,data.frame("Valeur_manquante"= c("Sexe")))}
+
+    if (is.na(input$lBoisGauche) & !is.null(input$sexe)) {
+      if (input$sexe=='M') {
+      checklist1 =  rbind(checklist1,data.frame("Valeur_manquante"= c("Longueur bois G")))}}
+
+    if (is.na(input$lBoisDroit) & !is.null(input$sexe)) {
+        if (input$sexe=='M') {
+      checklist1 =  rbind(checklist1,data.frame("Valeur_manquante"= c("Longueur bois D")))}}
+
+    if (((input$etatBois)=="") & !is.null(input$sexe)){
+      if (input$sexe=='M') {
+      checklist1 =  rbind(checklist1,data.frame("Valeur_manquante"= c("Etat bois")))}}
+
+    if (is.na(input$tglucose)) {
+      checklist1 =  rbind(checklist1,data.frame("Valeur_manquante"= c("Glucose")))}
+
+    if (is.na(input$cirCou)) {
+      checklist1 =  rbind(checklist1,data.frame("Valeur_manquante"= c("Cou")))}
+
     output$tablechecklist1 = DT::renderDT(checklist1,server = F) 
     
   })

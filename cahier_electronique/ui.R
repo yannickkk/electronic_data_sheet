@@ -12,6 +12,11 @@
   ##################           Rubrique Animal               ############################
 
 contentcaractanimal = fluidPage(
+  tags$style(type="text/css",
+             ".shiny-output-error { visibility: hidden; }",
+             ".shiny-output-error:before { visibility: hidden; }"
+  ),
+  
   tags$head(
     tags$style(HTML("#idTagOrG2 + div> div>.item {
                     color: blue !important;}
@@ -89,9 +94,9 @@ contentcaractanimal = fluidPage(
   column(12,hr()),
   
   fluidRow(
-    column(2, numericInput("cirCou", value='0', h4("Circonference cou"),min=0, max=1)),
+    column(2, numericInput("cirCou", value='', h4("Circonference cou"),min=0, max=1)),
     uiOutput("out_cirCou"),
-    column(2, numericInput("lPattArriere", value='0', h4("Longueur patte arriere"),min=0, max=1)),
+    column(2, numericInput("lPattArriere", value='', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
     column(2, numericInput("tglucose", value="", h4("Taux de Glucose"), min=0)),
     column(2, selectizeInput("dents", h4("Dents"), choices ="", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
