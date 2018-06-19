@@ -477,7 +477,16 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     ))
       return("Select")
     choice2 <- df_prelevement[df_prelevement$prel_type == x,  "prel_local"]
-    selectizeInput("localoca", h4("Localisation"), choices = choice2, options=list(create= TRUE), selected=1)
+    selectizeInput("localoca", h4("Localisation"), choices = (choice2), options=list(create= TRUE), selected=1)
+  })
+  
+ observeEvent(input$typetype, {
+  if (input$typetype == "sang") {
+    updateSelectizeInput(session,"localoca", selected="jugulaire")}
+    if (input$typetype == "feces") {
+      updateSelectizeInput(session,"localoca", selected="anus")}
+   if (input$typetype == "poils") {
+     updateSelectizeInput(session,"localoca", selected="coup")}
   })
   
   output$control3 <- renderUI({
@@ -613,7 +622,7 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
   row.names(checklist1) = NULL
   output$tablechecklist1 = DT::renderDT(expr = checklist1,server = F)
   
-  observeEvent(input$checklist_1, { 
+  output$checklist_1 <- renderUI( { 
     
     checklist1 = data.frame()
     #output$tablechecklist1 = DT::renderDT(expr = NULL,server = F)

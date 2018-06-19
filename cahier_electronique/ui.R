@@ -215,13 +215,9 @@ contenthistorique <- fluidPage(
 
 
 contentcheck1 =  fluidPage(fluidRow(
-  column(12,hr()),
-  column(12,actionButton("checklist_1", "Checklist",icon('eye'),width='100%')),
-  column(12,hr()),
-  
+  uiOutput("checklist_1"),
   column(4, h3("Checklist - Animal"), offset=1),
   column(4, h3("Checklist - Table"),offset = 1),
-  
   column(4,tabPanel("Cheklist 1", DT::dataTableOutput("tablechecklist1")),offset=1), 
   column(4,tabPanel("Checklist Table",DT::dataTableOutput("tablechecklist_table")), offset=1),
   column(12,hr()),
