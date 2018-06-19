@@ -379,15 +379,19 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
       for (u in input$traitement) {
         list_ble = paste(u,list_ble,sep=" ")
       }
-      blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste0(c(input$locali),"-",c(input$grave), "-",c(list_ble))))
+      if (input$remarques_ble=="")
+      {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble), input$diarrhee, sep = "-")))}
+      else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble), input$diarrhee,input$remarques_ble, sep = "-")))}
       updateSelectizeInput(session,"locali", options=list(selected=NULL))
       updateSelectizeInput(session,"traitement", options=list(selected=NULL))
     }
       
     if ((length(input$traitement))==1)
       {
-        blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste0(c(input$locali),"-",c(input$grave), "-",c(input$traitement))))
-    }
+      if (input$remarques_ble=="")
+        {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave),c(input$traitement), input$diarrhee, sep = "-")))}
+        else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave), c(input$traitement), input$diarrhee,input$remarques_ble, sep = "-")))}
+      }
     
     output$tableblessure = DT::renderDT(blessure,server = F)
     #print(blessure[1][1])
@@ -557,8 +561,11 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
   ##################           RUBRIQUE TABLE                           #################
   
   updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
-  updateSelectizeInput(session, "position_temp", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
+  updateSelectizeInput(session, "position_temp1", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
                           options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+  updateSelectizeInput(session, "position_temp2", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
+                       options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+  
    
     observeEvent(input$identifie, {
    if (input$identifie == "oui") {
@@ -699,12 +706,15 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     if (input$tiques =="") {
       checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nombre de tiques")))}
     
-    if (((input$lactation)=="") & !is.null(input$sexe)){
+    if ((input$lactation=="") & !is.null(input$sexe)){
       if (input$sexe=='F') {
         checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Lactation")))}}
     
     if (input$age =="") {
       checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Age")))}
+    
+    if (is.na(input$pSabotVide) && is.na(input$pSabotPlein) ) {
+      checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Poids de l'animal")))}
     
     if (nrow(checklist1)==0) {
       checklist1 =  rbind(checklist1,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
@@ -715,11 +725,17 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     
     checklist_table = data.frame()
     
-    if ((input$sonde_temp)=="") {
-      checklist_table = data.frame("VALEUR_MANQUANTE_TABLE"= c("Sonde temperature"))}
+    if ((input$sonde_temp1)=="") {
+      checklist_table = data.frame("VALEUR_MANQUANTE_TABLE"= c("Sonde temperature 1"))}
     
-    if ((input$position_temp)==""){
-      checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde")))}
+    if ((input$sonde_temp2)=="") {
+      checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Sonde temperature 2")))}
+    
+    if ((input$position_temp1)==""){
+      checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde 1")))}
+    
+    if ((input$position_temp2)==""){
+      checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde 2")))}
     
     if (is.null(input$lutte)) {
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Lutte")))}
@@ -780,8 +796,8 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
   
   ##################           RUBRIQUE LACHER                          #################
   
-  updateSelectizeInput(session, "habitat", choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_lache) from cmpt.t_capture_cpt"))
-  updateSelectizeInput(session, "habitat_perte", choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_pertevue) from cmpt.t_capture_cpt"))
+  updateSelectizeInput(session, "habitat", choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_lache) from cmpt.t_capture_cpt order by cpt_lache_habitat_lache ASC"))
+  updateSelectizeInput(session, "habitat_perte", choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_pertevue) from cmpt.t_capture_cpt order by cpt_lache_habitat_pertevue ASC"))
   updateSelectizeInput(session, "Notation_euro", choices = dbGetQuery(con,"select (ecl_comportement_lache) from lu_tables.tr_eurodeer_comp_lache_ecl"))
   
   

@@ -51,7 +51,7 @@ contentcaractanimal = fluidPage(
     
     column(12),
     
-    column(2,textInput("time_caract", h4("Heure table:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
+    column(2,textInput("time_caract", h4("Heure Début:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
     column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
@@ -132,6 +132,7 @@ contentblessures = fluidPage(
      column(2,uiOutput("casc_ble1")),
      column(2,uiOutput("casc_ble2")),
      column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
+     column(3,textInput("remarques_ble",h4("Remarques"),value = "")),
      column(12,hr()),
      column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
      column(2,actionButton("sup_Bles", "Supprimer blessure")),
@@ -180,8 +181,11 @@ contenttable = fluidPage(
   
   fluidRow(
     #column(2,uiOutput("sonde_loc")),
-    column(2, selectizeInput( "sonde_temp", h4("Sonde"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2, selectizeInput( "position_temp", h4("Positionnement"), choices = "")),
+    column(2, selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL), selectizeInput( "position_temp1", h4("Positionnement 1"), choices = "")),
+    #column(2, selectizeInput( "position_temp1", h4("Positionnement"), choices = "")),
+    column(2, selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL), selectizeInput( "position_temp2", h4("Positionnement 2"), choices = "")),
+    #column(2, selectizeInput( "position_temp2", h4("Positionnement"), choices = "")),
+    
     
    # column(2,uiOutput("casc_temp2")),
     column(12,hr()),
@@ -192,7 +196,7 @@ contenttable = fluidPage(
     column(12,hr()),
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-    column(2,timeInput("time_table", h4("Heure:"),seconds = FALSE),
+    column(2,timeInput("time_table", h4("Heure de fin:"),seconds = FALSE),
            actionButton("to_current_time_table", "Afficher l'heure")),
     column(12,hr()),
     column(12, checkboxInput("suivi_temp", h4("Suivi des températures"), value = F))
@@ -296,18 +300,17 @@ contentcapture = fluidPage(
   #titlePanel("Comportement Capture"),
   fluidRow(
     
-    column(2,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
+    column(1,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
     column(2,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"),seconds = FALSE),
            actionButton("time_debut_filet", "Afficher l'heure")),
-    
-    column(12,hr()),
-    
     column(2,timeInput("cpt_temps_filet", h4("Temps passe filet"),seconds = FALSE),
            actionButton("time_filet", "Afficher l'heure")),
-    column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
-    column(2,selectInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = list("0"=0,"1"=1,"2"=2,"3"=3,"4"=4,"5"=5),selected = 0)),
+    column(12,hr()),
     
+    column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
+    column(3,selectInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = list("0"=0,"1"=1,"2"=2,"3"=3,"4"=4,"5"=5),selected = 0)),
+    column(2,textInput("remarques_capt",label=h4("Remarques",""))),
     column(12,hr()),
     
     column(1,radioButtons("cpt_filet_vitesse",h4("Vitesse"),choiceNames = list("Pas","Course"),choiceValues = list(0,1), selected = character(0))),
@@ -316,7 +319,7 @@ contentcapture = fluidPage(
     column(1,radioButtons("cpt_filet_halete",h4("Halete"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
     column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = character(0))),
     column(12,hr()),
-    #column(2,textInput("Remarques",label=h4("Remarques",""))),
+    
     #column(1),
     column(4,useShinyalert(),
            actionButton("checklist_capture", "Checklist",icon('eye')))
