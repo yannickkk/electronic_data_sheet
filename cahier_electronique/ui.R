@@ -208,24 +208,19 @@ contenthistorique <- fluidPage(
 
 
 contentcheck1 =  fluidPage(fluidRow(
-  titlePanel("Checklist - Caracteristiques"),
-  tabPanel("Cheklist 1", DT::dataTableOutput("tablechecklist1")), 
+  column(12,hr()),
   column(12,useShinyalert(),
-         actionButton("checklist_1", "Checklist",icon('eye'),width='25%')),
-  
-  #  titlePanel("Checklist - Prelevements"),
-  
+         actionButton("checklist_1", "Checklist",icon('eye'),width='100%')),
   column(12,hr()),
   
-  #conditionalPanel(
-  #  condition = "input.new_collier == 1",
-  #  fluidRow(titlePanel("Checklist - Collier"))) ,
+  column(4, h3("Checklist - Animal"), offset=1),
+  column(4, h3("Checklist - Table"),offset = 1),
   
+  column(4,tabPanel("Cheklist 1", DT::dataTableOutput("tablechecklist1")),offset=1), 
+  column(4,tabPanel("Checklist Table",DT::dataTableOutput("tablechecklist_table")), offset=1),
+  column(12,hr()),
   
-  titlePanel("Checklist - Table"),
-  tabPanel("Checklist Table",DT::dataTableOutput("tablechecklist_table")), 
-  column(12,useShinyalert(),
-         actionButton("checklist_tab", "Checklist",icon('eye'),width='25%'))
+  column(12, actionButton("valid_checklist1", "ENREGISTRER LES DONNEES", width='100%'))
 ))
 
 
