@@ -102,9 +102,10 @@ contentcaractanimal = fluidPage(
     column(2, selectizeInput("dents", h4("Dents"), choices ="", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, textInput("remarque_ani", h4("Remarques"), value = "")),
     column(12),
-    column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))
-    # column(12,hr())
+    column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,textInput("parasites", h4("Autres parasites"), value = "")),
+    column(2,conditionalPanel(condition = "input.sexe == 'F'", selectizeInput("lactation", h4("Lactation"), choices = c("oui", "non", "indeterminé"),  options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)))
     
   ),
   
@@ -119,6 +120,8 @@ contentcaractanimal = fluidPage(
       column(2, selectizeInput("etatBois", h4("etat bois"), choices = "" , options = list(create = TRUE)))
     )
   )
+  
+  
 )
 
   ##################           Rubrique Blessures            #################
