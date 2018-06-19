@@ -580,6 +580,7 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
   ##################           RUBRIQUE HISTORIQUE                      #################
   
   output$historique <- DT::renderDataTable({
+
     # outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
     #                               t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
     #                               teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association, sen_id,eqc_annee_suivi, cpt_annee_suivi,cpt_ani_etiq
@@ -589,6 +590,20 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
 
     # ret <- DT::datatable(outp)
     # return(ret)
+
+     outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
+                                   t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois, count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as                        capteurs
+                                   from (SELECT cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
+                                   teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association
+                                   FROM historique.t_aniposi_gpsgsm) as t where ani_etiq = '",input$nAnimal2,"'
+                                   group by ani_etiq, cap_annee_suivi, cap_date, ani_sexe, cap_age_classe,
+                                   cap_poids, cap_lpa, sit_nom_court, teq_nom_court, eqt_id_usuel,
+                                   sen_association, mar_libelle, mod_libelle, eqa_date_debut, t.temps_suivi,
+                                   eqa_date_fin order by cap_annee_suivi"))
+     
+    
+    ret <- DT::datatable(outp)
+     return(ret)
   })
   
   ##################           RUBRIQUE CHECKLIST 1                     #################
