@@ -222,7 +222,9 @@ contentcheck1 =  fluidPage(fluidRow(
   column(4,tabPanel("Cheklist 1", DT::dataTableOutput("tablechecklist1")),offset=1), 
   column(4,tabPanel("Checklist Table",DT::dataTableOutput("tablechecklist_table")), offset=1),
   column(12,hr()),
-  
+  column(4, h3("Checklist - Prelevement"),offset = 4),
+  column(4,tabPanel("Checklist Prelevement",DT::dataTableOutput("tablechecklist_prel")), offset=4),
+  column(12,hr()),
   column(12, actionButton("valid_checklist1", "ENREGISTRER LES DONNEES", width='100%'))
 ))
 

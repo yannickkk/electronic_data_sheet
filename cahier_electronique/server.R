@@ -606,8 +606,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   })
   
   ##################           RUBRIQUE CHECKLIST 1                     #################
-  
-  ###### Animal  
+   #########           Animal                                           #########
   
   checklist1 = data.frame()
   row.names(checklist1) = NULL
@@ -704,7 +703,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     
   })
   
-  ###### Table                           
+  #########            Table                                            ########                
   
   checklist_table = data.frame()
   row.names(checklist_table) = NULL
@@ -742,6 +741,37 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     output$tablechecklist_table = DT::renderDT(checklist_table,server = F) 
     
   })
+  
+  #########            Prelevement                                      ########
+
+  checklist_prel = data.frame()
+  row.names(checklist_prel) = NULL
+  output$tablechecklist_prel = DT::renderDT(expr = checklist_prel,server = F)
+  liste_prelevement=list()
+  liste_prel_db = dbGetQuery(con,"select sav_intitule from lu_tables.tr_samples_verification_sav")
+  
+  observeEvent(input$ajout_prelev, {
+    cat_prelevement = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
+    liste_prelevement[nrow(prelevement)] <<- cat_prelevement
+    
+  })
+  
+  observeEvent(input$checklist_1, { 
+    
+    checklist_prel = data.frame()
+    
+    for (i in (1:nrow(liste_prel_db))){
+      temp = liste_prel_db[i,1]
+      if (!(temp %in% liste_prelevement)) {
+        checklist_prel = rbind(checklist_prel,data.frame("PRELEVEMENT_MANQUANT"= c(temp)))}
+    }
+    
+    if (nrow(checklist_prel)==0) {
+      checklist_prel =  data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES"))}
+    
+    output$tablechecklist_prel = DT::renderDT(checklist_prel,server = F) 
+    
+    })
   
   ##################           RUBRIQUE LACHER                          #################
   
