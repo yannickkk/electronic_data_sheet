@@ -19,14 +19,6 @@ df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables
 
 colnames(df_blessure)<-c("ble_local","ble_gravite")
 
-
-## Dataframe pour les temperature :
-
-df_temperature <- data.frame(sonde = c("rouge","blanche"),position = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"))
-                          
-colnames(df_temperature)<-c("sonde","position")
-
-
 server <- function(input, output,session) {
 
   ##################              RUBRIQUE ANIMAL                       #################
@@ -198,6 +190,8 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
     #########          Test données: poids, num sabot , tour de cou, lg patte, bois   ######### 
   
+  ### Poids
+  
   output$poids_ani = renderText({input$pSabotPlein-input$pSabotVide})
   
   output$alert_poids <- renderUI({
@@ -205,7 +199,6 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
       if ((input$pSabotPlein-input$pSabotVide)>40) {
         shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
       }} })
-  
   
   ### Sabot
   
@@ -514,8 +507,15 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     choice4 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y & df_prelevement$prel_condi == z, "prel_solv"]
     selectizeInput("solsol", h4("Solvant"), choices = choice4, list(create= TRUE))
    })
+   
+   observeEvent(input$ajout_prelev, {
+     cat_prelevement = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
+     liste_prelevement[nrow(prelevement)] <<- cat_prelevement
+     
+   })
   
-  
+   liste_prelevement=list()
+   liste_prel_db = dbGetQuery(con,"select sav_intitule from lu_tables.tr_samples_verification_sav")
    
   ##################           RUBRIQUE COLLIER                         #################
   
@@ -550,20 +550,8 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   ##################           RUBRIQUE TABLE                           #################
   
   updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
-   
-   output$casc_temp1 <- renderUI({
-     selectizeInput("sonde_temp", h4("Sonde"), choices = df_temperature$sonde ,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
-   })
-   
-   output$casc_temp2 <- renderUI({
-     x <- input$sonde_temp
-     if (any(
-       is.null(x)
-     ))
-       return("Select")
-     choice2 <- df_temperature[df_temperature$sonde == x,  "position"]
-     selectizeInput("position_temp", h4("Positionnement"), choices = choice2, options=list(create= TRUE))
-   })
+  updateSelectizeInput(session, "position_temp", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
+                          options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
    
     observeEvent(input$identifie, {
    if (input$identifie == "oui") {
@@ -612,7 +600,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   row.names(checklist1) = NULL
   output$tablechecklist1 = DT::renderDT(expr = checklist1,server = F)
   
-  observeEvent(input$checklist_1, { 
+  temptemp = observeEvent(input$checklist_1, { 
     
     checklist1 = data.frame()
     #output$tablechecklist1 = DT::renderDT(expr = NULL,server = F)
@@ -701,22 +689,13 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
 
     output$tablechecklist1 = DT::renderDT(checklist1,server = F) 
     
-  })
-  
-  #########            Table                                            ########                
-  
-  checklist_table = data.frame()
-  row.names(checklist_table) = NULL
-  output$tablechecklist_table = DT::renderDT(expr = checklist_table,server = F)
-  
-  observeEvent(input$checklist_1, { 
-    #cat(file=stderr(), "test", class(input$time), "\n")
+    ### Table
     
     checklist_table = data.frame()
-
+    
     if (is.null(input$sonde_temp)) {
       checklist_table = data.frame("VALEUR_MANQUANTE_TABLE"= c("Sonde temperature"))}
-
+    
     if (is.null(input$position_temp)){
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde")))}
     
@@ -740,25 +719,8 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     
     output$tablechecklist_table = DT::renderDT(checklist_table,server = F) 
     
-  })
-  
-  #########            Prelevement                                      ########
-
-  checklist_prel = data.frame()
-  row.names(checklist_prel) = NULL
-  output$tablechecklist_prel = DT::renderDT(expr = checklist_prel,server = F)
-  liste_prelevement=list()
-  liste_prel_db = dbGetQuery(con,"select sav_intitule from lu_tables.tr_samples_verification_sav")
-  
-  observeEvent(input$ajout_prelev, {
-    cat_prelevement = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
-    liste_prelevement[nrow(prelevement)] <<- cat_prelevement
     
-  })
-  
-  observeEvent(input$checklist_1, { 
-    
-    checklist_prel = data.frame()
+    ### Prelevement
     
     for (i in (1:nrow(liste_prel_db))){
       temp = liste_prel_db[i,1]
@@ -771,7 +733,25 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     
     output$tablechecklist_prel = DT::renderDT(checklist_prel,server = F) 
     
+    ### Bilan
+ 
+    observeEvent(input$valid_checklist1, ignoreInit = T, {
+      if ( (nrow(checklist_prel)!=0) || (nrow(checklist_table)!=0) || (nrow(checklist1)!=0)) 
+      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)} 
     })
+  })
+  
+   #########           Table                                            ########                
+  
+  checklist_table = data.frame()
+  row.names(checklist_table) = NULL
+  output$tablechecklist_table = DT::renderDT(expr = checklist_table,server = F)
+  
+   #########           Prelevement                                      ########
+
+  checklist_prel = data.frame()
+  row.names(checklist_prel) = NULL
+  output$tablechecklist_prel = DT::renderDT(expr = checklist_prel,server = F)
   
   ##################           RUBRIQUE LACHER                          #################
   

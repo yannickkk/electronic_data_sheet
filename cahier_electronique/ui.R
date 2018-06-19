@@ -178,8 +178,11 @@ contentcollier = fluidPage(
 contenttable = fluidPage(
   
   fluidRow(
-    column(2,uiOutput("casc_temp1")),
-    column(2,uiOutput("casc_temp2")),
+    #column(2,uiOutput("sonde_loc")),
+    column(2, selectizeInput( "sonde_temp", h4("Sonde"), choices = list("rouge","blanche"))),
+    column(2, selectizeInput( "position_temp", h4("Positionnement"), choices = "")),
+    
+   # column(2,uiOutput("casc_temp2")),
     column(12,hr()),
     column(1,radioButtons("lutte",h4("Lutte"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
     column(1,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected =character(0))),
@@ -212,8 +215,7 @@ contenthistorique <- fluidPage(
 
 contentcheck1 =  fluidPage(fluidRow(
   column(12,hr()),
-  column(12,useShinyalert(),
-         actionButton("checklist_1", "Checklist",icon('eye'),width='100%')),
+  column(12,actionButton("checklist_1", "Checklist",icon('eye'),width='100%')),
   column(12,hr()),
   
   column(4, h3("Checklist - Animal"), offset=1),
@@ -225,7 +227,7 @@ contentcheck1 =  fluidPage(fluidRow(
   column(4, h3("Checklist - Prelevement"),offset = 4),
   column(4,tabPanel("Checklist Prelevement",DT::dataTableOutput("tablechecklist_prel")), offset=4),
   column(12,hr()),
-  column(12, actionButton("valid_checklist1", "ENREGISTRER LES DONNEES", width='100%'))
+  column(12, useShinyalert(),actionButton("valid_checklist1", "ENREGISTRER LES DONNEES", width='100%'))
 ))
 
 
