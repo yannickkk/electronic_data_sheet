@@ -519,29 +519,27 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
    
   ##################           RUBRIQUE COLLIER                         #################
   
-  liste_collier <- dbGetQuery(con,"select eqc_annee_suivi, teq_nom_court, eqc_remarque, sen_association, eqt_id_usuel, eqc_drop_off, eqc_couleur_boitier, eqc_couleur_collier, eqc_memoire from public.t_equipement_conf_eqc, public.t_equipement_eqt, public.tr_type_equipement_teq, lu_tables.tr_sensors_sen where eqc_eqt_id=eqt_id and eqc_sen_id=sen_id and eqt_teq_id=teq_id" )
-  
-   affichage_colliers <- observeEvent(input$new_collier, {
-       output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
-  })
+  liste_collier <- dbGetQuery(con,"select eqc_annee_suivi, teq_nom_court, eqc_remarque, eqt_id_usuel, eqc_drop_off, eqc_couleur_boitier, eqc_couleur_collier,eqt_frequence, eqc_memoire FROM public.t_equipement_eqt RIGHT JOIN public.t_equipement_conf_eqc ON eqc_eqt_id = eqt_id
+LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_suivi = extract(year from now()) order by teq_nom_court")
+   
+   output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
    
    affichage_choix_collier <- observeEvent(input$tablecollier_rows_selected, {
      if (!is.null(input$tablecollier_rows_selected)) {
        ligne_selection = input$tablecollier_rows_selected
        collier_tech = liste_collier[ligne_selection,2]
        collier_col_b = liste_collier[ligne_selection,7]
-       collier_col_c = liste_collier[ligne_selection,8]
+       collier_col_c = liste_collier[ligne_selection,6]
        cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c) )
        output$collier_choisi = renderPrint(cat_col)
      }
    })
    
-   
    observeEvent(input$valide_collier,{
-     if ((input$new_collier)=='oui' && is.null(input$tablecollier_rows_selected)) {
+     if ( is.null(input$tablecollier_rows_selected)) {
          shinyalert("STOP!", "Collier non sélectionné!", type = "error",confirmButtonText="Valider",showConfirmButton = F, showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
      }
-     if ((input$new_collier)=='oui' && !is.null(input$tablecollier_rows_selected)) {
+     if ( !is.null(input$tablecollier_rows_selected)) {
        shinyalert("PARFAIT!", "Collier bien sélectionné!", type ="success" ,confirmButtonText="Valider", showCancelButton=F,cancelButtonText="Annuler",html=TRUE )
      } 
      
@@ -582,13 +580,13 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   ##################           RUBRIQUE HISTORIQUE                      #################
   
   output$historique <- DT::renderDataTable({
-    # outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site, 
-    #                               t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court, 
+    # outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
+    #                               t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
     #                               teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association, sen_id,eqc_annee_suivi, cpt_annee_suivi,cpt_ani_etiq
-    #                               FROM public.v_aniposi_gpsgsm, public.t_equipement_conf_eqc, lu_tables.tr_sensors_sen, cmpt.t_capture_cpt ) as t where t.ani_etiq =  '",input$nAnimal2,"' and eqc_sen_id=sen_id and cpt_annee_suivi=eqc_annee_suivi and cpt_ani_etiq=ani_etiq group by t.ani_etiq, t.ani_sexe, t.cap_date, t.cap_poids, t.cap_lpa, t.cap_age_classe, t.sit_nom_court, 
+    #                               FROM public.v_aniposi_gpsgsm, public.t_equipement_conf_eqc, lu_tables.tr_sensors_sen, cmpt.t_capture_cpt ) as t where t.ani_etiq =  '",input$nAnimal2,"' and eqc_sen_id=sen_id and cpt_annee_suivi=eqc_annee_suivi and cpt_ani_etiq=ani_etiq group by t.ani_etiq, t.ani_sexe, t.cap_date, t.cap_poids, t.cap_lpa, t.cap_age_classe, t.sit_nom_court,
     #                               t.teq_nom_court, t.cap_annee_suivi, t.eqa_date_debut, t.eqa_date_fin, t.temps_suivi, t.eqt_id_usuel, t.mar_libelle, t.mod_libelle,t.sen_association order by cap_date"))
-    # 
-    
+    #
+
     # ret <- DT::datatable(outp)
     # return(ret)
   })

@@ -113,8 +113,8 @@ contentcaractanimal = fluidPage(
     condition = "input.sexe == 'M'",
     
     fluidRow(
-      column(2, numericInput("lBoisGauche", value='0', h4("Longueur bois gauche"),min=0, max=1)),
-      column(2, numericInput("lBoisDroit", value='0', h4("Longueur bois droit"),min=0, max=1)),
+      column(2, numericInput("lBoisGauche", value='', h4("Longueur bois gauche"),min=0, max=1)),
+      column(2, numericInput("lBoisDroit", value='', h4("Longueur bois droit"),min=0, max=1)),
       #uiOutput("out_lBoisGauche"), 
       #uiOutput("out_lBoisDroit"),
       column(2, selectizeInput("etatBois", h4("etat bois"), choices = "" , options = list(create = TRUE)))
@@ -165,11 +165,12 @@ contentprelevement = fluidPage(
 
 contentcollier = fluidPage(
   fluidRow(
-    column(2, radioButtons(inputId = "new_collier", choices = c("oui","non"), selected = "non",label = h4("Nouveau collier"),inline = TRUE)),
+    #column(2, radioButtons(inputId = "new_collier", choices = c("oui","non"), selected = "non",label = h4("Nouveau collier"),inline = TRUE)),
+    #column(12,hr()),
+    column(7, DT::dataTableOutput("tablecollier")),
     column(12,hr()),
-    column(12, conditionalPanel(condition = "input.new_collier == 'oui'", DT::dataTableOutput("tablecollier"))),
-    column(3,  conditionalPanel(condition = "input.new_collier == 'oui'",h4("Le collier choisi est (tech, boitier, Collier): "), verbatimTextOutput('collier_choisi'))),
-    column(12, conditionalPanel(condition = "input.new_collier == 'oui'", actionButton("valide_collier", label="Valider le collier"))),
+    column(4, h4("Le collier choisi est (tech, boitier, Collier): "), verbatimTextOutput('collier_choisi'), actionButton("valide_collier", label="Valider le collier") ,offset = 1),
+    column(4, textInput("remarque_collier", label="Remarques") , offset = 2),
     useShinyalert()
   ))
 
