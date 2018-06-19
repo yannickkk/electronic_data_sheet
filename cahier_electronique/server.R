@@ -693,10 +693,10 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     
     checklist_table = data.frame()
     
-    if (is.null(input$sonde_temp)) {
+    if ((input$sonde_temp)=="") {
       checklist_table = data.frame("VALEUR_MANQUANTE_TABLE"= c("Sonde temperature"))}
     
-    if (is.null(input$position_temp)){
+    if ((input$position_temp)==""){
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde")))}
     
     if (is.null(input$lutte)) {

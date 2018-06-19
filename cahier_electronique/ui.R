@@ -179,7 +179,7 @@ contenttable = fluidPage(
   
   fluidRow(
     #column(2,uiOutput("sonde_loc")),
-    column(2, selectizeInput( "sonde_temp", h4("Sonde"), choices = list("rouge","blanche"))),
+    column(2, selectizeInput( "sonde_temp", h4("Sonde"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, selectizeInput( "position_temp", h4("Positionnement"), choices = "")),
     
    # column(2,uiOutput("casc_temp2")),
@@ -246,8 +246,8 @@ contentlacher = fluidPage(
     column(2, timeInput("time2", h4("Heure de 2nd lâcher:"),seconds = FALSE),
            actionButton("to_current_time2", "Afficher l'heure")),
     
-    column(1,numericInput("nbre_stops",value=0, h4("Nombre de stops"),min=0)),
-    column(1,numericInput("nbre_personnes", value=NULL, h4("Nbre de personnes"),min=1)),
+    column(2,numericInput("nbre_stops",value=0, h4("Nombre de stops"),min=0)),
+    column(2,selectizeInput("nbre_personnes", h4("Nbre de personnes"), choices = list("4-5","6-10","11-20", "21-50",">50"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     
     column(12,hr()),
     
