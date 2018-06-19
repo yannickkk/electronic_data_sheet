@@ -182,7 +182,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   output$animalExiste <- renderUI({
     if (!is.null(input$nAnimal)) {
       for (i in listAnimal) {
-        if (input$nAnimal %in% i)
+        if (toupper(input$nAnimal) %in% i)
         {shinyalert("ANIMAL DEJA EXISTANT!", "Décocher '1ere capture' ou choisir un autre 'ani_etiq'", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
       }
     }
