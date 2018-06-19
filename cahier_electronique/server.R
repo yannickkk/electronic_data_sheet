@@ -44,7 +44,7 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "idRFID2", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id"))
   updateSelectizeInput(session, "idSite2", choices = dbGetQuery(con, "select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani))"))
   updateSelectizeInput(session, "idRFID_new", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
-  updateSelectizeInput(session, "dents", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
+  updateSelectizeInput(session, "age", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
   updateSelectizeInput(session, "numSabot", choices = dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab order by sab_id")) 
   
     #########          Sélection site/RFID/tag à partir du n°animal                   #########
@@ -683,6 +683,19 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
 
     if (is.na(input$cirCou)) {
       checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Cou")))}
+    
+    if (input$diarrhee =="") {
+      checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Diarrhee")))}
+    
+    if (input$tiques =="") {
+      checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nombre de tiques")))}
+    
+    if (((input$lactation)=="") & !is.null(input$sexe)){
+      if (input$sexe=='F') {
+        checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Lactation")))}}
+    
+    if (input$age =="") {
+      checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Age")))}
     
     if (nrow(checklist1)==0) {
       checklist1 =  rbind(checklist1,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
