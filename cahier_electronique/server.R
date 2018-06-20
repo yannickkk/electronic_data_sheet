@@ -757,7 +757,7 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     
     output$tablechecklist_table = DT::renderDT(checklist_table,server = F) 
     
-    
+    ##
     ### Prelevement
     
     for (i in (1:nrow(liste_prel_db))){
