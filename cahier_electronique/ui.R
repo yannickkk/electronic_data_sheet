@@ -177,12 +177,11 @@ contenttable = fluidPage(
   
   fluidRow(
     #column(2,uiOutput("sonde_loc")),
-    column(2, selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL), selectizeInput( "position_temp1", h4("Positionnement 1"), choices = "")),
-    #column(2, selectizeInput( "position_temp1", h4("Positionnement"), choices = "")),
-    column(2, selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL), selectizeInput( "position_temp2", h4("Positionnement 2"), choices = "")),
-    #column(2, selectizeInput( "position_temp2", h4("Positionnement"), choices = "")),
-    
-    
+    column(2, selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL),
+           selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,selectizeInput( "position_temp1", h4("Positionnement 1"), choices = ""), selectizeInput( "position_temp2", h4("Positionnement 2"), choices = "")),
+    column(12,hr()),
+    column(12, checkboxInput("suivi_temp", h4("Suivi des températures"), value = F)),
     # column(2,uiOutput("casc_temp2")),
     column(12,hr()),
     column(1,radioButtons("lutte",h4("Lutte"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
@@ -193,9 +192,7 @@ contenttable = fluidPage(
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
     column(2,timeInput("time_table", h4("Heure de fin:"),seconds = FALSE),
-           actionButton("to_current_time_table", "Afficher l'heure")),
-    column(12,hr()),
-    column(12, checkboxInput("suivi_temp", h4("Suivi des températures"), value = F))
+           actionButton("to_current_time_table", "Afficher l'heure"))
   ))
 
 ##################           Rubrique Historique           #################
