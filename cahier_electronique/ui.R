@@ -130,7 +130,7 @@ contentblessures = fluidPage(
     column(2,uiOutput("casc_ble1")),
     column(2,uiOutput("casc_ble2")),
     #column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
-    column(3,pickerInput("traitement", h4("Traitement"), choices = "", multiple = T)),
+    column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple = T)),
     column(3,textInput("remarques_ble",h4("Remarques"),value = "")),
     column(12,hr()),
     column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
@@ -180,8 +180,8 @@ contenttable = fluidPage(
   
   fluidRow(
     #column(2,uiOutput("sonde_loc")),
-    column(2, selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL),
-           selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2, selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(create= TRUE), selected = 'rouge'),
+           selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(create= TRUE), selected = 'blanche')),
     column(2,selectizeInput( "position_temp1", h4("Positionnement 1"), choices = ""), selectizeInput( "position_temp2", h4("Positionnement 2"), choices = "")),
     column(12,hr()),
     column(12, checkboxInput("suivi_temp", h4("Suivi des températures"), value = F)),

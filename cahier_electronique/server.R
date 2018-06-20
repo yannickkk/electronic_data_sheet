@@ -425,10 +425,7 @@ server <- function(input, output,session) {
     selectizeInput("grave", h4("gravité"), choices = choice2, options=list(create= TRUE))
   })
   
-  b=dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt where blt_traitement = 'rien' ")
-  a=dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt where not blt_traitement = 'rien'")
-  
-  updateSelectizeInput(session,"traitement", choices = list(Traitement = c('test1'= a), Rien =c('test2' = b)))
+  updateSelectizeInput(session,"traitement", choices = dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt "))
   
   # observeEvent(input$traitement, {
   #   #print(input$traitement[2])
@@ -571,9 +568,9 @@ server <- function(input, output,session) {
   
   updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
   updateSelectizeInput(session, "position_temp1", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
-                       options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+                       options=list(create= TRUE), selected = 'anus')
   updateSelectizeInput(session, "position_temp2", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
-                       options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+                       options=list(create= TRUE), selected = 'exterieur')
   
   
   observeEvent(input$identifie, {
