@@ -397,14 +397,13 @@ comporsabot = tabPanel("Comportement sabot",contentsabot)
 ui <- shinyUI(
   #theme=shinytheme("sandstone"),
   # Application title
-  # titlePanel("Carnet Electronique"),
   tabsetPanel(
     tabPanel  ("Animal", caractanimal),
     tabPanel  ("Blessures", blessures),
     tabPanel  ("Prelevement", prelevement),
     tabPanel  ("Collier",caractcollier),
     tabPanel  ("Table",comportable),
-    tabPanel  ("historique",historique),
+    tabPanel  ("Historique",historique),
     tabPanel  ("Checklist 1",checklist1),
     tabPanel  ("Lâcher",comporlacher),
     tabPanel  ("Checklist 2",checklist2),

@@ -20,6 +20,7 @@ df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables
 colnames(df_blessure)<-c("ble_local","ble_gravite")
 
 server <- function(input, output,session) {
+
   
   ##################              RUBRIQUE ANIMAL                       #################
   
