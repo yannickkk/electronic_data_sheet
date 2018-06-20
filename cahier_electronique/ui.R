@@ -123,6 +123,7 @@ contentcaractanimal = fluidPage(
 ##################           Rubrique Blessures            #################
 
 contentblessures = fluidPage( 
+<<<<<<< HEAD
   fluidRow(
     
     column(2,uiOutput("casc_ble1")),
@@ -136,6 +137,21 @@ contentblessures = fluidPage(
     dataTableOutput("tableblessure"),
     column(12,textInput("liste_blessures",h4("Liste des blessures"),value = "", width = "100%"))
   )
+=======
+   fluidRow(
+
+     column(2,uiOutput("casc_ble1")),
+     column(2,uiOutput("casc_ble2")),
+     column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
+     column(3,textInput("remarques_ble",h4("Remarques"),value = "")),
+     column(12,hr()),
+     column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
+     column(2,actionButton("sup_Bles", "Supprimer blessure")),
+     column(12,hr()),
+     dataTableOutput("tableblessure"),
+     column(12,textInput("liste_blessures",h4("Liste des blessures"),value = "", width = "100%"))
+   )
+>>>>>>> 5519cebed9d45fd13b6dc49df0e5c3d6107bfd03
 )
 
 ##################           Rubrique Prélèvements         #################
