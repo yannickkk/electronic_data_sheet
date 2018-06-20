@@ -9,22 +9,23 @@
 
 # Création de la mise en page des formulaires
 
-  ##################           Rubrique Animal               ############################
+##################           Rubrique Animal               ############################
 
 contentcaractanimal = fluidPage(
+  tags$style(type="text/css",
+             ".shiny-output-error { visibility: hidden; }",
+             ".shiny-output-error:before { visibility: hidden; }"
+  ),
+  
   tags$head(
     tags$style(HTML("#idTagOrG2 + div> div>.item {
                     color: blue !important;}
-
                     #idTagOrD2 + div> div>.item {
                     color: blue !important;}
-
                     #idRFID2 + div> div>.item {
                     color: blue !important;}
-
                     #idSite2 + div> div>.item {
                     color: blue !important;}
-
                     #nAnimal2 + div> div>.item {
                     color: blue !important;}       "))
     ),
@@ -46,23 +47,23 @@ contentcaractanimal = fluidPage(
     
     column(12),
     
-    column(2,textInput("time_caract", h4("Heure table:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
+    column(2,textInput("time_caract", h4("Heure Début:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
     column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
     column(2, radioButtons(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
     column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"), selected = character(0))),
-   
+    
     column(12,hr()),
     
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput(inputId = "nAnimal", value = "",label = h4("N° Animal")))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput("idTagOrG", h4("Tag Oreille Gauche"),value=""))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput("idTagOrD", h4("Tag Oreille Droite"),value=""))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", selectizeInput("idRFID", h4("RFID"),
-                              choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+                                                                                                                                                            choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifie == 'non'", selectizeInput("idSite", h4("Site"),choices = "",
-                              options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create = T), selected = NULL))),
-   
+                                                                                                                                                         options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create = T), selected = NULL))),
+    
     column(12),
     column(1,offset = 1),
     
@@ -72,34 +73,35 @@ contentcaractanimal = fluidPage(
     column(12),
     
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",selectizeInput("nAnimal2",h4("N° Animal"), choices = "",
-                              options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-  
+                                                                                                                      options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create=T), selected = NULL))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' && input.nAnimal2 !=''",  selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' && input.idRFID2 != ''", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-  
+    
     column(12),
     
     column(2,offset = 2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",  checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE ))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("metal_tag_d2", "Tag D. métal", value = FALSE )))
-    ),
+  ),
   
   column(12,hr()),
   
   fluidRow(
-    column(2, numericInput("cirCou", value='0', h4("Circonference cou"),min=0, max=1)),
+    column(2, numericInput("cirCou", value='', h4("Circonference cou"),min=0, max=1)),
     uiOutput("out_cirCou"),
-    column(2, numericInput("lPattArriere", value='0', h4("Longueur patte arriere"),min=0, max=1)),
+    column(2, numericInput("lPattArriere", value='', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
     column(2, numericInput("tglucose", value="", h4("Taux de Glucose"), min=0)),
-    column(2, selectizeInput("dents", h4("Dents"), choices ="", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2, selectizeInput("age", h4("Age"), choices ="", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, textInput("remarque_ani", h4("Remarques"), value = "")),
     column(12),
-    column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))
-    # column(12,hr())
+    column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,textInput("parasites", h4("Autres parasites"), value = "")),
+    column(2,conditionalPanel(condition = "input.sexe == 'F'", selectizeInput("lactation", h4("Lactation"), choices = c("oui", "non", "indeterminé"),  options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)))
     
   ),
   
@@ -107,71 +109,81 @@ contentcaractanimal = fluidPage(
     condition = "input.sexe == 'M'",
     
     fluidRow(
-      column(2, numericInput("lBoisGauche", value='0', h4("Longueur bois gauche"),min=0, max=1)),
-      column(2, numericInput("lBoisDroit", value='0', h4("Longueur bois droit"),min=0, max=1)),
+      column(2, numericInput("lBoisGauche", value='', h4("Longueur bois gauche"),min=0, max=1)),
+      column(2, numericInput("lBoisDroit", value='', h4("Longueur bois droit"),min=0, max=1)),
       #uiOutput("out_lBoisGauche"), 
       #uiOutput("out_lBoisDroit"),
       column(2, selectizeInput("etatBois", h4("etat bois"), choices = "" , options = list(create = TRUE)))
     )
   )
-)
+  
+  
+    )
 
-  ##################           Rubrique Blessures            #################
+##################           Rubrique Blessures            #################
 
 contentblessures = fluidPage( 
-   fluidRow(
-
-     column(2,uiOutput("casc_ble1")),
-     column(2,uiOutput("casc_ble2")),
-     column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
-     column(12,hr()),
-     column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
-     column(2,actionButton("sup_Bles", "Supprimer blessure")),
-     column(12,hr()),
-     dataTableOutput("tableblessure"),
-     column(12,textInput("liste_blessures",h4("Liste des blessures"),value = "", width = "100%"))
-   )
+  fluidRow(
+    
+    column(2,uiOutput("casc_ble1")),
+    column(2,uiOutput("casc_ble2")),
+    column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
+    column(3,textInput("remarques_ble",h4("Remarques"),value = "")),
+    column(12,hr()),
+    column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
+    column(2,actionButton("sup_Bles", "Supprimer blessure")),
+    column(12,hr()),
+    dataTableOutput("tableblessure"),
+    column(12,textInput("liste_blessures",h4("Liste des blessures"),value = "", width = "100%"))
+  )
 )
 
-  ##################           Rubrique Prélèvements         #################
+##################           Rubrique Prélèvements         #################
 
 contentprelevement = fluidPage(
   
   
   fluidRow(
-     column(2,uiOutput("control1")),
-     column(2,uiOutput("control2")),
-     column(2,uiOutput("control3")),
-     column(2,uiOutput("control4")),
-     column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,options=list(create=T), selected = NULL)),
-     column(12,hr()),
-     column(2,offset = 3, actionButton("ajout_prelev",("Ajouter prelevement"))),
-     column(2,actionButton("sup_prelev", "Supprimer prelevement")),
-     column(12,hr()),
-     dataTableOutput("tableprelevement")
-   )
+    column(2,uiOutput("control1")),
+    column(2,uiOutput("control2")),
+    column(2,uiOutput("control3")),
+    column(2,uiOutput("control4")),
+    column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,options=list(create=T), selected = NULL)),
+    column(12,hr()),
+    column(2,offset = 3, actionButton("ajout_prelev",("Ajouter prelevement"))),
+    column(2,actionButton("sup_prelev", "Supprimer prelevement")),
+    column(12,hr()),
+    dataTableOutput("tableprelevement")
+  )
   
 )
 
-  ##################           Rubrique Collier              #################
+##################           Rubrique Collier              #################
 
 contentcollier = fluidPage(
   fluidRow(
-    column(2, radioButtons(inputId = "new_collier", choices = c("oui","non"), selected = "non",label = h4("Nouveau collier"),inline = TRUE)),
+    #column(2, radioButtons(inputId = "new_collier", choices = c("oui","non"), selected = "non",label = h4("Nouveau collier"),inline = TRUE)),
+    #column(12,hr()),
+    column(7, DT::dataTableOutput("tablecollier")),
     column(12,hr()),
-    column(12, conditionalPanel(condition = "input.new_collier == 'oui'", DT::dataTableOutput("tablecollier"))),
-    column(3,  conditionalPanel(condition = "input.new_collier == 'oui'",h4("Le collier choisi est (tech, boitier, Collier): "), verbatimTextOutput('collier_choisi'))),
-    column(12, conditionalPanel(condition = "input.new_collier == 'oui'", actionButton("valide_collier", label="Valider le collier"))),
+    column(4, h4("Le collier choisi est (tech, boitier, Collier): "), verbatimTextOutput('collier_choisi'), actionButton("valide_collier", label="Valider le collier") ,offset = 1),
+    column(4, textInput("remarque_collier", label="Remarques") , offset = 2),
     useShinyalert()
   ))
 
-  ##################           Rubrique Table                #################
+##################           Rubrique Table                #################
 
 contenttable = fluidPage(
   
   fluidRow(
-    column(2,uiOutput("casc_temp1")),
-    column(2,uiOutput("casc_temp2")),
+    #column(2,uiOutput("sonde_loc")),
+    column(2, selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL), selectizeInput( "position_temp1", h4("Positionnement 1"), choices = "")),
+    #column(2, selectizeInput( "position_temp1", h4("Positionnement"), choices = "")),
+    column(2, selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL), selectizeInput( "position_temp2", h4("Positionnement 2"), choices = "")),
+    #column(2, selectizeInput( "position_temp2", h4("Positionnement"), choices = "")),
+    
+    
+    # column(2,uiOutput("casc_temp2")),
     column(12,hr()),
     column(1,radioButtons("lutte",h4("Lutte"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
     column(1,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected =character(0))),
@@ -180,13 +192,13 @@ contenttable = fluidPage(
     column(12,hr()),
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-    column(2,timeInput("time_table", h4("Heure:"),seconds = FALSE),
+    column(2,timeInput("time_table", h4("Heure de fin:"),seconds = FALSE),
            actionButton("to_current_time_table", "Afficher l'heure")),
     column(12,hr()),
     column(12, checkboxInput("suivi_temp", h4("Suivi des températures"), value = F))
-     ))
+  ))
 
-  ##################           Rubrique Historique           #################
+##################           Rubrique Historique           #################
 
 contenthistorique <- fluidPage(
   #fluidRow(
@@ -199,32 +211,24 @@ contenthistorique <- fluidPage(
   # )
 )
 
-  ##################           Rubrique Checklist 1          #################
+##################           Rubrique Checklist 1          #################
 
 
 contentcheck1 =  fluidPage(fluidRow(
-  titlePanel("Checklist - Caracteristiques"),
-  tabPanel("Cheklist 1", DT::dataTableOutput("tablechecklist1")), 
-  column(12,useShinyalert(),
-         actionButton("checklist_1", "Checklist",icon('eye'),width='25%')),
-  
-  #  titlePanel("Checklist - Prelevements"),
-  
+  uiOutput("checklist_1"),
+  column(4, h3("Checklist - Animal"), offset=1),
+  column(4, h3("Checklist - Table"),offset = 1),
+  column(4,tabPanel("Cheklist 1", DT::dataTableOutput("tablechecklist1")),offset=1), 
+  column(4,tabPanel("Checklist Table",DT::dataTableOutput("tablechecklist_table")), offset=1),
   column(12,hr()),
-  
-  #conditionalPanel(
-  #  condition = "input.new_collier == 1",
-  #  fluidRow(titlePanel("Checklist - Collier"))) ,
-  
-  
-  titlePanel("Checklist - Table"),
-  tabPanel("Checklist Table",DT::dataTableOutput("tablechecklist_table")), 
-  column(12,useShinyalert(),
-         actionButton("checklist_tab", "Checklist",icon('eye'),width='25%'))
+  column(4, h3("Checklist - Prelevement"),offset = 4),
+  column(4,tabPanel("Checklist Prelevement",DT::dataTableOutput("tablechecklist_prel")), offset=4),
+  column(12,hr()),
+  column(12, useShinyalert(),actionButton("valid_checklist1", "ENREGISTRER LES DONNEES", width='100%'))
 ))
 
 
-  ##################           Rubrique Lâcher               #################
+##################           Rubrique Lâcher               #################
 
 
 ###submitButton(format(Sys.time(), "%X"))
@@ -239,8 +243,8 @@ contentlacher = fluidPage(
     column(2, timeInput("time2", h4("Heure de 2nd lâcher:"),seconds = FALSE),
            actionButton("to_current_time2", "Afficher l'heure")),
     
-    column(1,numericInput("nbre_stops",value=0, h4("Nombre de stops"),min=0)),
-    column(1,numericInput("nbre_personnes", value=NULL, h4("Nbre de personnes"),min=1)),
+    column(2,numericInput("nbre_stops",value=0, h4("Nombre de stops"),min=0)),
+    column(2,selectizeInput("nbre_personnes", h4("Nbre de personnes"), choices = list("4-5","6-10","11-20", "21-50",">50"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     
     column(12,hr()),
     
@@ -271,7 +275,7 @@ contentlacher = fluidPage(
 
 
 
-  ##################           Rubrique Checklist 2          #################
+##################           Rubrique Checklist 2          #################
 
 
 contentcheck2 = fluidPage(fluidRow(
@@ -284,7 +288,7 @@ contentcheck2 = fluidPage(fluidRow(
 )
 
 
-  ##################           Rubrique Capture              #################
+##################           Rubrique Capture              #################
 
 
 contentcapture = fluidPage(
@@ -292,18 +296,17 @@ contentcapture = fluidPage(
   #titlePanel("Comportement Capture"),
   fluidRow(
     
-    column(2,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
+    column(1,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
     column(2,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"),seconds = FALSE),
            actionButton("time_debut_filet", "Afficher l'heure")),
-    
-    column(12,hr()),
-    
     column(2,timeInput("cpt_temps_filet", h4("Temps passe filet"),seconds = FALSE),
            actionButton("time_filet", "Afficher l'heure")),
-    column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
-    column(2,selectInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = list("0"=0,"1"=1,"2"=2,"3"=3,"4"=4,"5"=5),selected = 0)),
+    column(12,hr()),
     
+    column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
+    column(3,selectInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = list("0"=0,"1"=1,"2"=2,"3"=3,"4"=4,"5"=5),selected = 0)),
+    column(2,textInput("remarques_capt",label=h4("Remarques",""))),
     column(12,hr()),
     
     column(1,radioButtons("cpt_filet_vitesse",h4("Vitesse"),choiceNames = list("Pas","Course"),choiceValues = list(0,1), selected = character(0))),
@@ -312,7 +315,7 @@ contentcapture = fluidPage(
     column(1,radioButtons("cpt_filet_halete",h4("Halete"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
     column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = character(0))),
     column(12,hr()),
-    #column(2,textInput("Remarques",label=h4("Remarques",""))),
+    
     #column(1),
     column(4,useShinyalert(),
            actionButton("checklist_capture", "Checklist",icon('eye')))
@@ -321,7 +324,7 @@ contentcapture = fluidPage(
   ))
 
 
-  ##################           Rubrique Sabot                #################
+##################           Rubrique Sabot                #################
 
 
 contentsabot = fluidPage(
@@ -367,7 +370,7 @@ contentsabot = fluidPage(
 )
 
 
-  ##################        ORGANISATION DES RUBRIQUES       #################
+##################        ORGANISATION DES RUBRIQUES       #################
 
 
 caractanimal = tabPanel("Caract. de l'animal",contentcaractanimal)
@@ -383,28 +386,28 @@ comporcapture = tabPanel("Comportement capture",contentcapture)
 comporsabot = tabPanel("Comportement sabot",contentsabot)
 
 
-  ##################                    UI                   #################
+##################                    UI                   #################
 
 ##Lumen or cerulean or sandstone
 
 ui <- shinyUI(
-                         #theme=shinytheme("sandstone"),
-                         # Application title
-                         # titlePanel("Carnet Electronique"),
-                  tabsetPanel(
-                         tabPanel  ("Animal", caractanimal),
-                         tabPanel  ("Blessures", blessures),
-                         tabPanel  ("Prelevement", prelevement),
-                         tabPanel  ("Collier",caractcollier),
-                         tabPanel  ("Table",comportable),
-                         tabPanel  ("historique",historique),
-                         tabPanel  ("Checklist 1",checklist1),
-                         tabPanel  ("Lâcher",comporlacher),
-                         tabPanel  ("Checklist 2",checklist2),
-                         tabPanel  ("Capture",comporcapture),
-                         tabPanel  ("Sabot",comporsabot)
-                 )
-            
+  #theme=shinytheme("sandstone"),
+  # Application title
+  # titlePanel("Carnet Electronique"),
+  tabsetPanel(
+    tabPanel  ("Animal", caractanimal),
+    tabPanel  ("Blessures", blessures),
+    tabPanel  ("Prelevement", prelevement),
+    tabPanel  ("Collier",caractcollier),
+    tabPanel  ("Table",comportable),
+    tabPanel  ("historique",historique),
+    tabPanel  ("Checklist 1",checklist1),
+    tabPanel  ("Lâcher",comporlacher),
+    tabPanel  ("Checklist 2",checklist2),
+    tabPanel  ("Capture",comporcapture),
+    tabPanel  ("Sabot",comporsabot)
+  )
+  
 )
 
 
