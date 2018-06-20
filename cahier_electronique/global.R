@@ -7,6 +7,7 @@ library(shinyTime)
 library(RPostgreSQL)
 library(shinyalert)
 library(chron)
+library(shinyWidgets)
 source("connect.R")
 
 

@@ -85,16 +85,16 @@ server <- function(input, output,session) {
       str = paste0("select ani_sexe from public.t_animal_ani where ani_etiq ='", input$nAnimal2, "'")
       resres = dbGetQuery(con,str)
       sexe <- resres[1, 1]
-      updateRadioButtons(session, "sexe", selected = sexe)
+      updateAwesomeRadio(session, "sexe", selected = sexe)
     }
   })
   
   testNouvelAnimal = observeEvent(input$estNouvelAnimal, {
     if (input$estNouvelAnimal=="non"){
-      updateRadioButtons(session, "identifie", choices = c("oui","non"), selected = "oui")
+      updateAwesomeRadio(session, "identifie", choices = c("oui","non"), selected = "oui")
     }
     if (input$estNouvelAnimal=="oui"){
-      updateRadioButtons(session, "identifie", choices = c("oui","non"), selected = "non")
+      updateAwesomeRadio(session, "identifie", choices = c("oui","non"), selected = "non")
     }  
   })
   
@@ -425,7 +425,17 @@ server <- function(input, output,session) {
     selectizeInput("grave", h4("gravité"), choices = choice2, options=list(create= TRUE))
   })
   
-  updateSelectizeInput(session,"traitement", choices = (dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")))
+  b=dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt where blt_traitement = 'rien' ")
+  a=dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt where not blt_traitement = 'rien'")
+  
+  updateSelectizeInput(session,"traitement", choices = list(Traitement = c('test1'= a), Rien =c('test2' = b)))
+  
+  # observeEvent(input$traitement, {
+  #   #print(input$traitement[2])
+  # if (!is.na(input$traitement[2])) {
+  #   updateSelectizeInput(session,"traitement", choices = (dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")))
+  #   }
+  # })
   
   
   #########          Ajout d'un nouveau traitement                                  ########
@@ -471,7 +481,6 @@ server <- function(input, output,session) {
   
   output$control1 <- renderUI({
     selectizeInput("typetype", h4("Type"), choices = df_prelevement$prel_type, options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')))
-    
   })
   
   output$control2 <- renderUI({
@@ -569,7 +578,7 @@ server <- function(input, output,session) {
   
   observeEvent(input$identifie, {
     if (input$identifie == "oui") {
-      updateRadioButtons(session,"cribague", selected = "NA")
+      updateAwesomeRadio(session,"cribague", selected = "NA")
     }  
   })
   

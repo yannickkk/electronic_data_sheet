@@ -50,9 +50,11 @@ contentcaractanimal = fluidPage(
     column(2, textInput("time_caract", h4("Heure Début:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
-    column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
-    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", radioButtons(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))), conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", radioButtons(inputId = "identifie", choices = c("non"), selected = "non",label = h4("Identifé")))),
-    column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"), selected = character(0))),
+    #column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
+    column(2, awesomeRadio(inputId = "estNouvelAnimal", choices = c("oui", "non"),selected = "oui",label = h4("1ere Capture"))),
+
+    column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", awesomeRadio(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))), conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", awesomeRadio(inputId = "identifie", choices = c("non"), selected = "non",label = h4("Identifé")))),
+    column(1, awesomeRadio("sexe",h4("Sexe"),  choices = c("M","F"), selected = character(1))),
     
     column(12,hr()),
     
@@ -127,7 +129,8 @@ contentblessures = fluidPage(
     
     column(2,uiOutput("casc_ble1")),
     column(2,uiOutput("casc_ble2")),
-    column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
+    #column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple=TRUE, options=list(create=TRUE))),
+    column(3,pickerInput("traitement", h4("Traitement"), choices = "", multiple = T)),
     column(3,textInput("remarques_ble",h4("Remarques"),value = "")),
     column(12,hr()),
     column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
@@ -148,14 +151,14 @@ contentprelevement = fluidPage(
     column(2,uiOutput("control2")),
     column(2,uiOutput("control3")),
     column(2,uiOutput("control4")),
-    column(2, selectizeInput("nbre_echant", h4("Nombre d'echantillons"), choices =list( 1,2,3,4,5) ,options=list(create=T), selected = NULL)),
+    column(2, selectizeInput("nbre_echant", h4("Nombre"), choices =list( 1,2,3,4,5) ,options=list(create=T), selected = NULL)),
+    column(2, textInput("remarques_prel",h4("Remarques"), value="")),
     column(12,hr()),
     column(2,offset = 3, actionButton("ajout_prelev",("Ajouter prelevement"))),
     column(2,actionButton("sup_prelev", "Supprimer prelevement")),
     column(12,hr()),
     dataTableOutput("tableprelevement")
   )
-  
 )
 
 ##################           Rubrique Collier              #################
@@ -184,7 +187,7 @@ contenttable = fluidPage(
     column(12, checkboxInput("suivi_temp", h4("Suivi des températures"), value = F)),
     # column(2,uiOutput("casc_temp2")),
     column(12,hr()),
-    column(1,radioButtons("lutte",h4("Lutte"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
+    column(1,radioButtons("lutte",h4("Lutte"), choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
     column(1,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected =character(0))),
     column(1,radioButtons("cribague",h4("Cri Bague"), choices  = list("NA","0", "1-2", ">2"),  selected =character(0))),
     column(1,radioButtons("criautre", h4("Cri Autre"), choices = list("0", "1-2", ">2"), selected = F)),
@@ -295,8 +298,8 @@ contentcapture = fluidPage(
   #titlePanel("Comportement Capture"),
   fluidRow(
     
-    column(1,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
-    column(2,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
+    column(3,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"),seconds = FALSE),
            actionButton("time_debut_filet", "Afficher l'heure")),
     column(2,timeInput("cpt_temps_filet", h4("Temps passe filet"),seconds = FALSE),
@@ -310,7 +313,7 @@ contentcapture = fluidPage(
     
     column(1,radioButtons("cpt_filet_vitesse",h4("Vitesse"),choiceNames = list("Pas","Course"),choiceValues = list(0,1), selected = character(0))),
     column(1,radioButtons("cpt_filet_allure",h4("Allure"),choiceNames = list("Reflechi","Bolide"),choiceValues = list(0,1),selected = character(0))),
-    column(1,radioButtons("cpt_filet_lutte", h4("Lutte"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
+    column(1,radioButtons("cpt_filet_lutte", h4("Lutte"), choices = list(0,1,2), selected = character(0))),
     column(1,radioButtons("cpt_filet_halete",h4("Halete"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
     column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = character(0))),
     column(12,hr()),
