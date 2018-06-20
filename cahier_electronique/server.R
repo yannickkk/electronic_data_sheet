@@ -5,12 +5,12 @@ source("connect.R")
 ## Dataframe pour les prélevements :
 
 df_prelevement <- data.frame(dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"), 
-                              dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
-                              dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
-dbGetQuery(con,"select sas_solvant from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_solvant_sas where sat_id=sac_sat_id and sat_id=sal_sat_id and sas_sat_id=sat_id and sac_id=sas_sac_id order by sac_id"))
+                             dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
+                             dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
+                             dbGetQuery(con,"select sas_solvant from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_solvant_sas where sat_id=sac_sat_id and sat_id=sal_sat_id and sas_sat_id=sat_id and sac_id=sas_sac_id order by sac_id"))
 
 colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi", "prel_solv")
- 
+
 
 ## Dataframe pour les blessures :
 
@@ -20,7 +20,7 @@ df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables
 colnames(df_blessure)<-c("ble_local","ble_gravite")
 
 server <- function(input, output,session) {
-
+  
   ##################              RUBRIQUE ANIMAL                       #################
   
   updateSelectizeInput(session, "idRFID", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
@@ -39,7 +39,7 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "age", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
   updateSelectizeInput(session, "numSabot", choices = dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab order by sab_id")) 
   
-    #########          Sélection site/RFID/tag à partir du n°animal                   #########
+  #########          Sélection site/RFID/tag à partir du n°animal                   #########
   
   observeEvent(input$nAnimal2,{
     if ((input$nAnimal2)!="") {
@@ -98,7 +98,7 @@ server <- function(input, output,session) {
     }  
   })
   
-    #########          Sélection nAnimal/RFID/site/tagG à partir du tagD              #########
+  #########          Sélection nAnimal/RFID/site/tagG à partir du tagD              #########
   
   observeEvent(input$idTagOrD2,{
     if ((input$idTagOrD2)!="") {
@@ -109,7 +109,7 @@ server <- function(input, output,session) {
     }
   })
   
-    #########          Sélection nAnimal/RFID/site/tagD à partir du tagG              #########
+  #########          Sélection nAnimal/RFID/site/tagD à partir du tagG              #########
   
   observeEvent(input$idTagOrG2,{
     if ((input$idTagOrG2)!="") {
@@ -120,7 +120,7 @@ server <- function(input, output,session) {
     }
   })
   
-    #########          Sélection nAnimal/site/tagD/tagG à partir du RFID              #########
+  #########          Sélection nAnimal/site/tagD/tagG à partir du RFID              #########
   
   observeEvent(input$idRFID2,{
     if ((input$idRFID2)!="") {
@@ -131,7 +131,7 @@ server <- function(input, output,session) {
     }
   })
   
-    #########          Vérification des tags  (metal ou non)                          ######### 
+  #########          Vérification des tags  (metal ou non)                          ######### 
   
   observeEvent(input$nAnimal2,{
     if ((input$nAnimal2)!="") {
@@ -150,13 +150,13 @@ server <- function(input, output,session) {
       updateCheckboxInput(session, "metal_tag_g2", value = tag_gauche_metal)
     }
   })
-
-listTagD = dbGetQuery(con,"select distinct cap_tag_droit from public.t_capture_cap")
-names(listTagD)<-c("nom")
-listTagG = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_cap")
-names(listTagG)<-c("nom")
-listTag = rbind(listTagD,listTagG)
-
+  
+  listTagD = dbGetQuery(con,"select distinct cap_tag_droit from public.t_capture_cap")
+  names(listTagD)<-c("nom")
+  listTagG = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_cap")
+  names(listTagG)<-c("nom")
+  listTag = rbind(listTagD,listTagG)
+  
   output$tagDroitExiste <- renderUI({
     if (!is.null(input$idTagOrD)) {
       for (i in listTag) {
@@ -174,10 +174,10 @@ listTag = rbind(listTagD,listTagG)
       }
     }
   })
-      
-    #########          Vérification existence numéro nouvel animal                    ##########   
-    
-listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
+  
+  #########          Vérification existence numéro nouvel animal                    ##########   
+  
+  listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
   output$animalExiste <- renderUI({
     if (!is.null(input$nAnimal)) {
@@ -188,7 +188,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     }
   })
   
-    #########          Test données: poids, num sabot , tour de cou, lg patte, bois   ######### 
+  #########          Test données: poids, num sabot , tour de cou, lg patte, bois   ######### 
   
   ### Poids
   
@@ -255,7 +255,7 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     if (input$lPattArriere > dbGetQuery(con,"select max(cap_lpa) from t_capture_cap")) {
       shinyalert("STOP!", "Longueur patte élevée", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_lg_patte)
     }})
-
+  
   modalCallback_lg_patte <- function(value) {
     if (value == FALSE) {
       updateNumericInput(session, "lPattArriere" , value = 0)}}
@@ -266,13 +266,13 @@ listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
     if (input$lBoisGauche > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois gauche elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
     }})
-
+  
   output$out_lBoisDroit <- renderUI({
     if (input$lBoisDroit > dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca")) {
       shinyalert("STOP!", "Longueur bois droit elevee", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
     }})
-
-liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description")
+  
+  liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description")
   
   observeEvent(input$etatBois, {
     for (i in liste_etatbois) {
@@ -285,14 +285,14 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   modalCallback_new_etatbois <- function(value) {
     if (value == TRUE) {
       (dbSendQuery(con,sprintf("INSERT INTO lu_tables.tr_etat_bois_etb (etb_description) VALUES ('%s')", input$etatBois))) }}
-
-    #########          Récupération de l'heure                                        #########    
- 
-   observeEvent(input$to_current_time_caract, {
+  
+  #########          Récupération de l'heure                                        #########    
+  
+  observeEvent(input$to_current_time_caract, {
     updateTimeInput(session, "time_caract", value = Sys.time())
   })
   
-    #########          Récupération du site                                           #########    
+  #########          Récupération du site                                           #########    
   
   liste_date <- dbGetQuery(con,"select cap_date from t_capture_cap")
   
@@ -323,14 +323,14 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   observeEvent(input$idSite, {
     for (i in liste_site) {
       if (!(input$idSite %in% i)) {
-         if (input$idSite != "")
-           {shinyalert("NOUVEAU SITE?", "Est-ce un nouveau site ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_site)} 
-    }}
+        if (input$idSite != "")
+        {shinyalert("NOUVEAU SITE?", "Est-ce un nouveau site ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_site)} 
+      }}
   })
   
   modalCallback_new_site <- function(value) {
     if (value == TRUE) {
-     (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite))) }}
+      (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite))) }}
   
   observeEvent(input$idSite2, {
     for (i in liste_site) {
@@ -344,7 +344,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     if (value == TRUE) {
       (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite2))) }}
   
-    #########          Alerte perte de poids                                          #########
+  #########          Alerte perte de poids                                          #########
   
   output$perte_poids <- renderUI({
     if (!is.null(input$nAnimal2)) {
@@ -354,24 +354,24 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
       if (!is.na(input$pSabotPlein) && !is.na(input$pSabotVide)) {
         #test_poids = verif_poids - (input$pSabotPlein - input$pSabotVide)
         if ((verif_poids - (input$pSabotPlein - input$pSabotVide)) > 1) 
-          {shinyalert("PERDU PLUS D'UN KILO!", "L'animal a perdu du poids par rapport à la capture précédente", type = "warning", showCancelButton=F, showConfirmButton = T)}
-    }}
+        {shinyalert("PERDU PLUS D'UN KILO!", "L'animal a perdu du poids par rapport à la capture précédente", type = "warning", showCancelButton=F, showConfirmButton = T)}
+      }}
   })
   
   ##################           RUBRIQUE BLESSURES                       #################
   
   blessure = data.frame()
   row.names(blessure) = NULL
-   
-   output$tableblessure = DT::renderDT(expr = blessure,server = F)
-   
-   sup_Ligne = observeEvent(input$sup_Bles, {
+  
+  output$tableblessure = DT::renderDT(expr = blessure,server = F)
+  
+  sup_Ligne = observeEvent(input$sup_Bles, {
     if (!is.null(input$tableblessure_rows_selected)) {
       blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
       output$tableblessure = DT::renderDT(blessure,server = F)
     }
   })
-
+  
   observeEvent(input$ajoutBle, {
     if ((length(input$traitement))>1)
     {
@@ -385,13 +385,21 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
       updateSelectizeInput(session,"locali", options=list(selected=NULL))
       updateSelectizeInput(session,"traitement", options=list(selected=NULL))
     }
-      
+    
     if ((length(input$traitement))==1)
+<<<<<<< HEAD
+    {
+      if (input$remarques_ble=="")
+      {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave),c(input$traitement), input$diarrhee, sep = "-")))}
+      else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave), c(input$traitement), input$diarrhee,input$remarques_ble, sep = "-")))}
+    }
+=======
       {
       if (input$remarques_ble=="")
         {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave),c(input$traitement), input$diarrhee, sep = "-")))}
         else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave), c(input$traitement), input$diarrhee,input$remarques_ble, sep = "-")))}
       }
+>>>>>>> 5519cebed9d45fd13b6dc49df0e5c3d6107bfd03
     
     output$tableblessure = DT::renderDT(blessure,server = F)
     #print(blessure[1][1])
@@ -406,7 +414,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
       i=i+1
       updateTextInput(session, "liste_blessures", value = liste_blessures)
     }
-
+    
   })
   
   ### Mise en forme des blessures en cascade :
@@ -428,7 +436,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   updateSelectizeInput(session,"traitement", choices = (dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")))
   
   
-    #########          Ajout d'un nouveau traitement                                  ########
+  #########          Ajout d'un nouveau traitement                                  ########
   
   liste_traitement = dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")
   
@@ -469,10 +477,10 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
   
   output$table_prel <- renderTable({df_prelevement})
   
-    output$control1 <- renderUI({
+  output$control1 <- renderUI({
     selectizeInput("typetype", h4("Type"), choices = df_prelevement$prel_type, options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')))
-
-    })
+    
+  })
   
   output$control2 <- renderUI({
     x <- input$typetype
@@ -484,13 +492,13 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     selectizeInput("localoca", h4("Localisation"), choices = (choice2), options=list(create= TRUE), selected=1)
   })
   
- observeEvent(input$typetype, {
-  if (input$typetype == "sang") {
-    updateSelectizeInput(session,"localoca", selected="jugulaire")}
+  observeEvent(input$typetype, {
+    if (input$typetype == "sang") {
+      updateSelectizeInput(session,"localoca", selected="jugulaire")}
     if (input$typetype == "feces") {
       updateSelectizeInput(session,"localoca", selected="anus")}
-   if (input$typetype == "poils") {
-     updateSelectizeInput(session,"localoca", selected="coup")}
+    if (input$typetype == "poils") {
+      updateSelectizeInput(session,"localoca", selected="coup")}
   })
   
   output$control3 <- renderUI({
@@ -506,7 +514,7 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
     selectizeInput("condi", h4("Conditionnement"), choices = choice3, options=list(create= TRUE))
   })
   
-   output$control4 <- renderUI({
+  output$control4 <- renderUI({
     x <- input$typetype
     y <- input$localoca
     z <- input$condi
@@ -516,52 +524,65 @@ liste_etatbois = dbGetQuery(con,"select distinct etb_description from lu_tables.
       is.null(z)
     ))
       return("Select")
-
+    
     choice4 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y & df_prelevement$prel_condi == z, "prel_solv"]
     selectizeInput("solsol", h4("Solvant"), choices = choice4, list(create= TRUE))
-   })
-   
-   observeEvent(input$ajout_prelev, {
-     cat_prelevement = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
-     liste_prelevement[nrow(prelevement)] <<- cat_prelevement
-     
-   })
+  })
   
-   liste_prelevement=list()
-   liste_prel_db = dbGetQuery(con,"select sav_intitule from lu_tables.tr_samples_verification_sav")
-   
+  observeEvent(input$ajout_prelev, {
+    cat_prelevement = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
+    liste_prelevement[nrow(prelevement)] <<- cat_prelevement
+    
+  })
+  
+  liste_prelevement=list()
+  liste_prel_db = dbGetQuery(con,"select sav_intitule from lu_tables.tr_samples_verification_sav")
+  
   ##################           RUBRIQUE COLLIER                         #################
   
   liste_collier <- dbGetQuery(con,"select eqc_annee_suivi, teq_nom_court, eqc_remarque, eqt_id_usuel, eqc_drop_off, eqc_couleur_boitier, eqc_couleur_collier,eqt_frequence, eqc_memoire FROM public.t_equipement_eqt RIGHT JOIN public.t_equipement_conf_eqc ON eqc_eqt_id = eqt_id
-LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_suivi = extract(year from now()) order by teq_nom_court")
-   
-   output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
-   
-   affichage_choix_collier <- observeEvent(input$tablecollier_rows_selected, {
-     if (!is.null(input$tablecollier_rows_selected)) {
-       ligne_selection = input$tablecollier_rows_selected
-       collier_tech = liste_collier[ligne_selection,2]
-       collier_col_b = liste_collier[ligne_selection,7]
-       collier_col_c = liste_collier[ligne_selection,6]
-       cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c) )
-       output$collier_choisi = renderPrint(cat_col)
-     }
-   })
-   
-   observeEvent(input$valide_collier,{
-     if ( is.null(input$tablecollier_rows_selected)) {
-         shinyalert("STOP!", "Collier non sélectionné!", type = "error",confirmButtonText="Valider",showConfirmButton = F, showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
-     }
-     if ( !is.null(input$tablecollier_rows_selected)) {
-       shinyalert("PARFAIT!", "Collier bien sélectionné!", type ="success" ,confirmButtonText="Valider", showCancelButton=F,cancelButtonText="Annuler",html=TRUE )
-     } 
-     
+                              LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_suivi = extract(year from now()) order by teq_nom_court")
+  
+  output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
+  
+  affichage_choix_collier <- observeEvent(input$tablecollier_rows_selected, {
+    if (!is.null(input$tablecollier_rows_selected)) {
+      ligne_selection = input$tablecollier_rows_selected
+      collier_tech = liste_collier[ligne_selection,2]
+      collier_col_b = liste_collier[ligne_selection,7]
+      collier_col_c = liste_collier[ligne_selection,6]
+      cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c) )
+      output$collier_choisi = renderPrint(cat_col)
+    }
   })
-   
+  
+  observeEvent(input$valide_collier,{
+    if ( is.null(input$tablecollier_rows_selected)) {
+      shinyalert("STOP!", "Collier non sélectionné!", type = "error",confirmButtonText="Valider",showConfirmButton = F, showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
+    }
+    if ( !is.null(input$tablecollier_rows_selected)) {
+      shinyalert("PARFAIT!", "Collier bien sélectionné!", type ="success" ,confirmButtonText="Valider", showCancelButton=F,cancelButtonText="Annuler",html=TRUE )
+    } 
+    
+  })
+  
   ##################           RUBRIQUE TABLE                           #################
   
   updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
   updateSelectizeInput(session, "position_temp1", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
+<<<<<<< HEAD
+                       options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+  updateSelectizeInput(session, "position_temp2", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
+                       options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+  
+  
+  observeEvent(input$identifie, {
+    if (input$identifie == "oui") {
+      updateRadioButtons(session,"cribague", selected = "NA")
+    }  
+  })
+  
+=======
                           options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
   updateSelectizeInput(session, "position_temp2", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
                        options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
@@ -573,9 +594,10 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
    }  
     })
    
+>>>>>>> 5519cebed9d45fd13b6dc49df0e5c3d6107bfd03
   observeEvent(input$to_current_time_table, {
     updateTimeInput(session, "time_table", value = Sys.time())
-
+    
   })
   
   observeEvent(input$criautre, {
@@ -583,47 +605,47 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
       if (((input$cribague == "NA" || input$cribague == "0")) && (input$criautre == "0")) {
         cri_synthese = FALSE }
       else {cri_synthese = TRUE }
-  }})
+    }})
   
   observeEvent(input$cribague, {
     if (!is.null(input$criautre) && !is.null(input$cribague)) {
       if (((input$cribague == "NA" || input$cribague == "0")) && (input$criautre == "0")) {
         cri_synthese = FALSE }
       else {cri_synthese = TRUE }
- } })
-
+    } })
+  
   
   ##################           RUBRIQUE HISTORIQUE                      #################
   
   output$historique <- DT::renderDataTable({
-
+    
     # outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
     #                               t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
     #                               teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association, sen_id,eqc_annee_suivi, cpt_annee_suivi,cpt_ani_etiq
     #                               FROM public.v_aniposi_gpsgsm, public.t_equipement_conf_eqc, lu_tables.tr_sensors_sen, cmpt.t_capture_cpt ) as t where t.ani_etiq =  '",input$nAnimal2,"' and eqc_sen_id=sen_id and cpt_annee_suivi=eqc_annee_suivi and cpt_ani_etiq=ani_etiq group by t.ani_etiq, t.ani_sexe, t.cap_date, t.cap_poids, t.cap_lpa, t.cap_age_classe, t.sit_nom_court,
     #                               t.teq_nom_court, t.cap_annee_suivi, t.eqa_date_debut, t.eqa_date_fin, t.temps_suivi, t.eqt_id_usuel, t.mar_libelle, t.mod_libelle,t.sen_association order by cap_date"))
     #
-
+    
     # ret <- DT::datatable(outp)
     # return(ret)
-
-     outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
-                                   t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois, count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as                        capteurs
-                                   from (SELECT cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
-                                   teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association
-                                   FROM historique.t_aniposi_gpsgsm) as t where ani_etiq = '",input$nAnimal2,"'
-                                   group by ani_etiq, cap_annee_suivi, cap_date, ani_sexe, cap_age_classe,
-                                   cap_poids, cap_lpa, sit_nom_court, teq_nom_court, eqt_id_usuel,
-                                   sen_association, mar_libelle, mod_libelle, eqa_date_debut, t.temps_suivi,
-                                   eqa_date_fin order by cap_annee_suivi"))
-     
+    
+    outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
+                                  t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois, count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as                        capteurs
+                                  from (SELECT cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
+                                  teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association
+                                  FROM historique.t_aniposi_gpsgsm) as t where ani_etiq = '",input$nAnimal2,"'
+                                  group by ani_etiq, cap_annee_suivi, cap_date, ani_sexe, cap_age_classe,
+                                  cap_poids, cap_lpa, sit_nom_court, teq_nom_court, eqt_id_usuel,
+                                  sen_association, mar_libelle, mod_libelle, eqa_date_debut, t.temps_suivi,
+                                  eqa_date_fin order by cap_annee_suivi"))
+    
     
     ret <- DT::datatable(outp)
-     return(ret)
+    return(ret)
   })
   
   ##################           RUBRIQUE CHECKLIST 1                     #################
-   #########           Animal                                           #########
+  #########           Animal                                           #########
   
   checklist1 = data.frame()
   row.names(checklist1) = NULL
@@ -642,13 +664,13 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     
     if ((input$estNouvelAnimal == 'non') & (input$nAnimal2)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Numéro de l'animal")))}
-
+    
     if ((input$estNouvelAnimal == 'non') & (input$idSite2)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nom du site")))}
-
+    
     if ((input$estNouvelAnimal == 'oui') & (input$idSite)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nom du site")))}
-
+    
     if ((input$identifie == 'non') & (input$idRFID)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("RFID")))}
     
@@ -657,7 +679,7 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     
     if ((input$estNouvelAnimal == 'non') & (input$identifie == 'non') & (input$idRFID2)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nouveau RFID")))}
-
+    
     if ((input$estNouvelAnimal == 'oui') & (input$idTagOrG)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Tag Gauche")))}
     
@@ -675,28 +697,28 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     
     if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idTagOrG2)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Tag Gauche")))}
-
+    
     if (is.na(input$lPattArriere)) {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Longueur patte")))}
-
+    
     if (is.null(input$sexe)) {
       checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Sexe")))}
-
+    
     if (is.na(input$lBoisGauche) & !is.null(input$sexe)) {
       if (input$sexe=='M') {
-      checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Longueur bois G")))}}
-
+        checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Longueur bois G")))}}
+    
     if (is.na(input$lBoisDroit) & !is.null(input$sexe)) {
-        if (input$sexe=='M') {
-      checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Longueur bois D")))}}
-
+      if (input$sexe=='M') {
+        checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Longueur bois D")))}}
+    
     if (((input$etatBois)=="") & !is.null(input$sexe)){
       if (input$sexe=='M') {
-      checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Etat bois")))}}
-
+        checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Etat bois")))}}
+    
     if (is.na(input$tglucose)) {
       checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Glucose")))}
-
+    
     if (is.na(input$cirCou)) {
       checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Cou")))}
     
@@ -718,7 +740,7 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     
     if (nrow(checklist1)==0) {
       checklist1 =  rbind(checklist1,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
-
+    
     output$tablechecklist1 = DT::renderDT(checklist1,server = F) 
     
     ### Table
@@ -730,10 +752,17 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     
     if ((input$sonde_temp2)=="") {
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Sonde temperature 2")))}
+<<<<<<< HEAD
     
     if ((input$position_temp1)==""){
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde 1")))}
     
+=======
+    
+    if ((input$position_temp1)==""){
+      checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde 1")))}
+    
+>>>>>>> 5519cebed9d45fd13b6dc49df0e5c3d6107bfd03
     if ((input$position_temp2)==""){
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde 2")))}
     
@@ -772,24 +801,24 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
     output$tablechecklist_prel = DT::renderDT(checklist_prel,server = F) 
     
     ### Bilan
- 
+    
     observeEvent(input$valid_checklist1, ignoreInit = T, {
       if ( ((checklist_prel[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_table[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist1[1][1])!="PAS DE DONNEES MANQUANTES")) 
       {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)}
       else      
       {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE)}
-
+      
     })
   })
   
-   #########           Table                                            ########                
+  #########           Table                                            ########                
   
   checklist_table = data.frame()
   row.names(checklist_table) = NULL
   output$tablechecklist_table = DT::renderDT(expr = checklist_table,server = F)
   
-   #########           Prelevement                                      ########
-
+  #########           Prelevement                                      ########
+  
   checklist_prel = data.frame()
   row.names(checklist_prel) = NULL
   output$tablechecklist_prel = DT::renderDT(expr = checklist_prel,server = F)
@@ -970,7 +999,7 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
   
   updateSelectizeInput(session, "numSabot_capture", choices = dbGetQuery(con,"select distinct cap_num_sabot FROM public.t_capture_cap"))
   
-   observeEvent(input$checklist_capture, { 
+  observeEvent(input$checklist_capture, { 
     
     cpt_capt=0
     
@@ -1172,4 +1201,4 @@ LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_s
   idTagOrG=''
   idTagOrD=''
   
-}
+  }
