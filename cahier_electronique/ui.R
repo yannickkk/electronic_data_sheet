@@ -43,15 +43,15 @@ contentcaractanimal = fluidPage(
     column(2, selectizeInput("numSabot", h4("N° Sabot"), choices ="", options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("Poids Sabot Plein"),min=0,max=65)),
     column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("Poids Sabot Vide"),min=0,max=50)),
-    column(2, h4("Poids Animal"), textOutput("poids_ani")),
+    column(2, h4("Poids Animal"), textOutput("poids_ani")), 
     
     column(12),
     
-    column(2,textInput("time_caract", h4("Heure Début:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
+    column(2, textInput("time_caract", h4("Heure Début:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
     column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
-    column(2, radioButtons(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))),
+    column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", radioButtons(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))), conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", radioButtons(inputId = "identifie", choices = c("non"), selected = "non",label = h4("Identifé")))),
     column(1, radioButtons("sexe",h4("Sexe"),choiceNames = list("M","F"), choiceValues = list("M","F"), selected = character(0))),
     
     column(12,hr()),
