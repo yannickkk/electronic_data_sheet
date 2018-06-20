@@ -387,19 +387,11 @@ server <- function(input, output,session) {
     }
     
     if ((length(input$traitement))==1)
-<<<<<<< HEAD
     {
       if (input$remarques_ble=="")
       {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave),c(input$traitement), input$diarrhee, sep = "-")))}
       else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave), c(input$traitement), input$diarrhee,input$remarques_ble, sep = "-")))}
     }
-=======
-      {
-      if (input$remarques_ble=="")
-        {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave),c(input$traitement), input$diarrhee, sep = "-")))}
-        else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave), c(input$traitement), input$diarrhee,input$remarques_ble, sep = "-")))}
-      }
->>>>>>> 5519cebed9d45fd13b6dc49df0e5c3d6107bfd03
     
     output$tableblessure = DT::renderDT(blessure,server = F)
     #print(blessure[1][1])
@@ -570,7 +562,6 @@ server <- function(input, output,session) {
   
   updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
   updateSelectizeInput(session, "position_temp1", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
-<<<<<<< HEAD
                        options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
   updateSelectizeInput(session, "position_temp2", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
                        options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
@@ -582,19 +573,6 @@ server <- function(input, output,session) {
     }  
   })
   
-=======
-                          options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
-  updateSelectizeInput(session, "position_temp2", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
-                       options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
-  
-   
-    observeEvent(input$identifie, {
-   if (input$identifie == "oui") {
-     updateRadioButtons(session,"cribague", selected = "NA")
-   }  
-    })
-   
->>>>>>> 5519cebed9d45fd13b6dc49df0e5c3d6107bfd03
   observeEvent(input$to_current_time_table, {
     updateTimeInput(session, "time_table", value = Sys.time())
     
@@ -752,17 +730,10 @@ server <- function(input, output,session) {
     
     if ((input$sonde_temp2)=="") {
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Sonde temperature 2")))}
-<<<<<<< HEAD
     
     if ((input$position_temp1)==""){
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde 1")))}
     
-=======
-    
-    if ((input$position_temp1)==""){
-      checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde 1")))}
-    
->>>>>>> 5519cebed9d45fd13b6dc49df0e5c3d6107bfd03
     if ((input$position_temp2)==""){
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Position sonde 2")))}
     
@@ -786,7 +757,7 @@ server <- function(input, output,session) {
     
     output$tablechecklist_table = DT::renderDT(checklist_table,server = F) 
     
-    ##
+    
     ### Prelevement
     
     for (i in (1:nrow(liste_prel_db))){
