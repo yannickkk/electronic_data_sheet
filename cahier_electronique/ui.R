@@ -166,7 +166,7 @@ contentcollier = fluidPage(
     #column(12,hr()),
     column(7, DT::dataTableOutput("tablecollier")),
     column(12,hr()),
-    column(4, h4("Le collier choisi est (tech, boitier, Collier): "), verbatimTextOutput('collier_choisi'), actionButton("valide_collier", label="Valider le collier") ,offset = 1),
+    column(4, h4("Le collier choisi est (tech, collier, boitier): "), verbatimTextOutput("collier_choisi"), actionButton("valide_collier", label="Valider le collier") ,offset = 1),
     column(4, textInput("remarque_collier", label="Remarques") , offset = 2),
     useShinyalert()
   ))
@@ -218,8 +218,10 @@ contentcheck1 =  fluidPage(fluidRow(
   column(4,tabPanel("Cheklist 1", DT::dataTableOutput("tablechecklist1")),offset=1), 
   column(4,tabPanel("Checklist Table",DT::dataTableOutput("tablechecklist_table")), offset=1),
   column(12,hr()),
-  column(4, h3("Checklist - Prelevement"),offset = 4),
-  column(4,tabPanel("Checklist Prelevement",DT::dataTableOutput("tablechecklist_prel")), offset=4),
+  column(4, h3("Checklist - Prelevement"),offset = 1),
+  column(4, h3("Checklist - Collier"),offset = 1),
+  column(4,tabPanel("Checklist Prelevement",DT::dataTableOutput("tablechecklist_prel")), offset=1),
+  column(4,tabPanel("Checklist Collier",DT::dataTableOutput("tablechecklist_collier")), offset=1),
   column(12,hr()),
   column(12, useShinyalert(),actionButton("valid_checklist1", "ENREGISTRER LES DONNEES", width='100%'))
 ))

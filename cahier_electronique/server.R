@@ -544,7 +544,7 @@ server <- function(input, output,session) {
       collier_col_b = liste_collier[ligne_selection,7]
       collier_col_c = liste_collier[ligne_selection,6]
       cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c) )
-      output$collier_choisi = renderPrint(cat_col)
+      output$collier_choisi = renderText(cat_col)
     }
   })
   
@@ -766,6 +766,8 @@ server <- function(input, output,session) {
     
     ### Prelevement
     
+    checklist_prel = data.frame()
+    
     for (i in (1:nrow(liste_prel_db))){
       temp = liste_prel_db[i,1]
       if (!(temp %in% liste_prelevement)) {
@@ -776,6 +778,19 @@ server <- function(input, output,session) {
       checklist_prel =  data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES"))}
     
     output$tablechecklist_prel = DT::renderDT(checklist_prel,server = F) 
+    
+    ### Collier
+    
+    checklist_collier = data.frame()
+    
+    if (is.null(input$tablecollier_rows_selected)) {
+      checklist_collier = data.frame("COLLIER_MANQUANT"= c("Pas de collier choisi"))}
+    
+    if (!is.null(input$tablecollier_rows_selected)) {
+      checklist_collier = data.frame("PARFAIT"= c("Collier bien sélectionné"))}
+    
+    output$tablechecklist_collier = DT::renderDT(checklist_collier,server = F) 
+    
     
     ### Bilan
     
@@ -799,6 +814,12 @@ server <- function(input, output,session) {
   checklist_prel = data.frame()
   row.names(checklist_prel) = NULL
   output$tablechecklist_prel = DT::renderDT(expr = checklist_prel,server = F)
+  
+  #########           Collier                                          ########
+  
+  checklist_collier = data.frame()
+  row.names(checklist_collier) = NULL
+  output$tablechecklist_collier = DT::renderDT(expr = checklist_collier,server = F)
   
   ##################           RUBRIQUE LACHER                          #################
   
