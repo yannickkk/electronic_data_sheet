@@ -532,8 +532,8 @@ server <- function(input, output,session) {
   
   ##################           RUBRIQUE COLLIER                         #################
   
-  liste_collier <- dbGetQuery(con,"select eqc_annee_suivi, teq_nom_court, eqc_remarque, eqt_id_usuel, eqc_drop_off, eqc_couleur_boitier, eqc_couleur_collier,eqt_frequence, eqc_memoire FROM public.t_equipement_eqt RIGHT JOIN public.t_equipement_conf_eqc ON eqc_eqt_id = eqt_id
-                              LEFT JOIN public.tr_type_equipement_teq ON teq_id = eqt_teq_id where eqc_annee_suivi = extract(year from now()) order by teq_nom_court")
+  liste_collier <- dbGetQuery(con,"select eqc_annee_suivi, teq_nom_court, eqc_remarque, eqt_id_usuel,eqc_drop_off,sen_association, eqc_couleur_boitier, eqc_couleur_collier,eqt_frequence, eqc_memoire FROM public.t_equipement_eqt, public.t_equipement_conf_eqc, public.tr_type_equipement_teq,lu_tables.tr_sensors_sen  where eqc_eqt_id = eqt_id
+                              and teq_id = eqt_teq_id and eqc_sen_id=sen_id and eqc_annee_suivi = extract(year from now()) order by teq_nom_court")
   
   output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
   
@@ -541,8 +541,8 @@ server <- function(input, output,session) {
     if (!is.null(input$tablecollier_rows_selected)) {
       ligne_selection = input$tablecollier_rows_selected
       collier_tech = liste_collier[ligne_selection,2]
-      collier_col_b = liste_collier[ligne_selection,7]
-      collier_col_c = liste_collier[ligne_selection,6]
+      collier_col_b = liste_collier[ligne_selection,8]
+      collier_col_c = liste_collier[ligne_selection,7]
       cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c) )
       output$collier_choisi = renderText(cat_col)
     }
