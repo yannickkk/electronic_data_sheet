@@ -191,7 +191,7 @@ contenttable = fluidPage(
     column(12,hr()),
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
-    column(2,timeInput("time_table", h4("Heure de fin:"),seconds = FALSE),
+    column(2,textInput("time_table", h4("Heure de fin:"),value=""),
            actionButton("to_current_time_table", "Afficher l'heure"))
   ))
 

@@ -716,6 +716,9 @@ server <- function(input, output,session) {
     if (is.na(input$pSabotVide) && is.na(input$pSabotPlein) ) {
       checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Poids de l'animal")))}
     
+    if (input$time_caract =="") {
+      checklist1 =  rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Heure debut")))}
+    
     if (nrow(checklist1)==0) {
       checklist1 =  rbind(checklist1,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
     
@@ -751,6 +754,9 @@ server <- function(input, output,session) {
     
     if ((input$Notation_euro_table)=="") {
       checklist_table = rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Eurodeer")))}
+    
+    if (input$time_table =="") {
+      checklist_table =  rbind(checklist_table,data.frame("VALEUR_MANQUANTE_TABLE"= c("Heure fin")))}
     
     if (nrow(checklist_table)==0) {
       checklist_table =  rbind(checklist_table,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
