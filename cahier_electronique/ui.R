@@ -195,7 +195,8 @@ contenttable = fluidPage(
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)), 
     column(2,textInput("time_table", h4("Heure de fin:"),value=""),
-           actionButton("to_current_time_table", "Afficher l'heure"))
+           actionButton("to_current_time_table", "Afficher l'heure")),
+    column(2, textInput("remarques_table", h4("Remarques"), value="" ))
   ))
 
 ##################           Rubrique Historique           #################
@@ -272,6 +273,7 @@ contentlacher = fluidPage(
     
     column(2,selectizeInput("Notation_euro", h4("Notation Eurodeer"), 
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2, textInput("remarques_lacher", h4("Remarques"), value="")),
     column(2,useShinyalert())
   ))
 
