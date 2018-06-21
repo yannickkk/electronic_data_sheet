@@ -239,11 +239,11 @@ contentcheck1 =  fluidPage(fluidRow(
 contentlacher = fluidPage(
   # titlePanel("Comportement au lâcher"),
   fluidRow(
-    column(2,timeInput("time", h4("Heure de lâcher:"),seconds = FALSE),
-           actionButton("to_current_time", "Afficher l'heure")),
+    column(2,textInput("time", h4("Heure de lâcher:"), value = "")),
+           #actionButton("to_current_time", "Afficher l'heure")),
     
-    column(2, timeInput("time2", h4("Heure de 2nd lâcher:"),seconds = FALSE),
-           actionButton("to_current_time2", "Afficher l'heure")),
+    column(2, textInput("time2", h4("Heure de 2nd lâcher:"), value = "")),
+           #actionButton("to_current_time2", "Afficher l'heure")),
     
     column(2,numericInput("nbre_stops",value="", h4("Nombre de stops"),min=0)),
     column(2,selectizeInput("nbre_personnes", h4("Nbre de personnes"), choices = list("4-5","6-10","11-20", "21-50",">50"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),

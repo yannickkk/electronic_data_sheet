@@ -908,6 +908,13 @@ server <- function(input, output,session) {
     if ((input$nbre_personnes)=="") {
       checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Nombre de personnes")))}
     
+    if ((input$time)=="") {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Heure de lacher")))}
+    
+    if ((input$time2)=="") {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Heure de 2nd lacher")))}
+    print(input$time)
+    
     if (nrow(checklist2)==0) {
       checklist2 =  rbind(checklist2,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
 
