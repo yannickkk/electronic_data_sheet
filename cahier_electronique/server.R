@@ -1134,6 +1134,16 @@ server <- function(input, output,session) {
     output$tablechecklist_sabot = DT::renderDT(checklist_sabot,server = F)
  
     
+    ### Bilan
+    
+    observeEvent(input$valid_checklist3, ignoreInit = T, {
+      if  ((checklist3[1][1]!="PAS DE DONNEES MANQUANTES") || (checklist_sabot[1][1]!="PAS DE DONNEES MANQUANTES")) 
+      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)}
+      else      
+      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE)}
+      
+    })
+    
   })
   
   

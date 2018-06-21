@@ -380,9 +380,8 @@ contentcheck3 = fluidPage(fluidRow(
   column(4, h3("Checklist - Sabot"), offset = 1),
   column(4,tabPanel("Checklist Capture", DT::dataTableOutput("tablechecklist3")), offset=1), 
   column(4,tabPanel("Checklist Sabot", DT::dataTableOutput("tablechecklist_sabot")), offset=1),
-  useShinyalert(),
   column(12,hr()),
-  column(12, actionButton("save_checklist3","ENREGISTRER LES DONNEES", width='50%'), offset = 1),
+  column(12,useShinyalert(), actionButton("valid_checklist3","ENREGISTRER LES DONNEES", width='50%'), offset = 1),
   column(12,hr())
 ))
 
