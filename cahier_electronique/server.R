@@ -555,15 +555,15 @@ server <- function(input, output,session) {
     }
   })
   
-  observeEvent(input$valide_collier,{
-    if ( is.null(input$tablecollier_rows_selected)) {
-      shinyalert("STOP!", "Collier non sélectionné!", type = "error",confirmButtonText="Valider",showConfirmButton = F, showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
-    }
-    if ( !is.null(input$tablecollier_rows_selected)) {
-      shinyalert("PARFAIT!", "Collier bien sélectionné!", type ="success" ,confirmButtonText="Valider", showCancelButton=F,cancelButtonText="Annuler",html=TRUE )
-    } 
-    
-  })
+  # observeEvent(input$valide_collier,{
+  #   if ( is.null(input$tablecollier_rows_selected)) {
+  #     shinyalert("STOP!", "Collier non sélectionné!", type = "error",confirmButtonText="Valider",showConfirmButton = F, showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
+  #   }
+  #   if ( !is.null(input$tablecollier_rows_selected)) {
+  #     shinyalert("PARFAIT!", "Collier bien sélectionné!", type ="success" ,confirmButtonText="Valider", showCancelButton=F,cancelButtonText="Annuler",html=TRUE )
+  #   } 
+  #   
+  # })
   
   ##################           RUBRIQUE TABLE                           #################
   

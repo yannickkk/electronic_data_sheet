@@ -169,7 +169,7 @@ contentcollier = fluidPage(
     #column(12,hr()),
     column(7, DT::dataTableOutput("tablecollier")),
     column(12,hr()),
-    column(4, h4("Le collier choisi est (tech, collier, boitier): "), verbatimTextOutput("collier_choisi"), actionButton("valide_collier", label="Valider le collier") ,offset = 1),
+    column(4, h4("Le collier choisi est (tech, collier, boitier): "), verbatimTextOutput("collier_choisi") ,offset = 1),
     column(4, textInput("remarque_collier", label="Remarques") , offset = 2),
     useShinyalert()
   ))
