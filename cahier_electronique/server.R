@@ -805,7 +805,7 @@ server <- function(input, output,session) {
     ### Bilan
     
     observeEvent(input$valid_checklist1, ignoreInit = T, {
-      if ( ((checklist_prel[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_table[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist1[1][1])!="PAS DE DONNEES MANQUANTES")) 
+      if ( ((checklist_prel[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_table[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist1[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_collier[1][1])!="PAS DE DONNEES MANQUANTES")) 
       {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)}
       else      
       {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE)}
@@ -913,15 +913,24 @@ server <- function(input, output,session) {
     
     if ((input$time2)=="") {
       checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Heure de 2nd lacher")))}
-    print(input$time)
     
     if (nrow(checklist2)==0) {
-      checklist2 =  rbind(checklist2,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
+      checklist2 =  data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES"))}
 
     
     output$tablechecklist2 = DT::renderDT(checklist2,server = F) 
+ 
+    ### Bilan
     
+    observeEvent(input$valid_checklist2, ignoreInit = T, {
+      if  ((checklist2[1][1])!="PAS DE DONNEES MANQUANTES")
+      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)}
+      else      
+      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE)}
+      
+    })
   })
+  
   ##################           RUBRIQUE CAPTURE                         #################
   
   updateSelectizeInput(session, "numSabot_capture", choices = dbGetQuery(con,"select distinct cap_num_sabot FROM public.t_capture_cap"))
