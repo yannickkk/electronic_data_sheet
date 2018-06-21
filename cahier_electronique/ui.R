@@ -214,7 +214,6 @@ contenthistorique <- fluidPage(
 
 ##################           Rubrique Checklist 1          #################
 
-
 contentcheck1 =  fluidPage(fluidRow(
   uiOutput("checklist_1"),
   column(4, h3("Checklist - Animal"), offset=1),
@@ -231,7 +230,6 @@ contentcheck1 =  fluidPage(fluidRow(
   column(12,hr())
 ))
 
-
 ##################           Rubrique Lâcher               #################
 
 
@@ -247,7 +245,7 @@ contentlacher = fluidPage(
     column(2, timeInput("time2", h4("Heure de 2nd lâcher:"),seconds = FALSE),
            actionButton("to_current_time2", "Afficher l'heure")),
     
-    column(2,numericInput("nbre_stops",value=0, h4("Nombre de stops"),min=0)),
+    column(2,numericInput("nbre_stops",value="", h4("Nombre de stops"),min=0)),
     column(2,selectizeInput("nbre_personnes", h4("Nbre de personnes"), choices = list("4-5","6-10","11-20", "21-50",">50"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     
     column(12,hr()),
@@ -282,7 +280,6 @@ contentlacher = fluidPage(
 
 ##################           Rubrique Checklist 2          #################
 
-
 contentcheck2 = fluidPage(fluidRow(
   uiOutput("checklist_2"),
   column(4,tabPanel("Checklist 2", DT::dataTableOutput("tablechecklist2")), offset=3), 
@@ -310,7 +307,7 @@ contentcapture = fluidPage(
     column(12,hr()),
     
     column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
-    column(3,selectInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = list("0"=0,"1"=1,"2"=2,"3"=3,"4"=4,"5"=5),selected = 0)),
+    column(3,selectizeInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = c(0:5),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,textInput("remarques_capt",label=h4("Remarques",""))),
     column(12,hr()),
     
@@ -318,12 +315,12 @@ contentcapture = fluidPage(
     column(1,radioButtons("cpt_filet_allure",h4("Allure"),choiceNames = list("Reflechi","Bolide"),choiceValues = list(0,1),selected = character(0))),
     column(1,radioButtons("cpt_filet_lutte", h4("Lutte"), choices = list(0,1,2), selected = character(0))),
     column(1,radioButtons("cpt_filet_halete",h4("Halete"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
-    column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = character(0))),
-    column(12,hr()),
+    column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = character(0)))
+    # column(12,hr()),
     
     #column(1),
-    column(4,useShinyalert(),
-           actionButton("checklist_capture", "Checklist",icon('eye')))
+    # column(4,useShinyalert(),
+    #        actionButton("checklist_capture", "Checklist",icon('eye')))
     
     
   ))
@@ -375,6 +372,17 @@ contentsabot = fluidPage(
 )
 
 
+##################           Rubrique Checklist 3          #################
+
+contentcheck3 = fluidPage(fluidRow(
+  uiOutput("checklist_3"),
+  column(4,tabPanel("Checklist 3", DT::dataTableOutput("tablechecklist3")), offset=3), 
+  useShinyalert(),
+  column(12,hr()),
+  column(12, actionButton("save_checklist3","ENREGISTRER LES DONNEES", width='50%'), offset = 3),
+  column(12,hr())
+))
+
 ##################        ORGANISATION DES RUBRIQUES       #################
 
 
@@ -389,6 +397,7 @@ comporlacher = tabPanel("Comportement lâcher",contentlacher)
 checklist2 = tabPanel("checklist 2",contentcheck2)
 comporcapture = tabPanel("Comportement capture",contentcapture)
 comporsabot = tabPanel("Comportement sabot",contentsabot)
+checklist3 = tabPanel("Checklist 3", contentcheck3)
 
 
 ##################                    UI                   #################
@@ -409,7 +418,8 @@ ui <- shinyUI(
     tabPanel  ("Lâcher",comporlacher),
     tabPanel  ("Checklist 2",checklist2),
     tabPanel  ("Capture",comporcapture),
-    tabPanel  ("Sabot",comporsabot)
+    tabPanel  ("Sabot",comporsabot),
+    tabPanel  ("Checklist 3",checklist3)
   )
   
 )

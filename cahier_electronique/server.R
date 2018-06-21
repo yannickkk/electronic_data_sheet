@@ -467,11 +467,14 @@ server <- function(input, output,session) {
   })
   
   observeEvent(input$ajout_prelev, {
-    prelevement <<- rbind(prelevement, data.frame("Type" = c(input$typetype), "Localisation" =c(input$localoca), "Contenant" = c(input$condi),"Solvant" = c(input$solsol),"Nombre d'echantillons" = c(input$nbre_echant)))
+    
+    prelevement <<- rbind(prelevement, data.frame("Type" = c(input$typetype), "Localisation" =c(input$localoca), "Contenant" = c(input$condi),"Solvant" = c(input$solsol),"Nombre d'echantillons" = c(input$nbre_echant),  "Remarques" = c(input$remarques_prel)))
     output$tableprelevement = DT::renderDT(prelevement,server = F)
     updateSelectizeInput(session,"typetype", options=list(selected=NULL))
     updateSelectizeInput(session,"solsol", options=list(selected=NULL))
-  })
+    updateTextInput(session, "remarques_prel", value = "")
+  
+ })
   
   ### Mise en forme des prélevements en cascade :
   
@@ -849,86 +852,7 @@ server <- function(input, output,session) {
     tmp_time= as.character(input$time)
     tmp_time=strsplit(tmp_time, " ")[[1]]
     tmp_time=tmp_time[2]
-    
-    cpt_lache=0
-    
-    if (is.na(tmp_time))  
-    {shinyalert("STOP!", "Heure lâcher manquante", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}
-    
-    if (is.null(input$vitesse))  
-    {shinyalert("STOP!", "Vitesse manquante", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}
-    
-    if (is.null(input$titube)) 
-    {shinyalert("STOP!", "Titube ? manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if (is.null(input$couche)) 
-    {shinyalert("STOP!", "Couche ? manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if (is.null(input$cabriole_saut)) 
-    {shinyalert("STOP!", "cabriole-saut manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if (is.null(input$cri)) 
-    {shinyalert("STOP!", "Cri ? manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if (is.null(input$allure)) 
-    {shinyalert("STOP!", "Allure manquante", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if (is.null(input$gratte_collier)) 
-    {shinyalert("STOP!", "Gratte-collier ? manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if (is.null(input$tombe)) 
-    {shinyalert("STOP!", "Tombe ? manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if ((input$habitat)=="") 
-    {shinyalert("STOP!", "Habitat manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if ((input$Notation_euro)=="") 
-    {shinyalert("STOP!", "Notation eurodeer manquante", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if ((input$habitat_perte)=="") 
-    {shinyalert("STOP!", "Habitat perte de vue manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if ((input$nbre_stops)==0 || is.na(input$nbre_stops) ) 
-    {shinyalert("STOP!", "Nombre stops manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}  
-    
-    if ((input$visibilite)=="") 
-    {shinyalert("STOP!", "visibilite manquante", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1}   
-    
-    if (is.na(input$nbre_personnes)) 
-    {shinyalert("STOP!", "Nombre personnes manquant", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-    else
-    {cpt_lache=cpt_lache+1} 
-    
-    if (cpt_lache==15) 
-    {shinyalert("PARFAIT!", "Toutes les donnees rentrees", type="success",confirmButtonText="Enregistrer les données", showCancelButton=T,cancelButtonText="Annuler",callbackR = modalCallback2)} }
+}
   )
   
   ##################           RUBRIQUE CHECKLIST 2                     #################
@@ -981,7 +905,7 @@ server <- function(input, output,session) {
     if ((input$visibilite)=="") {
       checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Visibilité")))}
 
-    if (is.na(input$nbre_personnes)) {
+    if ((input$nbre_personnes)=="") {
       checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Nombre de personnes")))}
     
     if (nrow(checklist2)==0) {
@@ -1108,6 +1032,67 @@ server <- function(input, output,session) {
     if (cpt_sabot==5)
     {shinyalert("PARFAIT!", "Toutes les donnees rentrees", type="success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",callbackR = modalCallback_sabot)} 
     
+    
+  })
+  
+  
+  ##################           RUBRIQUE CHECKLIST 3                     #################
+  
+  checklist3 = data.frame()
+  row.names(checklist3) = NULL
+  output$tablechecklist3 = DT::renderDT(expr = checklist3,server = F)
+  
+  output$checklist_3 <- renderUI( {
+    #cat(file=stderr(), "testttt2t", input$titube, "\n")
+    
+    checklist3 = data.frame()
+    
+    if ((input$numSabot_capture)=="")  {
+      checklist3 = data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Numéro de sabot"))}
+    
+    if ((input$nom_capteur_txt)=="") {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Capteurs")))}
+    
+    if ((input$Nbre_pers_experimentes)=="") {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de personnes expérimentées")))}
+    
+    if (is.null(input$cpt_filet_vitesse)) {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Vitesse filet")))}
+    
+    if (is.null(input$cpt_filet_allure)) {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Allure filet")))}
+    
+    if (is.null(input$cpt_filet_lutte)) {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Lutte filet")))}
+    
+    if (is.null(input$cpt_filet_halete)) {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Halete")))}
+    
+    if (is.null(input$cpt_filet_cri)) {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Cri")))}
+    
+    # if ((input$habitat)=="") {
+    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Habitat")))}
+    # 
+    # if ((input$Notation_euro)=="") {
+    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Eurodeer")))}
+    # 
+    # if ((input$habitat_perte)=="") {
+    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Habitat perte")))}
+    # 
+    # if (is.na(input$nbre_stops)) {
+    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de stops")))}
+    # 
+    # if ((input$visibilite)=="") {
+    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Visibilité")))}
+    # 
+    # if (is.na(input$nbre_personnes)) {
+    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de personnes")))}
+    
+    if (nrow(checklist3)==0) {
+      checklist3 =  rbind(checklist3,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
+    
+    output$tablechecklist3 = DT::renderDT(checklist3,server = F) 
     
   })
   
