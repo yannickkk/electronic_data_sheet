@@ -145,7 +145,6 @@ contentblessures = fluidPage(
 
 contentprelevement = fluidPage(
   
-  
   fluidRow(
     column(2,uiOutput("control1")),
     column(2,uiOutput("control2")),
