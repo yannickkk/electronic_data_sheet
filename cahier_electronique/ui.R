@@ -227,7 +227,8 @@ contentcheck1 =  fluidPage(fluidRow(
   column(4,tabPanel("Checklist Prelevement",DT::dataTableOutput("tablechecklist_prel")), offset=1),
   column(4,tabPanel("Checklist Collier",DT::dataTableOutput("tablechecklist_collier")), offset=1),
   column(12,hr()),
-  column(12, useShinyalert(),actionButton("valid_checklist1", "ENREGISTRER LES DONNEES", width='100%'))
+  column(12, useShinyalert(),actionButton("valid_checklist1", "ENREGISTRER LES DONNEES", width='100%')),
+  column(12,hr())
 ))
 
 
@@ -283,13 +284,13 @@ contentlacher = fluidPage(
 
 
 contentcheck2 = fluidPage(fluidRow(
-  tabPanel("Checklist 2", DT::dataTableOutput("tablechecklist2")), 
-  
-  column(12,useShinyalert(),
-         actionButton("checklist_2", "Checklist",icon('eye'),width='25%'))),
+  uiOutput("checklist_2"),
+  column(4,tabPanel("Checklist 2", DT::dataTableOutput("tablechecklist2")), offset=3), 
+  useShinyalert(),
   column(12,hr()),
-  column(12, actionButton("save_checklist2","Enregistrer les données"))
-)
+  column(12, actionButton("save_checklist2","ENREGISTRER LES DONNEES", width='50%'), offset = 3),
+  column(12,hr())
+))
 
 
 ##################           Rubrique Capture              #################

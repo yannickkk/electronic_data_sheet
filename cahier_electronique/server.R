@@ -937,65 +937,56 @@ server <- function(input, output,session) {
   output$tablechecklist2 = DT::renderDT(expr = checklist2,server = F)
   
   
-  observeEvent(input$checklist_2, { 
+  output$checklist_2 <- renderUI( {
     #cat(file=stderr(), "testttt2t", input$titube, "\n")
     
-    if (!is.null(input$vitesse))  {
-      checklist2 <<- data.frame("Vitesse" = input$vitesse)}
-    else {checklist2 <<- data.frame("Vitesse"= c("NULL"))}
+    checklist2 = data.frame()
     
-    if (!is.null(input$titube)) {
-      checklist2 <<- cbind(checklist2,data.frame("Titube" = input$titube))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Titube"= c("NULL")))}
+    if (is.null(input$vitesse))  {
+      checklist2 = data.frame("DONNNES_LACHER_MANQUANTES" = c("Vitesse"))}
     
-    if (!is.null(input$couche)) {
-      checklist2 <<- cbind(checklist2,data.frame("Couche" = input$couche))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Couche"= c("NULL")))}
+    if (is.null(input$titube)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Titube")))}
     
-    if (!is.null(input$cabriole_saut)) {
-      checklist2 <<- cbind(checklist2,data.frame("cabriole saut" = input$cabriole_saut))}
-    else {checklist2 <<- cbind(checklist2,data.frame("cabriole saut"= c("NULL")))}
+    if (is.null(input$couche)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Couche")))}
+
+    if (is.null(input$cabriole_saut)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Cabriole")))}
+
+    if (is.null(input$cri)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Cri")))}
+
+    if (is.null(input$allure)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Allure")))}
+
+    if (is.null(input$gratte_collier)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Gratte-collier")))}
+
+    if (is.null(input$tombe)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Tombe")))}
+
+    if ((input$habitat)=="") {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Habitat")))}
+
+    if ((input$Notation_euro)=="") {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Eurodeer")))}
+
+    if ((input$habitat_perte)=="") {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Habitat perte")))}
+
+    if (is.na(input$nbre_stops)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Nombre de stops")))}
+
+    if ((input$visibilite)=="") {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Visibilité")))}
+
+    if (is.na(input$nbre_personnes)) {
+      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Nombre de personnes")))}
     
-    if (!is.null(input$cri)) {
-      checklist2 <<- cbind(checklist2,data.frame("Cri" = input$cri))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Cri"= c("NULL")))}
-    
-    if (!is.null(input$allure)) {
-      checklist2 <<- cbind(checklist2,data.frame("Allure" = input$allure))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Allure"= c("NULL")))}
-    
-    if (!is.null(input$gratte_collier)) {
-      checklist2 <<- cbind(checklist2,data.frame("Gratte_Collier" = input$gratte_collier))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Gratte_Collier"= c("NULL")))}
-    
-    if (!is.null(input$tombe)) {
-      checklist2 <<- cbind(checklist2,data.frame("Tombe" = input$tombe))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Tombe"= c("NULL")))}
-    
-    if ((input$habitat)!="") {
-      checklist2 <<- cbind(checklist2,data.frame("Habitat" = input$habitat))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Habitat"= c("NULL")))}
-    
-    if ((input$Notation_euro)!="") {
-      checklist2 <<- cbind(checklist2,data.frame("Eurodeer" = input$Notation_euro))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Eurodeer"= c("NULL")))}
-    
-    if ((input$habitat_perte)!="") {
-      checklist2 <<- cbind(checklist2,data.frame("Habitat perte" = input$habitat_perte))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Habitat perte"= c("NULL")))}
-    
-    if (!is.na(input$nbre_stops)) {
-      checklist2 <<- cbind(checklist2,data.frame("Stops" = input$nbre_stops))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Stops"= c("NULL")))}
-    
-    if ((input$visibilite)!="") {
-      checklist2 <<- cbind(checklist2,data.frame("Visibilite" = input$visibilite))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Visibilite"= c("NULL")))}
-    
-    if (!is.na(input$nbre_personnes)) {
-      checklist2 <<- cbind(checklist2,data.frame("Nbre_personnes" = input$nbre_personnes))}
-    else {checklist2 <<- cbind(checklist2,data.frame("Nbre_personnes"= c("NULL")))}
-    
+    if (nrow(checklist2)==0) {
+      checklist2 =  rbind(checklist2,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
+
     
     output$tablechecklist2 = DT::renderDT(checklist2,server = F) 
     
