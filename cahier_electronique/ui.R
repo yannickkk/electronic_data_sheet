@@ -300,10 +300,10 @@ contentcapture = fluidPage(
     
     column(2,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
     column(3,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"),seconds = FALSE),
-           actionButton("time_debut_filet", "Afficher l'heure")),
-    column(2,timeInput("cpt_temps_filet", h4("Temps passe filet"),seconds = FALSE),
-           actionButton("time_filet", "Afficher l'heure")),
+    column(2,textInput("cpt_heure_debut_filet",h4("Heure arrivee filet"), value="")),
+          # actionButton("time_debut_filet", "Afficher l'heure")),
+    column(2,textInput("cpt_temps_filet", h4("Temps passe filet"), value="")),
+          # actionButton("time_filet", "Afficher l'heure")),
     column(12,hr()),
     
     column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
@@ -334,12 +334,12 @@ contentsabot = fluidPage(
   fluidRow(
     
     #Heure de mise en sabot
-    column(3, timeInput("cpt_heure_mise_sabot", h4("Heure de mise en sabot:"),seconds = FALSE),
-           actionButton("time_sabot", "Afficher l'heure")),
+    column(3, textInput("cpt_heure_mise_sabot", h4("Heure de mise en sabot:"), value="")),
+           #actionButton("time_sabot", "Afficher l'heure")),
     
     #Fin de surveillance
-    column(3,timeInput("cpt_heure_fin_surv", h4("Fin de surveillance"),seconds = FALSE),
-           actionButton("time_fin", "Afficher l'heure")),
+    column(3,textInput("cpt_heure_fin_surv", h4("Fin de surveillance"),value="")),
+           #actionButton("time_fin", "Afficher l'heure")),
     
     column(12,hr()),
     
@@ -361,13 +361,13 @@ contentsabot = fluidPage(
     column(3,textInput("Observateur",label=h4("Observateurs",""))),
     
     #Remarque
-    column(3,textInput("Remarques",label=h4("Remarque",""))),
+    column(3,textInput("Remarques",label=h4("Remarque","")))
     
-    column(12,hr()),
+    # column(12,hr()),
     
-    column(4,useShinyalert(),
-           actionButton("checklist_sabot", "Checklist",icon('eye')))
-    
+    # column(4,useShinyalert(),
+    #        actionButton("checklist_sabot", "Checklist",icon('eye')))
+    # 
   )
 )
 
@@ -376,10 +376,13 @@ contentsabot = fluidPage(
 
 contentcheck3 = fluidPage(fluidRow(
   uiOutput("checklist_3"),
-  column(4,tabPanel("Checklist 3", DT::dataTableOutput("tablechecklist3")), offset=3), 
+  column(4, h3("Checklist - Capture"), offset = 1),
+  column(4, h3("Checklist - Sabot"), offset = 1),
+  column(4,tabPanel("Checklist Capture", DT::dataTableOutput("tablechecklist3")), offset=1), 
+  column(4,tabPanel("Checklist Sabot", DT::dataTableOutput("tablechecklist_sabot")), offset=1),
   useShinyalert(),
   column(12,hr()),
-  column(12, actionButton("save_checklist3","ENREGISTRER LES DONNEES", width='50%'), offset = 3),
+  column(12, actionButton("save_checklist3","ENREGISTRER LES DONNEES", width='50%'), offset = 1),
   column(12,hr())
 ))
 

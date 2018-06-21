@@ -1049,6 +1049,10 @@ server <- function(input, output,session) {
   row.names(checklist3) = NULL
   output$tablechecklist3 = DT::renderDT(expr = checklist3,server = F)
   
+  checklist_sabot = data.frame()
+  row.names(checklist_sabot) = NULL
+  output$tablechecklist_sabot = DT::renderDT(expr = checklist_sabot,server = F)
+  
   output$checklist_3 <- renderUI( {
     #cat(file=stderr(), "testttt2t", input$titube, "\n")
     
@@ -1056,6 +1060,15 @@ server <- function(input, output,session) {
     
     if ((input$numSabot_capture)=="")  {
       checklist3 = data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Numéro de sabot"))}
+    
+    if ((input$date_capture)=='2017-01-01')  {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Date")))}
+    
+    if ((input$cpt_heure_debut_filet)=="")  {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Heure début filet")))}
+    
+    if ((input$cpt_temps_filet)=="")  {
+      checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Temps passé au filet")))}
     
     if ((input$nom_capteur_txt)=="") {
       checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Capteurs")))}
@@ -1078,28 +1091,39 @@ server <- function(input, output,session) {
     if (is.null(input$cpt_filet_cri)) {
       checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Cri")))}
     
-    # if ((input$habitat)=="") {
-    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Habitat")))}
-    # 
-    # if ((input$Notation_euro)=="") {
-    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Eurodeer")))}
-    # 
-    # if ((input$habitat_perte)=="") {
-    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Habitat perte")))}
-    # 
-    # if (is.na(input$nbre_stops)) {
-    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de stops")))}
-    # 
-    # if ((input$visibilite)=="") {
-    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Visibilité")))}
-    # 
-    # if (is.na(input$nbre_personnes)) {
-    #   checklist3 = rbind(checklist3,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de personnes")))}
-    
     if (nrow(checklist3)==0) {
       checklist3 =  rbind(checklist3,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
     
-    output$tablechecklist3 = DT::renderDT(checklist3,server = F) 
+    output$tablechecklist3 = DT::renderDT(checklist3,server = F)
+    
+    checklist_sabot = data.frame()
+    
+    if ((input$cpt_heure_mise_sabot)=="") {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure mise en sabot")))}
+
+    if ((input$cpt_heure_fin_surv)=="") {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure fin de surveillance")))}
+
+    if ((input$cpt_dose_acepromazine)=="") {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Dose azepromazine")))}
+
+    if (is.null(input$cpt_sabot_retournement)) {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Retournement ?")))}
+
+    if (is.null(input$cpt_sabot_couche)) {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Couché ?")))}
+
+    if (is.null(input$cpt_sabot_agitation)) {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Agité ?")))}
+    
+    if ((input$Observateur)=="") {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Observateur")))}
+    
+    if (nrow(checklist_sabot)==0) {
+      checklist_sabot =  rbind(checklist_sabot,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
+    
+    output$tablechecklist_sabot = DT::renderDT(checklist_sabot,server = F)
+ 
     
   })
   
