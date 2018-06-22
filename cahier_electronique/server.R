@@ -806,7 +806,7 @@ server <- function(input, output,session) {
     
     observeEvent(input$valid_checklist1, ignoreInit = T, {
       if ( ((checklist_prel[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_table[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist1[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_collier[1][1])!="PAS DE DONNEES MANQUANTES")) 
-      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE, callbackR = "modalCallback_check1" )}
+      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE,  callbackR = modalCallback_check1 )}
       else      
       {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check1 )}
       
@@ -1150,72 +1150,99 @@ server <- function(input, output,session) {
   ##################           INTEGRATION DES DONNEES                  #################
   
   ## Créer le dataframe checklist1 :
+ 
   
-  observeEvent(input$valid_checklist1, {
-    if(input$nAnimal!="") {
-      save1 = data.frame()
-      save1 = data.frame("N°Animal" = c(input$nAnimal))
-
-      if (input$age<'1') {
-        cat_age = "j" }
-      else if (input$age>='1' && input$age<='2') {
-        cat_age = "y" }
-      else {cat_age=""}
-      
-      if (grep("^F",as.character(input$nAnimal))==1) {
-      faon =  "oui" }
-      else {faon=""}
-      
-      date_mod = input$date_caract
-      date_mod = format(date_mod, "%d/%m/%Y")
-      date_mod = as.character(date_mod)
-        
-      jour = strsplit(date_mod, "/")[[1]][1]
-      mois = strsplit(date_mod, "/")[[1]][2]
-      annee = strsplit(date_mod, "/")[[1]][3]
-      
-      if (input$age<'1') {
-        cat_age_all = "jeune" }
-      else if (input$age>='1' && input$age<='2') {
-        cat_age_all = "yearling" }
-      else {cat_age_all="adulte"}
-
-      
-      #nbre_capt = dbGetQuery(con,"SELECT count(cap_id) FROM public.t_capture_cap, public.t_animal_ani where ani_id = cap_ani_id group by ani_etiq order by ani_etiq")
-
-      save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal))))
-      save1 = cbind(save1,data.frame("N° bague annee capture" = c("")))
-      save1 = cbind(save1,data.frame("Nombre capture" = c(1)))
-      save1 = cbind(save1,data.frame("inconnue" = c("")))
-      save1 = cbind(save1,data.frame("Site Capture" = c(input$idSite)))
-      save1 = cbind(save1,data.frame("capture faon" = c(faon)))
-      save1 = cbind(save1,data.frame("Date" = c(date_mod)))
-      save1 = cbind(save1,data.frame("jour" = c(jour)))
-      save1 = cbind(save1,data.frame("mois" = c(mois)))
-      save1 = cbind(save1,data.frame("annee" = c(annee)))
-      save1 = cbind(save1,data.frame("annee  de suivi" = c(annee)))
-      save1 = cbind(save1,data.frame("Sexe" = c(input$sexe)))
-      save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
-      save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
-      save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
-      save1 = cbind(save1,data.frame("etat_sante" = c("Vitesse")))
-      save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD)))
-      save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG)))
-      save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d)))
-      save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g)))
-      save1 = cbind(save1,data.frame("cap_pertinent" = c("")))
-      save1 = cbind(save1,data.frame("RFID" = c(input$idRFID)))
-      
-      modalCallback_check1 <- {
-        
-        write.csv2(x = save1,file = "testest.csv" )
-        
-      }
-    }
-  })
-  
-
-  
+      modalCallback_check1 = function(value) {
+        if (value == TRUE) {
+          
+          save1 = data.frame()
+          
+          if (startsWith(input$nAnimal, "F")){
+            faon1 =  "oui" }
+          else {faon1=""}
+          
+          if (startsWith(input$nAnimal2, "F")){
+            faon2 =  "oui" }
+          else {faon2=""}
+          
+          date_mod = input$date_caract
+          date_mod = format(date_mod, "%d/%m/%Y")
+          date_mod = as.character(date_mod)
+          
+          jour = strsplit(date_mod, "/")[[1]][1]
+          mois = strsplit(date_mod, "/")[[1]][2]
+          annee = strsplit(date_mod, "/")[[1]][3]
+          
+          
+          
+          if (input$age == '0.5') {
+            cat_age_all = "jeune" 
+            cat_age = "j"}
+          else if (input$age=='1.5') {
+            cat_age_all = "yearling"
+            cat_age = "y" }
+          else  {cat_age_all="adulte"
+          cat_age=""}
+          
+          nbre_capt = dbGetQuery(con,paste0("SELECT count(cap_id) FROM public.t_capture_cap, public.t_animal_ani where ani_id = cap_ani_id and ani_etiq= '",input$nAnimal2,"' group by ani_etiq order by ani_etiq"))
+          
+          if(input$nAnimal!="") {
+            save1 = data.frame("N°Animal" = c(input$nAnimal))
+            save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal))))
+            save1 = cbind(save1,data.frame("N° bague annee capture" = c("")))
+            save1 = cbind(save1,data.frame("Nombre capture" = c(1)))
+            save1 = cbind(save1,data.frame("inconnue" = c("")))
+            save1 = cbind(save1,data.frame("Site Capture" = c(input$idSite)))
+            save1 = cbind(save1,data.frame("capture faon" = c(faon1)))
+            save1 = cbind(save1,data.frame("Date" = c(date_mod)))
+            save1 = cbind(save1,data.frame("jour" = c(jour)))
+            save1 = cbind(save1,data.frame("mois" = c(mois)))
+            save1 = cbind(save1,data.frame("annee" = c(annee)))
+            save1 = cbind(save1,data.frame("annee  de suivi" = c(annee)))
+            save1 = cbind(save1,data.frame("Sexe" = c(input$sexe)))
+            save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
+            save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
+            save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
+            save1 = cbind(save1,data.frame("etat_sante" = c("")))
+            save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD)))
+            save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG)))
+            save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d)))
+            save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g)))
+            save1 = cbind(save1,data.frame("cap_pertinent" = c("")))
+            save1 = cbind(save1,data.frame("RFID" = c(input$idRFID)))}
+          
+          if(input$nAnimal2!="") {
+            save1 = data.frame("N°Animal" = c(input$nAnimal2))
+            save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal2))))
+            save1 = cbind(save1,data.frame("N° bague annee capture" = c("")))
+            save1 = cbind(save1,data.frame("Nombre capture" = c(nbre_capt)))
+            save1 = cbind(save1,data.frame("inconnue" = c("")))
+            save1 = cbind(save1,data.frame("Site Capture" = c(input$idSite2)))
+            save1 = cbind(save1,data.frame("capture faon" = c(faon2)))
+            save1 = cbind(save1,data.frame("Date" = c(date_mod)))
+            save1 = cbind(save1,data.frame("jour" = c(jour)))
+            save1 = cbind(save1,data.frame("mois" = c(mois)))
+            save1 = cbind(save1,data.frame("annee" = c(annee)))
+            save1 = cbind(save1,data.frame("annee  de suivi" = c(annee)))
+            save1 = cbind(save1,data.frame("Sexe" = c(input$sexe)))
+            save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
+            save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
+            save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
+            save1 = cbind(save1,data.frame("etat_sante" = c("")))
+            save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD2)))
+            save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG2)))
+            save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d2)))
+            save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g2)))
+            save1 = cbind(save1,data.frame("cap_pertinent" = c("")))
+            if (input$idRFID2!=""){
+              save1 = cbind(save1,data.frame("RFID" = c(input$idRFID2)))}
+            if (input$idRFID_new!=""){
+              save1 = cbind(save1,data.frame("RFID" = c(input$idRFID_new)))}
+          }
+          
+          write.csv2(x =save1 ,file = "testest.csv" ) 
+          
+          }}
   
   # pour obtenir le cpt_id suivant
   
