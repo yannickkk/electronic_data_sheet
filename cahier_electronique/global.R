@@ -8,6 +8,8 @@ library(RPostgreSQL)
 library(shinyalert)
 library(chron)
 library(shinyWidgets)
+library(shinyjs)
+library(V8)
 source("connect.R")
 
 

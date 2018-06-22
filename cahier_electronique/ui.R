@@ -12,6 +12,9 @@
 ##################           Rubrique Animal               ############################
 
 contentcaractanimal = fluidPage(
+  useShinyjs(),
+  shinyjs::extendShinyjs(text = "shinyjs.refresh = function() { location.reload(); }"),
+  
   tags$style(type="text/css",
              ".shiny-output-error { visibility: hidden; }",
              ".shiny-output-error:before { visibility: hidden; }"
