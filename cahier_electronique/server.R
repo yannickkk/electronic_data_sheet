@@ -1173,8 +1173,6 @@ server <- function(input, output,session) {
           mois = strsplit(date_mod, "/")[[1]][2]
           annee = strsplit(date_mod, "/")[[1]][3]
           
-          
-          
           if (input$age == '0.5') {
             cat_age_all = "jeune" 
             cat_age = "j"}
@@ -1203,13 +1201,19 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
             save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
-            save1 = cbind(save1,data.frame("etat_sante" = c("")))
+            save1 = cbind(save1,data.frame("etat_sante" = c(input$liste_blessures)))
             save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD)))
             save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG)))
             save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d)))
             save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g)))
             save1 = cbind(save1,data.frame("cap_pertinent" = c("")))
             save1 = cbind(save1,data.frame("RFID" = c(input$idRFID)))}
+            save1 = cbind(save1,data.frame("Poids" = c(input$pSabotPlein-input$pSabotVide)))
+            save1 = cbind(save1,data.frame("Cir Cou" = c(input$cirCou)))
+            save1 = cbind(save1,data.frame("Long patte Ar" = c(input$lPattArriere)))
+            save1 = cbind(save1,data.frame("machoire" = c("")))
+            save1 = cbind(save1,data.frame("long bois gauche" = c(input$lBoisGauche)))
+            save1 = cbind(save1,data.frame("long bois droit" = c(input$lBoisDroit)))
           
           if(input$nAnimal2!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal2))
@@ -1228,7 +1232,7 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
             save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
-            save1 = cbind(save1,data.frame("etat_sante" = c("")))
+            save1 = cbind(save1,data.frame("etat_sante" = c(input$liste_blessures)))
             save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD2)))
             save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG2)))
             save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d2)))
@@ -1238,11 +1242,21 @@ server <- function(input, output,session) {
               save1 = cbind(save1,data.frame("RFID" = c(input$idRFID2)))}
             if (input$idRFID_new!=""){
               save1 = cbind(save1,data.frame("RFID" = c(input$idRFID_new)))}
+            save1 = cbind(save1,data.frame("Poids" = c(input$pSabotPlein-input$pSabotVide)))
+            save1 = cbind(save1,data.frame("Cir Cou" = c(input$cirCou)))
+            save1 = cbind(save1,data.frame("Long patte Ar" = c(input$lPattArriere)))
+            save1 = cbind(save1,data.frame("machoire" = c("")))
+            save1 = cbind(save1,data.frame("long bois gauche" = c(input$lBoisGauche)))
+            save1 = cbind(save1,data.frame("long bois droit" = c(input$lBoisDroit)))
           }
           
-          write.csv2(x =save1 ,file = "testest.csv" ) 
+          write.table(x = save1, file = "testest.csv", append=T, row.names=F, col.names=!file.exists("testest.csv"), sep=";", na = "")
           
-          }}
+          
+        }}
+  
+  
+  
   
   # pour obtenir le cpt_id suivant
   
