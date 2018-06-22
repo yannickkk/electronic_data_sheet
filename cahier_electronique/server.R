@@ -1443,7 +1443,7 @@ server <- function(input, output,session) {
             
           }
 
-          write.table(x = save1, file = "testest.csv", append=T, row.names=F, col.names=!file.exists("testest.csv"), sep=";", na="")
+          write.table(x = save1, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append=T, row.names=F, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), sep=";", na="")
           
           shinyjs::js$refresh()
           
