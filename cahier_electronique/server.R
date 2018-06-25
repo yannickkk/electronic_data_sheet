@@ -536,8 +536,9 @@ server <- function(input, output,session) {
   })
   
   observeEvent(input$ajout_prelev, {
-    cat_prelevement = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
+    cat_prelevement = paste0( c(input$typetype), "-" , c(input$localoca), "-", c(input$condi), "-", c(input$solsol), "-",c(input$nbre_echant))
     liste_prelevement[nrow(prelevement)] <<- cat_prelevement
+    print(liste_prelevement)
     
   })
   
@@ -1202,6 +1203,53 @@ server <- function(input, output,session) {
           cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c))
           
           nbre_capt = dbGetQuery(con,paste0("SELECT count(cap_id) FROM public.t_capture_cap, public.t_animal_ani where ani_id = cap_ani_id and ani_etiq= '",input$nAnimal2,"' group by ani_etiq order by ani_etiq"))
+          nbre_capt <- nbre_capt[1,1]
+          
+          for (i in (1:(length(liste_prelevement)))) {
+            dddd = strsplit(as.character(liste_prelevement[i][1]),"-")[[1]][1]
+            eeee = strsplit(as.character(liste_prelevement[i][1]),"-")[[1]][2]
+
+            if (dddd=="peau") {
+              if (exists("peau")) {
+                peau = paste(peau, as.character(liste_prelevement[i][1]), sep = "~")}
+              else {peau = as.character(liste_prelevement[i][1])}}
+  
+            if (dddd=="poils") {
+              if (exists("poils")) {
+                poils = paste(poils, as.character(liste_prelevement[i][1]),  sep = "~")}
+              else{poils = as.character(liste_prelevement[i][1])}}
+
+            if (dddd=="sang") {
+              if (exists("sang")) {
+               sang = paste(sang, as.character(liste_prelevement[i][1]),  sep = "~")}
+              else{sang = as.character(liste_prelevement[i][1])}}
+
+            if (dddd=="feces") {
+              if (exists("feces")) {
+                feces = paste(feces, as.character(liste_prelevement[i][1]),  sep = "~")}
+              else{feces = as.character(liste_prelevement[i][1])}}
+    
+            if (dddd=="tiques") {
+              if (exists("tiques")) {
+               tiques = paste(tiques, as.character(liste_prelevement[i][1]),  sep = "~")}
+              else{tiques = as.character(liste_prelevement[i][1])}}
+     
+            if (dddd=="mucus") {
+              if (exists("mucus")) {
+               mucus = paste(mucus, as.character(liste_prelevement[i][1]),  sep = "~")}
+              else{mucus = as.character(liste_prelevement[i][1])}}
+   
+            if (eeee=="vagin") {
+              if (exists("vagin")) {
+                vagin = paste(vagin, as.character(liste_prelevement[i][1]), sep = "~")}
+              else{vagin = as.character(liste_prelevement[i][1])}}
+
+            if (eeee=="nez") {
+              if (exists("nez")) {
+                nez = paste(nez, as.character(liste_prelevement[i][1]), sep = "~")}
+              else{nez = as.character(liste_prelevement[i][1])}}
+            
+          }
           
           if(input$nAnimal!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal))
@@ -1237,12 +1285,13 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("T°C_ext" = c("")))
             save1 = cbind(save1,data.frame("TIQUES FIXES" = c(input$tiques)))
             save1 = cbind(save1,data.frame("Peau" = c("")))
-            save1 = cbind(save1,data.frame("poils" = c("")))
-            save1 = cbind(save1,data.frame("sang" = c("")))
-            save1 = cbind(save1,data.frame("feces" = c("")))
-            save1 = cbind(save1,data.frame("tiques" = c("")))
-            save1 = cbind(save1,data.frame("vaginal" = c("")))
-            save1 = cbind(save1,data.frame("Nasal" = c("")))
+            save1 = cbind(save1,data.frame(if (exists("peau")) {"Peau" = c(peau)} else {"Peau" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("poils")) {"poils" = c(poils)} else {"poils" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("sang")) {"sang" = c(sang)} else {"sang" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("feces")) {"feces" = c(feces)} else {"feces" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("tiques")) {"tiques" = c(tiques)} else {"tiques" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("vagin")) {"vaginal" = c(vagin)} else {"vaginal" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("nez")) {"Nasal" = c(nez)} else {"Nasal" = ""}))
             save1 = cbind(save1,data.frame("remarque" = c(input$remarques_prel)))
             save1 = cbind(save1,data.frame("Collier" = c("")))
             save1 = cbind(save1,data.frame("accelero" = c("")))
@@ -1325,7 +1374,7 @@ server <- function(input, output,session) {
             save1 = data.frame("N°Animal" = c(input$nAnimal2))
             save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal2))))
             save1 = cbind(save1,data.frame("N° bague annee capture" = c("")))
-            save1 = cbind(save1,data.frame("Nombre capture" = c(nbre_capt),check.names = T))
+            save1 = cbind(save1,data.frame("Nombre capture" = c(nbre_capt)))
             save1 = cbind(save1,data.frame("inconnue" = c("")))
             save1 = cbind(save1,data.frame("Site Capture" = c(input$idSite2)))
             save1 = cbind(save1,data.frame("capture faon" = c(faon2)))
@@ -1357,13 +1406,13 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("glucose" = c(input$tglucose)))
             save1 = cbind(save1,data.frame("T°C_ext" = c("")))
             save1 = cbind(save1,data.frame("TIQUES FIXES" = c(input$tiques)))
-            save1 = cbind(save1,data.frame("Peau" = c("")))
-            save1 = cbind(save1,data.frame("poils" = c("")))
-            save1 = cbind(save1,data.frame("sang" = c("")))
-            save1 = cbind(save1,data.frame("feces" = c("")))
-            save1 = cbind(save1,data.frame("tiques" = c("")))
-            save1 = cbind(save1,data.frame("vaginal" = c("")))
-            save1 = cbind(save1,data.frame("Nasal" = c("")))
+            save1 = cbind(save1,data.frame(if (exists("peau")) {"Peau" = c(peau)} else {"Peau" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("poils")) {"poils" = c(poils)} else {"poils" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("sang")) {"sang" = c(sang)} else {"sang" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("feces")) {"feces" = c(feces)} else {"feces" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("tiques")) {"tiques" = c(tiques)} else {"tiques" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("vagin")) {"vaginal" = c(vagin)} else {"vaginal" = ""}))
+            save1 = cbind(save1,data.frame(if (exists("nez")) {"Nasal" = c(nez)} else {"Nasal" = ""}))
             save1 = cbind(save1,data.frame("remarque" = c(input$remarques_prel)))
             save1 = cbind(save1,data.frame("Collier" = c("")))
             save1 = cbind(save1,data.frame("accelero" = c("")))
@@ -1533,4 +1582,4 @@ server <- function(input, output,session) {
   idTagOrG=''
   idTagOrD=''
   
-  }
+}
