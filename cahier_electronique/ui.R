@@ -425,9 +425,5 @@ ui <- shinyUI(
     tabPanel  ("Sabot",comporsabot),
     tabPanel  ("Checklist 3",checklist3)
   )
-  
 )
 
-
-
-onStop(function() dbDisconnect(con))

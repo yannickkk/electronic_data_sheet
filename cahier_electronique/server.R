@@ -385,8 +385,8 @@ server <- function(input, output,session) {
         list_ble = paste(u,list_ble,sep=" ")
       }
       if (input$remarques_ble=="")
-      {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble), input$diarrhee, sep = "-")))}
-      else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble), input$diarrhee,input$remarques_ble, sep = "-")))}
+      {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble), sep = "-")))}
+      else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble),input$remarques_ble, sep = "-")))}
       updateSelectizeInput(session,"locali", options=list(selected=NULL))
       updateSelectizeInput(session,"traitement", options=list(selected=NULL))
     }
@@ -394,8 +394,8 @@ server <- function(input, output,session) {
     if ((length(input$traitement))==1)
     {
       if (input$remarques_ble=="")
-      {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave),c(input$traitement), input$diarrhee, sep = "-")))}
-      else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave), c(input$traitement), input$diarrhee,input$remarques_ble, sep = "-")))}
+      {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave),c(input$traitement), sep = "-")))}
+      else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(input$traitement), "Liste" = paste(c(input$locali),c(input$grave), c(input$traitement), input$remarques_ble, sep = "-")))}
     }
     
     output$tableblessure = DT::renderDT(blessure,server = F)
@@ -536,13 +536,15 @@ server <- function(input, output,session) {
   })
   
   observeEvent(input$ajout_prelev, {
-    cat_prelevement = paste0( c(input$typetype), "-" , c(input$localoca), "-", c(input$condi), "-", c(input$solsol), "-",c(input$nbre_echant))
+    cat_prelevement1 = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
+    cat_prelevement = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol), "_",c(input$nbre_echant))
     liste_prelevement[nrow(prelevement)] <<- cat_prelevement
-    print(liste_prelevement)
+    liste_prelevement2[nrow(prelevement)] <<- cat_prelevement1
     
   })
   
   liste_prelevement=list()
+  liste_prelevement2=list()
   liste_prel_db = dbGetQuery(con,"select sav_intitule from lu_tables.tr_samples_verification_sav")
   
   ##################           RUBRIQUE COLLIER                         #################
@@ -556,22 +558,13 @@ server <- function(input, output,session) {
     if (!is.null(input$tablecollier_rows_selected)) {
       ligne_selection = input$tablecollier_rows_selected
       collier_tech = liste_collier[ligne_selection,2]
-      collier_col_b = liste_collier[ligne_selection,8]
-      collier_col_c = liste_collier[ligne_selection,7]
-      cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c) )
+      collier_col_c = liste_collier[ligne_selection,8]
+      collier_col_b = liste_collier[ligne_selection,7]
+      cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_c)," boitier ", toupper(collier_col_b) )
       output$collier_choisi = renderText(cat_col)
     }
   })
   
-  # observeEvent(input$valide_collier,{
-  #   if ( is.null(input$tablecollier_rows_selected)) {
-  #     shinyalert("STOP!", "Collier non sélectionné!", type = "error",confirmButtonText="Valider",showConfirmButton = F, showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
-  #   }
-  #   if ( !is.null(input$tablecollier_rows_selected)) {
-  #     shinyalert("PARFAIT!", "Collier bien sélectionné!", type ="success" ,confirmButtonText="Valider", showCancelButton=F,cancelButtonText="Annuler",html=TRUE )
-  #   } 
-  #   
-  # })
   
   ##################           RUBRIQUE TABLE                           #################
   
@@ -785,14 +778,16 @@ server <- function(input, output,session) {
   
     for (i in (1:nrow(liste_prel_db))){
       temp = liste_prel_db[i,1]
-      if (!(temp %in% liste_prelevement)) {
-        checklist_prel = rbind(checklist_prel,data.frame("PRELEVEMENT_MANQUANT"= c(temp)))}
-      }
+      if (!(temp %in% liste_prelevement2)) {
+        checklist_prel = rbind(checklist_prel,data.frame("PRELEVEMENT_MANQUANT"= c(temp)))}}
+    
+      #else {checklist_prel = checklist_prel }}
+    
 
     if (nrow(checklist_prel)==0) {
       checklist_prel =  rbind(checklist_prel,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
     
-    output$tablechecklist_prel = DT::renderDT(checklist_prel, server = F) 
+    output$tablechecklist_prel = DT::renderDT(checklist_prel) 
     
     ### Collier
     
@@ -1203,53 +1198,114 @@ server <- function(input, output,session) {
           cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c))
           
           nbre_capt = dbGetQuery(con,paste0("SELECT count(cap_id) FROM public.t_capture_cap, public.t_animal_ani where ani_id = cap_ani_id and ani_etiq= '",input$nAnimal2,"' group by ani_etiq order by ani_etiq"))
-          nbre_capt <- nbre_capt[1,1]
+          nbre_capt <- nbre_capt[1,1] + 1
+          
+          cap_pertinent = dbGetQuery(con,paste0("select cap_annee_suivi from public.t_capture_cap, public.t_animal_ani where cap_ani_id=ani_id and ani_etiq = '",input$nAnimal2,"' order by cap_annee_suivi DESC"))
+          cap_pertinent <- cap_pertinent[1,1]
+          if (annee == cap_pertinent) {cap_pertinent = FALSE} else {cap_pertinent = TRUE}
+          
           
           for (i in (1:(length(liste_prelevement)))) {
-            dddd = strsplit(as.character(liste_prelevement[i][1]),"-")[[1]][1]
-            eeee = strsplit(as.character(liste_prelevement[i][1]),"-")[[1]][2]
+            test1 = strsplit(as.character(liste_prelevement[i][1]),"_")[[1]][1]
 
-            if (dddd=="peau") {
+            if (test1=="peau") {
               if (exists("peau")) {
                 peau = paste(peau, as.character(liste_prelevement[i][1]), sep = "~")}
               else {peau = as.character(liste_prelevement[i][1])}}
   
-            if (dddd=="poils") {
+            if (test1=="poils") {
               if (exists("poils")) {
                 poils = paste(poils, as.character(liste_prelevement[i][1]),  sep = "~")}
               else{poils = as.character(liste_prelevement[i][1])}}
 
-            if (dddd=="sang") {
+            if (test1=="sang") {
               if (exists("sang")) {
                sang = paste(sang, as.character(liste_prelevement[i][1]),  sep = "~")}
               else{sang = as.character(liste_prelevement[i][1])}}
 
-            if (dddd=="feces") {
+            if (test1=="feces") {
               if (exists("feces")) {
                 feces = paste(feces, as.character(liste_prelevement[i][1]),  sep = "~")}
               else{feces = as.character(liste_prelevement[i][1])}}
     
-            if (dddd=="tiques") {
+            if (test1=="tiques") {
               if (exists("tiques")) {
                tiques = paste(tiques, as.character(liste_prelevement[i][1]),  sep = "~")}
               else{tiques = as.character(liste_prelevement[i][1])}}
      
-            if (dddd=="mucus") {
+            if (test1=="mucus") {
               if (exists("mucus")) {
                mucus = paste(mucus, as.character(liste_prelevement[i][1]),  sep = "~")}
               else{mucus = as.character(liste_prelevement[i][1])}}
-   
-            if (eeee=="vagin") {
-              if (exists("vagin")) {
-                vagin = paste(vagin, as.character(liste_prelevement[i][1]), sep = "~")}
-              else{vagin = as.character(liste_prelevement[i][1])}}
-
-            if (eeee=="nez") {
-              if (exists("nez")) {
-                nez = paste(nez, as.character(liste_prelevement[i][1]), sep = "~")}
-              else{nez = as.character(liste_prelevement[i][1])}}
             
           }
+        
+        for (i in (1:(length(liste_prelevement)))) {
+          
+          test2 = strsplit(as.character(liste_prelevement[i][1]),"_")[[1]][2]
+          
+          if (!is.na(test2)) {
+          
+          if (test2=="vagin") {
+            if (exists("vagin")) {
+              vagin = paste(vagin, as.character(liste_prelevement[i][1]), sep = "~")}
+            else{vagin = as.character(liste_prelevement[i][1])}}
+          
+          if (test2=="nez") {
+            if (exists("nez")) {
+              nez = paste(nez, as.character(liste_prelevement[i][1]), sep = "~")}
+            else{nez = as.character(liste_prelevement[i][1])}}
+          }}
+          
+          if (exists("collier_tech")) {
+            if (!is.null(ligne_selection)) {
+            collier_tech_test = collier_tech }
+            else{collier_tech_test = ""}}
+          else{collier_tech_test = ""}
+          
+          sen_association =  dbGetQuery(con,"select sen_association from lu_tables.tr_sensors_sen")
+          sen_id_acc <- sen_association[grep("accelerometre",as.character(sen_association[,1])),1]
+          sen_id_prox <- sen_association[grep("proximite",as.character(sen_association[,1])),1]
+          sen_id_act <- sen_association[grep("activite",as.character(sen_association[,1])),1]
+          
+          if (!is.null(ligne_selection)) {
+            collier_test = liste_collier[ligne_selection,6]
+          collier_id_usuel = liste_collier[ligne_selection,4] }
+          else { collier_id_usuel = ""}
+
+          collier_tech_test=""
+          collier_acc = ""
+          collier_prox =""
+          collier_act=""
+
+          if (exists("collier_test")) {
+            if (!is.null(ligne_selection)) {
+              if (collier_test %in% sen_id_acc) {
+               collier_acc = 1}}}
+          
+        if (exists("collier_test")) {
+          if (!is.null(ligne_selection)) {
+            if (collier_test %in% sen_id_prox) {
+              collier_prox = 1 }}}
+            
+        if (exists("collier_test")) {
+          if (!is.null(ligne_selection)) {                
+            if (collier_test %in% sen_id_act) {
+              collier_act = 1}}
+          }
+          
+          diarrhee = paste("diarrhee/",input$diarrhee, sep="")
+          bledia = paste(input$liste_blessures, diarrhee)
+          
+          if (!is.null(input$time2)){
+            heure_totale = input$time2}
+          else {heure_totale = as.integer(input$time) - as.integer(input$cpt_heure_debut_filet)}
+          
+          remarque_tot = paste0(input$remarques_capt, input$Remarques, input$remarques_table, input$remarques_lacher, collapse = "~")
+          
+          if (!is.null(input$time2)){
+            remise_sabot = 1}
+          else {remise_sabot = ""}
           
           if(input$nAnimal!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal))
@@ -1268,7 +1324,7 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
             save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
-            save1 = cbind(save1,data.frame("etat_sante" = c(input$liste_blessures)))
+            save1 = cbind(save1,data.frame("etat_sante" = c(bledia)))
             save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD)))
             save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG)))
             save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d)))
@@ -1284,7 +1340,6 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("glucose" = c(input$tglucose)))
             save1 = cbind(save1,data.frame("T°C_ext" = c("")))
             save1 = cbind(save1,data.frame("TIQUES FIXES" = c(input$tiques)))
-            save1 = cbind(save1,data.frame("Peau" = c("")))
             save1 = cbind(save1,data.frame(if (exists("peau")) {"Peau" = c(peau)} else {"Peau" = ""}))
             save1 = cbind(save1,data.frame(if (exists("poils")) {"poils" = c(poils)} else {"poils" = ""}))
             save1 = cbind(save1,data.frame(if (exists("sang")) {"sang" = c(sang)} else {"sang" = ""}))
@@ -1293,17 +1348,17 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame(if (exists("vagin")) {"vaginal" = c(vagin)} else {"vaginal" = ""}))
             save1 = cbind(save1,data.frame(if (exists("nez")) {"Nasal" = c(nez)} else {"Nasal" = ""}))
             save1 = cbind(save1,data.frame("remarque" = c(input$remarques_prel)))
-            save1 = cbind(save1,data.frame("Collier" = c("")))
-            save1 = cbind(save1,data.frame("accelero" = c("")))
-            save1 = cbind(save1,data.frame("proximite" = c("")))
-            save1 = cbind(save1,data.frame("id_collier" = c("")))
+            save1 = cbind(save1,data.frame("Collier" = c(collier_tech_test)))
+            save1 = cbind(save1,data.frame("accelero" = c(collier_acc)))
+            save1 = cbind(save1,data.frame("proximite" = c(collier_prox)))
+            save1 = cbind(save1,data.frame("id_collier" = c(collier_id_usuel)))
             save1 = cbind(save1,data.frame("dat_deb" = c(input$date_caract)))
             save1 = cbind(save1,data.frame("date_fin" = c("")))
             save1 = cbind(save1,data.frame("date_fin arrondie" = c("")))
             save1 = cbind(save1,data.frame("date_fin_capteur" = c("")))
             save1 = cbind(save1,data.frame("suivi_GPS oui si>60jours" = c("")))
             save1 = cbind(save1,data.frame("jrs_suivi" = c("")))
-            save1 = cbind(save1,data.frame("capteur Activite" = c("")))
+            save1 = cbind(save1,data.frame("capteur Activite" = c(collier_act)))
             save1 = cbind(save1,data.frame("probleme collier" = c(input$remarque_collier)))
             save1 = cbind(save1,data.frame("site vie" = c("")))
             save1 = cbind(save1,data.frame("secteur" = c("")))
@@ -1348,15 +1403,15 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("filet" = c(input$cpt_temps_filet)))
             save1 = cbind(save1,data.frame("sabot sur place" = c("")))
             save1 = cbind(save1,data.frame("transport+attente" = c("")))
-            save1 = cbind(save1,data.frame("marquage" = c("")))
-            save1 = cbind(save1,data.frame("total" = c("")))
+            save1 = cbind(save1,data.frame("marquage" = c(as.integer(input$time_table) - as.integer(input$time_caract))))
+            save1 = cbind(save1,data.frame("total" = c(heure_totale)))
             save1 = cbind(save1,data.frame("capture" = c(input$cpt_heure_debut_filet)))
             save1 = cbind(save1,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
             save1 = cbind(save1,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
             save1 = cbind(save1,data.frame("transport" = c("")))
-            save1 = cbind(save1,data.frame("table" = c("")))
+            save1 = cbind(save1,data.frame("table" = c(input$time_caract)))
             save1 = cbind(save1,data.frame("lache" = c(input$time)))
-            save1 = cbind(save1,data.frame("remarque_lacher" = c("")))
+            save1 = cbind(save1,data.frame("remarque_lacher" = c(remarque_tot)))
             if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = (c(input$cribague)),options(stringsAsFactors = F)))}
             if (is.null(input$criautre)) { save1 = cbind(save1,data.frame("autre" = (c(""))))} else {save1 = cbind(save1,data.frame("autre" = (c(input$criautre))))}
             
@@ -1387,12 +1442,12 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
             save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
-            save1 = cbind(save1,data.frame("etat_sante" = c(input$liste_blessures)))
+            save1 = cbind(save1,data.frame("etat_sante" = c(bledia)))
             save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD2)))
             save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG2)))
             save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d2)))
             save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g2)))
-            save1 = cbind(save1,data.frame("cap_pertinent" = c("")))
+            save1 = cbind(save1,data.frame("cap_pertinent" = c(cap_pertinent)))
             if (input$idRFID2!=""){
               save1 = cbind(save1,data.frame("RFID" = c(input$idRFID2)))}
             if (input$idRFID_new!=""){
@@ -1414,17 +1469,17 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame(if (exists("vagin")) {"vaginal" = c(vagin)} else {"vaginal" = ""}))
             save1 = cbind(save1,data.frame(if (exists("nez")) {"Nasal" = c(nez)} else {"Nasal" = ""}))
             save1 = cbind(save1,data.frame("remarque" = c(input$remarques_prel)))
-            save1 = cbind(save1,data.frame("Collier" = c("")))
-            save1 = cbind(save1,data.frame("accelero" = c("")))
-            save1 = cbind(save1,data.frame("proximite" = c("")))
-            save1 = cbind(save1,data.frame("id_collier" = c("")))
+            save1 = cbind(save1,data.frame("Collier" = c(collier_tech_test)))
+            save1 = cbind(save1,data.frame("accelero" = c(collier_acc)))
+            save1 = cbind(save1,data.frame("proximite" = c(collier_prox)))
+            save1 = cbind(save1,data.frame("id_collier" = c(collier_id_usuel)))
             save1 = cbind(save1,data.frame("dat_deb" = c(input$date_caract)))
             save1 = cbind(save1,data.frame("date_fin" = c("")))
             save1 = cbind(save1,data.frame("date_fin arrondie" = c("")))
             save1 = cbind(save1,data.frame("date_fin_capteur" = c("")))
             save1 = cbind(save1,data.frame("suivi_GPS oui si>60jours" = c("")))
             save1 = cbind(save1,data.frame("jrs_suivi" = c("")))
-            save1 = cbind(save1,data.frame("capteur Activite" = c("")))
+            save1 = cbind(save1,data.frame("capteur Activite" = c(collier_act)))
             save1 = cbind(save1,data.frame("probleme collier" = c(input$remarque_collier)))
             save1 = cbind(save1,data.frame("site vie" = c("")))
             save1 = cbind(save1,data.frame("secteur" = c("")))
@@ -1469,15 +1524,15 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("filet" = c(input$cpt_temps_filet)))
             save1 = cbind(save1,data.frame("sabot sur place" = c("")))
             save1 = cbind(save1,data.frame("transport+attente" = c("")))
-            save1 = cbind(save1,data.frame("marquage" = c("")))
-            save1 = cbind(save1,data.frame("total" = c("")))
+            save1 = cbind(save1,data.frame("marquage" = c(as.integer(input$time_table) - as.integer(input$time_caract))))
+            save1 = cbind(save1,data.frame("total" = c(heure_totale)))
             save1 = cbind(save1,data.frame("capture" = c(input$cpt_heure_debut_filet)))
             save1 = cbind(save1,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
             save1 = cbind(save1,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
             save1 = cbind(save1,data.frame("transport" = c("")))
-            save1 = cbind(save1,data.frame("table" = c("")))
+            save1 = cbind(save1,data.frame("table" = c(input$time_caract)))
             save1 = cbind(save1,data.frame("lache" = c(input$time)))
-            save1 = cbind(save1,data.frame("remarque_lacher" = c("")))
+            save1 = cbind(save1,data.frame("remarque_lacher" = c(remarque_tot)))
             if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = c(input$cribague)) )}
             if (is.null(input$criautre)) { save1 = cbind(save1,data.frame("autre" = (c(""))))} else {save1 = cbind(save1,data.frame("autre" = c(input$criautre)))}
 
@@ -1487,7 +1542,7 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("visibilite" = c(input$visibilite)))
             save1 = cbind(save1,data.frame("nb_public" = c(input$nbre_personnes)))
             save1 = cbind(save1,data.frame("eurodeer_lacher" = c(input$Notation_euro)))
-            save1 = cbind(save1,data.frame("remise sabot" = c("")))
+            save1 = cbind(save1,data.frame("remise sabot" = c(remise_sabot)))
             save1 = cbind(save1,data.frame("heure_lacher_2" = c(input$time2)))
             
           }
