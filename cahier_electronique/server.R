@@ -1232,8 +1232,7 @@ server <- function(input, output,session) {
   idTagOrG=''
   idTagOrD=''
   
-  ## Créer le dataframe checklist1 :
- 
+  #### Créer le csv  :
   
       modalCallback_check1 = function(value) {
         if (value == TRUE) {
@@ -1288,7 +1287,7 @@ server <- function(input, output,session) {
           cap_pertinent <- cap_pertinent[1,1]
           if (annee == cap_pertinent) {cap_pertinent = FALSE} else {cap_pertinent = TRUE} }
           
-          for (i in (1:(length(liste_prelevement)))) {
+        for (i in (1:(length(liste_prelevement)))) {
             test1 = strsplit(as.character(liste_prelevement[i][1]),"_")[[1]][1]
 
             if (test1=="peau") {
@@ -1360,7 +1359,7 @@ server <- function(input, output,session) {
           collier_prox =""
           collier_act=""
 
-          if (exists("collier_test")) {
+        if (exists("collier_test")) {
             if (!is.null(ligne_selection)) {
               if (collier_test %in% sen_id_acc) {
                collier_acc = 1}}}
@@ -1633,7 +1632,6 @@ server <- function(input, output,session) {
           
           shinyjs::js$refresh()
           
-        }
   
   ##################           BASE DE DONNEES                          #################
   
@@ -1673,10 +1671,10 @@ server <- function(input, output,session) {
     find_site_id <- find_site_id[1,1]
     
     dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-                            cap_poids, cap_circou, cap_lpa, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-                            cap_tag_gauche_metal) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                            cap_poids, cap_circou, cap_lpa, cap_etat_sante cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
+                            cap_tag_gauche_metal) values ('%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
                             find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-                            gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))}
+                            bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))}
 
 #### Ancien animal  ####
     
@@ -1691,10 +1689,10 @@ server <- function(input, output,session) {
     if (!is.null(ligne_selection)) { cap_pertinent2 = TRUE} else { cap_pertinent2 = FALSE}
     
     dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-                            cap_poids, cap_circou, cap_lpa, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-                            cap_tag_gauche_metal) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                            cap_poids, cap_circou, cap_lpa, cap_etat_sante,cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
+                            cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
                             find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-                            gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
+                            bledia,gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
       
     dbSendQuery(con, sprintf("INSERT INTO public.t_correspondance_animal_cor(cor_ancien, cor_valide) values ('%s','%s')", input$nAnimal, input$nAnimal))}
 
@@ -1708,11 +1706,11 @@ server <- function(input, output,session) {
     find_site_id2 <- find_site_id2[1,1]
     
     dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-                            cap_poids, cap_circou, cap_lpa, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-                            cap_tag_gauche_metal) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                            cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
+                            cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
                             find_ani_id2, find_site_id2, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-                            gettime, cap_pertinent, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))}
+                            bledia,gettime, cap_pertinent, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))}
       
-    }
+    }}
   
 }
