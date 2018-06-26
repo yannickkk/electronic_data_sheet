@@ -100,7 +100,7 @@ contentcaractanimal = fluidPage(
     column(2, numericInput("lPattArriere", value='', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
     column(2, numericInput("tglucose", value="", h4("Taux de Glucose"), min=0)),
-    column(2, selectizeInput("age", h4("Age"), choices ="", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2, selectizeInput("age", h4("Age"), choices =c("<1","1","1-2","2","2-4","3","4-5","4-6","6",">=6","NA"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, textInput("remarque_ani", h4("Remarques"), value = "")),
     column(12),
     column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
