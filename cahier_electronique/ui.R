@@ -53,7 +53,6 @@ contentcaractanimal = fluidPage(
     column(2, textInput("time_caract", h4("Heure Début:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
-    #column(2, radioButtons(inputId = "estNouvelAnimal", choices = c("oui","non"), selected = "oui",label = h4("1ere Capture"))),
     column(2, awesomeRadio(inputId = "estNouvelAnimal", choices = c("oui", "non"),selected = "oui",label = h4("1ere Capture"))),
 
     column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", awesomeRadio(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))), conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", awesomeRadio(inputId = "identifie", choices = c("non"), selected = "non",label = h4("Identifé")))),
@@ -87,7 +86,7 @@ contentcaractanimal = fluidPage(
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create=T), selected = NULL))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput3"))),
     # column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' ", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' && input.nAnimal2 !=''",  selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+   # column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' && input.nAnimal2 !=''",  selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
 
     column(12),
     
