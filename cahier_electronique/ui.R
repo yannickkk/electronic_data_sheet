@@ -41,6 +41,8 @@ contentcaractanimal = fluidPage(
     uiOutput("alert_poids"),
     uiOutput("tagDroitExiste"),
     uiOutput("tagGaucheExiste"),
+    uiOutput("tagDroitExiste2"),
+    uiOutput("tagGaucheExiste2"),
     uiOutput("perte_poids"),
     
     column(2, selectizeInput("numSabot", h4("N° Sabot"), choices ="", options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
@@ -208,7 +210,7 @@ contenttable = fluidPage(
     #dataTableOutput("tabletemperature")
   ),
   
-  splitLayout(cellWidths = c( "25%", "75%"),
+  splitLayout(cellWidths = c( "25%", "65%"),
               list(checkboxInput("suivi_temp", h4("Suivi des températures"), value = F),
                 selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(create= TRUE), selected = 'rouge'),
                 selectizeInput( "position_temp1", h4("Positionnement 1"), choices = ""),

@@ -200,7 +200,7 @@ server <- function(input, output,session) {
   
   slow_tagD2 <- debounce(reactive_tagD2, 1500)
   
-  output$tagDroitExiste <- renderUI({
+  output$tagDroitExiste2 <- renderUI({
     if (!is.null(slow_tagD2())) {
       for (i in listTag) {
         if (slow_tagD2() %in% i)
@@ -209,7 +209,7 @@ server <- function(input, output,session) {
       } 
     }  })
   
-  output$tagGaucheExiste <- renderUI({
+  output$tagGaucheExiste2 <- renderUI({
     if (!is.null(slow_tagG2())) {
       for (i in listTag) {
         if (slow_tagG2() %in% i)
@@ -706,15 +706,15 @@ server <- function(input, output,session) {
       plot_temp <<- rbind(data.frame(plot_temp), table_temp)
       par(mar = c(5,5,2,5))
       if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
-        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-30,rv$i), ylim=c(20,45), col="red", pch = 2 ) }
+        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-20,rv$i), ylim=c(20,45), col="red", pch = 2 ) }
       else if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
-        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-30,rv$i), ylim=c(0,25), col="red", pch = 2 ) }
+        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-20,rv$i), ylim=c(0,25), col="red", pch = 2 ) }
       
       par(new = T)
       if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
-        with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-30,rv$i), ylim=c(20,45), axes = F, xlab=NA, ylab=NA )) }
+        with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-20,rv$i), ylim=c(20,45), axes = F, xlab=NA, ylab=NA )) }
       else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
-        with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-30,rv$i), ylim=c(0,25), axes = F, xlab=NA, ylab=NA )) }
+        with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-20,rv$i), ylim=c(0,25), axes = F, xlab=NA, ylab=NA )) }
 
       #with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-30,rv$i), ylim=c(0,25), axes = F, xlab=NA, ylab=NA ))
       axis(side = 4)
