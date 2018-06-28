@@ -193,28 +193,33 @@ contenttable = fluidPage(
   
   fluidRow(
     #column(2,uiOutput("sonde_loc")),
-    column(2, selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(create= TRUE), selected = 'rouge'),
-           selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(create= TRUE), selected = 'blanche')),
-    column(2,selectizeInput( "position_temp1", h4("Positionnement 1"), choices = ""), selectizeInput( "position_temp2", h4("Positionnement 2"), choices = "")),
     column(2,selectizeInput("Notation_euro_table", h4("Notation Eurodeer"), 
                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL),
            textInput("remarques_table", h4("Remarques"), value="" )), 
     column(2,textInput("time_table", h4("Heure de fin:"),value=""),
            actionButton("to_current_time_table", "Afficher l'heure")),
-    #column(2, textInput("remarques_table", h4("Remarques"), value="" )),
-    column(12,hr()),
     column(1,radioButtons("lutte",h4("Lutte"), choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
     column(1,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected =character(0))),
     column(1,radioButtons("cribague",h4("Cri Bague"), choices  = list("NA","0", "1-2", ">2"),  selected =character(0))),
     column(1,radioButtons("criautre", h4("Cri Autre"), choices = list("0", "1-2", ">2"), selected = F)),
-    column(12,hr()),
     
-    column(2, checkboxInput("suivi_temp", h4("Suivi des températures"), value = F)),
-    column(12, conditionalPanel(condition = "input.suivi_temp ==  TRUE" ,  plotOutput("plot")))
+    column(12,hr())
 
-    #dataTableOutput("tabletemperature"),
-
-  ))
+    #dataTableOutput("tabletemperature")
+  ),
+  
+  splitLayout(cellWidths = c( "25%", "75%"),
+              list(checkboxInput("suivi_temp", h4("Suivi des températures"), value = F),
+                selectizeInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),options=list(create= TRUE), selected = 'rouge'),
+                selectizeInput( "position_temp1", h4("Positionnement 1"), choices = ""),
+                selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(create= TRUE), selected = 'blanche'),
+                selectizeInput( "position_temp2", h4("Positionnement 2"), choices = "")),
+                
+              conditionalPanel(condition = "input.suivi_temp ==  TRUE" ,  plotOutput("plot"))
+              
+  )
+  
+  )
 
 ##################           Rubrique Historique           #################
 

@@ -662,7 +662,6 @@ server <- function(input, output,session) {
   updateSelectizeInput(session, "position_temp2", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
                        options=list(create= TRUE), selected = 'exterieur')
   
-  
   observeEvent(input$identifie, {
     if (input$identifie == "oui") {
       updateAwesomeRadio(session,"cribague", selected = "NA")}  
@@ -705,9 +704,22 @@ server <- function(input, output,session) {
       tempb <- as.numeric(substr(tempb,as.numeric(regexpr("t=",tempb)[1])+2,as.numeric(nchar(tempb))))/1000
       table_temp <<- data.frame(rv$i, tempr, tempb)
       plot_temp <<- rbind(data.frame(plot_temp), table_temp)
-      plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Temperatures (°C)",  type = "b", xlim=c(rv$i-30,rv$i), ylim=c(20,45), col="red", pch = 2 )
-      lines(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1)
-      legend(x = "left", y = "left", legend = c("Sonde rouge", "Sonde Blanche"), col = c("red","blue"),pch = c(2,1), lty = c(1,1))
+      par(mar = c(5,5,2,5))
+      if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-30,rv$i), ylim=c(20,45), col="red", pch = 2 ) }
+      else if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-30,rv$i), ylim=c(0,25), col="red", pch = 2 ) }
+      
+      par(new = T)
+      if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+        with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-30,rv$i), ylim=c(20,45), axes = F, xlab=NA, ylab=NA )) }
+      else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+        with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-30,rv$i), ylim=c(0,25), axes = F, xlab=NA, ylab=NA )) }
+
+      #with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-30,rv$i), ylim=c(0,25), axes = F, xlab=NA, ylab=NA ))
+      axis(side = 4)
+      mtext(side = 4, line = 3, 'Sonde blanche (°C)')
+      legend(x = "left", y = "left", legend = c("Sonde rouge", "Sonde Blanche"), col = c("red","blue"), pch = c(2,1), lty = c(1,1))
       } }
   })
   
