@@ -86,7 +86,9 @@ contentcaractanimal = fluidPage(
     
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create=T), selected = NULL))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput3"))),
-    
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' ", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' && input.nAnimal2 !=''",  selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+
     column(12),
     
     # column(2,offset = 2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",  checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE ))),
@@ -117,9 +119,7 @@ contentcaractanimal = fluidPage(
     column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,textInput("parasites", h4("Autres parasites"), value = "")),
     column(2,conditionalPanel(condition = "input.sexe == 'F'", selectizeInput("lactation", h4("Lactation"), choices = c("oui", "non", "indeterminé"),  options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)))
-    # column(2, conditionalPanel(condition = "input.test == 'T'", textInput("idTagOrD3", h4("New Tag Droit"),value="")))
-    
-    #column(2, "Test", h2(textOutput("currentTemp1")))
+
   ),
   
   conditionalPanel(
