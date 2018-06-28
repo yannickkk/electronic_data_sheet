@@ -383,7 +383,7 @@ server <- function(input, output,session) {
     {
       list_ble = ""
       for (u in input$traitement) {
-        list_ble = paste(u,list_ble,sep=" ")
+        list_ble = paste(u,list_ble,sep="_")
       }
       if (input$remarques_ble=="")
       {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble), sep = "-")))}
@@ -578,13 +578,11 @@ server <- function(input, output,session) {
   
   observeEvent(input$identifie, {
     if (input$identifie == "oui") {
-      updateAwesomeRadio(session,"cribague", selected = "NA")
-    }  
+      updateAwesomeRadio(session,"cribague", selected = "NA")}  
   })
   
   observeEvent(input$to_current_time_table, {
     updateTimeInput(session, "time_table", value = Sys.time())
-    
   })
   
   observeEvent(input$criautre, {
@@ -592,7 +590,7 @@ server <- function(input, output,session) {
       if (((input$cribague == "NA" || input$cribague == "0")) && (input$criautre == "0")) {
         cri_synthese = FALSE }
       else {cri_synthese = TRUE }
-    }})
+    } })
   
   observeEvent(input$cribague, {
     if (!is.null(input$criautre) && !is.null(input$cribague)) {
@@ -600,6 +598,70 @@ server <- function(input, output,session) {
         cri_synthese = FALSE }
       else {cri_synthese = TRUE }
     } })
+  
+  #setwd("/sys/bus/w1/devices/28-031724cb00ff")
+  #setwd(dir = "C:/Users/marie/Desktop")
+  
+  # output$currentTemp1 <- renderText({
+  #   tempb <- t(read.delim("C:/Users/marie/Desktop/w1_slave1"))[,1]
+  #   tempb <- as.numeric(substr(tempb,as.numeric(regexpr("t=",tempb)[1])+2,as.numeric(nchar(tempb))))/1000
+  #   tempb <- append(sub(" CEST","",Sys.time()),tempb)
+  #  # invalidateLater(1000, session)
+  #   paste(tempb)
+  # })
+  # 
+  # output$currentTemp2 <- renderText({
+  #   tempr <- t(read.delim("C:/Users/marie/Desktop/w1_slave2"))[,1]
+  #   tempr <- as.numeric(substr(tempr,as.numeric(regexpr("t=",tempr)[1])+2,as.numeric(nchar(tempr))))/1000
+  #   tempr <- append(sub(" CEST","",Sys.time()),tempr)
+  #  #☻ invalidateLater(1000, session)
+  #    paste(tempr)
+  # })
+  
+  temperature = data.frame()
+  row.names(temperature) = NULL
+  
+  output$tabletemperature = DT::renderDT(expr = temperature,server = F)
+  
+  rv <- reactiveValues(i = 0)
+  maxIter <- 1800
+  plot_temp <<- data.frame()
+  
+  output$plot <- renderPlot( {
+    if(rv$i > 0) {
+      if (input$suivi_temp == T) {
+      tempr <- t(read.delim("C:/Users/marie/Desktop/w1_slave2"))[,1]
+      tempr <- as.numeric(substr(tempr,as.numeric(regexpr("t=",tempr)[1])+2,as.numeric(nchar(tempr))))/1000
+      tempb <- t(read.delim("C:/Users/marie/Desktop/w1_slave1"))[,1]
+      tempb <- as.numeric(substr(tempb,as.numeric(regexpr("t=",tempb)[1])+2,as.numeric(nchar(tempb))))/1000
+      table_temp <<- data.frame(rv$i, tempr, tempb)
+      plot_temp <<- rbind(data.frame(plot_temp), table_temp)
+      plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Temperatures (°C)",  type = "b", xlim=c(rv$i-30,rv$i), ylim=c(20,45), col="red", pch = 2 )
+      lines(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1)
+      legend(x = "left", y = "left", legend = c("Sonde rouge", "Sonde Blanche"), col = c("red","blue"),pch = c(2,1), lty = c(1,1))
+      } }
+  })
+  
+  observeEvent(input$suivi_temp, {
+    if (input$suivi_temp == T) {
+      rv$i <- 0
+      observe({
+        isolate({
+          rv$i <- rv$i + 1
+        })
+        
+        if (isolate(rv$i) < maxIter){
+          invalidateLater(1000, session)
+        }
+      })
+ } 
+    else if (input$suivi_temp == F) {
+      rv$i <- 0 }
+    })
+  
+  
+  
+  
   
   
   ##################           RUBRIQUE HISTORIQUE                      #################
@@ -1493,7 +1555,7 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("table" = c(input$time_caract)))
             save1 = cbind(save1,data.frame("lache" = c(input$time)))
             save1 = cbind(save1,data.frame("remarque_lacher" = c(remarque_tot)))
-            if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = (c(input$cribague)),options(stringsAsFactors = F)))}
+            if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = (c(input$cribague))))}
             if (is.null(input$criautre)) { save1 = cbind(save1,data.frame("autre" = (c(""))))} else {save1 = cbind(save1,data.frame("autre" = (c(input$criautre))))}
             
             save1 = cbind(save1,data.frame("stop" = c(input$nbre_stops)))
@@ -1674,8 +1736,16 @@ server <- function(input, output,session) {
                             cap_poids, cap_circou, cap_lpa, cap_etat_sante cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
                             cap_tag_gauche_metal) values ('%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
                             find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-                            bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))}
+                            bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
 
+    find_cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_ani_id= '",find_ani_id,"' order by cap_id DESC"))
+    find_cap_id <- find_cap_id[1,1]
+    
+    ## Faire une boucle sur le tableau des blessures 
+    
+    dbSendQuery(con, sprintf("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('%s', '%s','%s', '%s', '%s')",
+                             find_cap_id ))  }
+    
 #### Ancien animal  ####
     
   else if (input$estNouvelAnimal == 'non' && input$identifie == 'non') {
