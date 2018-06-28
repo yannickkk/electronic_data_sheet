@@ -188,6 +188,36 @@ server <- function(input, output,session) {
       }
   })
   
+  reactive_tagG2 <- reactive({ 
+    stock_tagG2 <- input$idTagOrG3
+  })
+  
+  slow_tagG2 <- debounce(reactive_tagG2, 1500)
+  
+  reactive_tagD2 <- reactive({ 
+    stock_tagD2 <- input$idTagOrD3
+  })
+  
+  slow_tagD2 <- debounce(reactive_tagD2, 1500)
+  
+  output$tagDroitExiste <- renderUI({
+    if (!is.null(slow_tagD2())) {
+      for (i in listTag) {
+        if (slow_tagD2() %in% i)
+        {shinyalert("TAG DROIT DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)
+          updateTextInput(session, "idTagOrD3", value = "")} 
+      } 
+    }  })
+  
+  output$tagGaucheExiste <- renderUI({
+    if (!is.null(slow_tagG2())) {
+      for (i in listTag) {
+        if (slow_tagG2() %in% i)
+        {shinyalert("TAG GAUCHE DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)
+          updateTextInput(session, "idTagOrG3", value = "")} }
+    }
+  })
+  
   #########          Vérification existence numéro nouvel animal                    ##########   
   
   listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
