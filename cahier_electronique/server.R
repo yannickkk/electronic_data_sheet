@@ -158,37 +158,55 @@ server <- function(input, output,session) {
   names(listTagG)<-c("nom")
   listTag = rbind(listTagD,listTagG)
   
-  output$tagDroitExiste <- renderUI({
-    if (!is.null(input$idTagOrD)) {
-      for (i in listTag) {
-        if (input$idTagOrD %in% i)
-        {shinyalert("TAG DROIT DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
-      }
-    }
+  reactive_tagG <- reactive({ 
+    stock_tagG <- input$idTagOrG
   })
   
-  output$tagGaucheExiste <- renderUI({
-    if (!is.null(input$idTagOrG)) {
+  slow_tagG <- debounce(reactive_tagG, 1500)
+  
+  reactive_tagD <- reactive({ 
+    stock_tagD <- input$idTagOrD
+  })
+  
+  slow_tagD <- debounce(reactive_tagD, 1500)
+  
+  output$tagDroitExiste <- renderUI({
+    if (!is.null(slow_tagD())) {
       for (i in listTag) {
-        if (input$idTagOrG %in% i)
-        {shinyalert("TAG GAUCHE DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)} 
+        if (slow_tagD() %in% i)
+        {shinyalert("TAG DROIT DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)
+          updateTextInput(session, "idTagOrD", value = "")} 
+    } 
+}  })
+  
+  output$tagGaucheExiste <- renderUI({
+    if (!is.null(slow_tagG())) {
+      for (i in listTag) {
+        if (slow_tagG() %in% i)
+        {shinyalert("TAG GAUCHE DEJA EXISTANT!", "Vérifier le numéro du tag", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)
+          updateTextInput(session, "idTagOrG", value = "")} }
       }
-    }
   })
   
   #########          Vérification existence numéro nouvel animal                    ##########   
   
   listAnimal = dbGetQuery(con,"select distinct ani_etiq from public.t_animal_ani")
   
-  output$animalExiste <- renderUI({
-    if (!is.null(input$nAnimal)) {
-      for (i in listAnimal) {
-        if (toupper(input$nAnimal) %in% i)
-        {shinyalert("ANIMAL DEJA EXISTANT!", "Décocher '1ere capture' ou choisir un autre 'ani_etiq'", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)
-          updateTextInput(session, "nAnimal", value = "")} 
-      }
-    }
+  reactive_nAnimal <- reactive({ 
+    stock_nAnimal <- input$nAnimal
   })
+  
+  slow_nAnimal <- debounce(reactive_nAnimal, 1500)
+  
+  output$animalExiste <- renderUI({
+      if (!is.null(slow_nAnimal())){
+        for (i in listAnimal) {
+          if (toupper(slow_nAnimal() %in% i))
+          {shinyalert("ANIMAL DEJA EXISTANT!", "Décocher '1ere capture' ou choisir un autre 'ani_etiq'", type = "warning", showCancelButton=T,cancelButtonText="Annuler",showConfirmButton = FALSE)
+            updateTextInput(session, "nAnimal", value = "")} }
+      }
+    })
+
   
   #########          Test données: poids, num sabot , tour de cou, lg patte, bois   ######### 
   
@@ -369,13 +387,13 @@ server <- function(input, output,session) {
   output$conditionalInput1 <- renderUI({
     if(input$newTagG){
       textInput("idTagOrG3", h4("New Tag Gauche"),value="")}
-    else {selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = "select distinct cap_tag_gauche from public.t_capture_cap",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
+    else {selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_cap"),options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
   })
   
   output$conditionalInput2 <- renderUI({
     if(input$newTagD){
       textInput("idTagOrD3", h4("New Tag Droite"),value="")}
-    else {selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = "select distinct cap_tag_droit from public.t_capture_cap",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
+    else {selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = dbGetQuery(con,"select distinct cap_tag_droit from public.t_capture_cap"),options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
   })
   
   output$conditionalInput3 <- renderUI({
@@ -638,24 +656,6 @@ server <- function(input, output,session) {
       else {cri_synthese = TRUE }
     } })
   
-  #setwd("/sys/bus/w1/devices/28-031724cb00ff")
-  #setwd(dir = "C:/Users/marie/Desktop")
-  
-  # output$currentTemp1 <- renderText({
-  #   tempb <- t(read.delim("C:/Users/marie/Desktop/w1_slave1"))[,1]
-  #   tempb <- as.numeric(substr(tempb,as.numeric(regexpr("t=",tempb)[1])+2,as.numeric(nchar(tempb))))/1000
-  #   tempb <- append(sub(" CEST","",Sys.time()),tempb)
-  #  # invalidateLater(1000, session)
-  #   paste(tempb)
-  # })
-  # 
-  # output$currentTemp2 <- renderText({
-  #   tempr <- t(read.delim("C:/Users/marie/Desktop/w1_slave2"))[,1]
-  #   tempr <- as.numeric(substr(tempr,as.numeric(regexpr("t=",tempr)[1])+2,as.numeric(nchar(tempr))))/1000
-  #   tempr <- append(sub(" CEST","",Sys.time()),tempr)
-  #  #☻ invalidateLater(1000, session)
-  #    paste(tempr)
-  # })
   
   temperature = data.frame()
   row.names(temperature) = NULL
