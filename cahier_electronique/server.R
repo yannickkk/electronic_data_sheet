@@ -417,32 +417,32 @@ server <- function(input, output,session) {
   output$conditionalInput1 <- renderUI({
     if(input$newTagG){
       textInput("idTagOrG3", h4("New Tag Gauche"),value="")}
-    else {selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_cap"),options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
+    else if (input$newTagG == F) {selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_cap"),options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
   })
   
   output$conditionalInput2 <- renderUI({
     if(input$newTagD){
-      textInput("idTagOrD3", h4("New Tag Droite"),value="")}
-    else {selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = dbGetQuery(con,"select distinct cap_tag_droit from public.t_capture_cap"),options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
+      textInput("idTagOrD3", h4("New Tag Droit"),value="")}
+    else if (input$newTagD == F) {selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = dbGetQuery(con,"select distinct cap_tag_droit from public.t_capture_cap"),options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
   })
   
   output$conditionalInput3 <- renderUI({
     if(input$newRFIDbox){
       selectizeInput("idRFID_new", h4("RFID_new"), choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
-    else {selectizeInput("idRFID2", h4("RFID"), choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id"), 
+    else if (input$newRFIDbox == F) {selectizeInput("idRFID2", h4("RFID"), choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id"), 
                          options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
     })
   
   output$conditionalInput4 <- renderUI({
     if(input$newTagG){
       checkboxInput("metal_tag_g3", "New Tag G. métal", value = FALSE ) }
-    else {checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE )}
+    else if (input$newTagG == F) {checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE )}
   })
   
   output$conditionalInput5 <- renderUI({
     if(input$newTagD){
       checkboxInput("metal_tag_d3", "New Tag D. métal", value = FALSE )}
-    else {checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE )}
+    else if (input$newTagD == F) {checkboxInput("metal_tag_d2", "Tag D. métal", value = FALSE )}
   })
   
   # output$conditionalInput6 <- renderUI({
@@ -804,10 +804,10 @@ server <- function(input, output,session) {
     if ((input$identifie == 'non') & (input$idRFID)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("RFID")))}
     
-    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idRFID2)=="" & (input$idRFID_new)=="") {
-      checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nouveau RFID")))}
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idRFID2=="") & (input$newRFIDbox == F)) {
+      checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("RFID")))}
     
-    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'non') & (input$idRFID2)=="") {
+    if ((input$estNouvelAnimal == 'non') && (input$identifie == 'oui') && (input$newRFIDbox == T) && (input$idRFID_new == "")) {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nouveau RFID")))}
     
     if ((input$estNouvelAnimal == 'oui') & (input$idTagOrG)=="") {
@@ -822,11 +822,17 @@ server <- function(input, output,session) {
     if ((input$estNouvelAnimal == 'non') & (input$identifie == 'non') & (input$idTagOrG)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Tag Gauche")))}
     
-    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idTagOrD2)=="") {
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$newTagD == F) & (input$idTagOrD2)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Tag Droit")))}
     
-    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idTagOrG2)=="") {
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$newTagG == F) & (input$idTagOrG2)=="") {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Tag Gauche")))}
+    
+    if ((input$estNouvelAnimal == 'non') && (input$identifie == 'oui') && (input$newTagD == T) && (input$idTagOrD3=="")) {
+      checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nouveau Tag Droit")))}
+    
+    if ((input$estNouvelAnimal == 'non') && (input$identifie == 'oui') && (input$newTagG == T) && (input$idTagOrG3)=="") {
+      checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nouveau Tag Gauche")))}
     
     if (is.na(input$lPattArriere)) {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Longueur patte")))}
@@ -919,42 +925,48 @@ server <- function(input, output,session) {
     ### Prelevement
     
     checklist_prel = data.frame()
-  
+
     for (i in (1:nrow(liste_prel_db))){
       temp = liste_prel_db[i,1]
       if (!(temp %in% liste_prelevement2)) {
         checklist_prel = rbind(checklist_prel,data.frame("PRELEVEMENT_MANQUANT"= c(temp)))}}
-    
-      #else {checklist_prel = checklist_prel }}
-    
 
     if (nrow(checklist_prel)==0) {
       checklist_prel =  rbind(checklist_prel,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
-    
-    output$tablechecklist_prel = DT::renderDT(checklist_prel) 
+
+    output$tablechecklist_prel = DT::renderDT(checklist_prel)
     
     ### Collier
     
     checklist_collier = data.frame()
-    
+
     if (is.null(input$tablecollier_rows_selected)) {
       checklist_collier = data.frame("COLLIER_MANQUANT"= c("Pas de collier choisi"))}
-    
+
     if (!is.null(input$tablecollier_rows_selected)) {
       checklist_collier = data.frame("PARFAIT"= c("Collier bien sélectionné"))}
-    
-    output$tablechecklist_collier = DT::renderDT(checklist_collier,server = F) 
+
+    output$tablechecklist_collier = DT::renderDT(checklist_collier,server = F)
     
     
     ### Bilan
     
     observeEvent(input$valid_checklist1, ignoreInit = T, {
-      if ( ((checklist_prel[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_table[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist1[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist_collier[1][1])!="PAS DE DONNEES MANQUANTES")) 
+      if ( ((checklist_prel[1,1])!="PAS DE DONNEES MANQUANTES") || ((checklist_table[1,1])!="PAS DE DONNEES MANQUANTES") || ((checklist1[1,1])!="PAS DE DONNEES MANQUANTES") || ((checklist_collier[1,1])!="Collier bien sélectionné"))
       {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE,  callbackR = modalCallback_check1 )}
-      else      
+      else
       {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check1 )}
-      
+
     })
+  
+    # ## provisoire quand pas de serveur :  
+    # observeEvent(input$valid_checklist1, ignoreInit = T, {
+    #   if ( ((checklist_table[1][1])!="PAS DE DONNEES MANQUANTES") || ((checklist1[1][1])!="PAS DE DONNEES MANQUANTES"))  
+    #   {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE,  callbackR = modalCallback_check1 )}
+    #   else      
+    #   {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check1 )}
+    #   
+    # })
   })
   
   #########           Table                                            ########                
@@ -1066,11 +1078,11 @@ server <- function(input, output,session) {
  
     ### Bilan
     
-    observeEvent(input$valid_checklist2, ignoreInit = T, {
-      if  ((checklist2[1][1])!="PAS DE DONNEES MANQUANTES")
-      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)}
+    observeEvent(input$valid_checklist2,ignoreInit = T, {
+      if  ((checklist2[1,1])!="PAS DE DONNEES MANQUANTES")
+      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE, callbackR  = modalCallback_check2)}
       else      
-      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE)}
+      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check2)}
       
     })
   })
@@ -1281,10 +1293,10 @@ server <- function(input, output,session) {
     ### Bilan
     
     observeEvent(input$valid_checklist3, ignoreInit = T, {
-      if  ((checklist3[1][1]!="PAS DE DONNEES MANQUANTES") || (checklist_sabot[1][1]!="PAS DE DONNEES MANQUANTES")) 
-      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE)}
+      if  ((checklist3[1,1]!="PAS DE DONNEES MANQUANTES") || (checklist_sabot[1,1]!="PAS DE DONNEES MANQUANTES")) 
+      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE, callbackR = modalCallback_check3)}
       else      
-      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE)}
+      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check3)}
       
     })
     
@@ -1300,82 +1312,82 @@ server <- function(input, output,session) {
   # max_valuebis= dbGetQuery(con,paste0('SELECT cpt_cap_id FROM cmpt.t_capture_cpt order by cpt_cap_id desc limit 1'))
   # max_valuebis=as.integer((max_valuebis[1,1])+1)
   
-  modalCallback2 <- function(value) {
-    if (value == TRUE) {
-      gettime= as.character(input$time)
-      gettime=strsplit(gettime, " ")[[1]]
-      gettime=gettime[2]
-      gettime2= as.character(input$time2)
-      gettime2=strsplit(gettime2, " ")[[1]]
-      gettime2=gettime2[2]
-      
-      if (!is.na(gettime2)) {
-        dbSendQuery(con,sprintf("INSERT INTO cmpt.t_capture_cpt ( cpt_heure_lache, cpt_lache_course, cpt_lache_bolide, cpt_lache_gratte_collier, 
-                                cpt_lache_tombe,cpt_lache_cabriole,cpt_lache_nbre_stop, cpt_lache_aboiement_cri,cpt_lache_titube, cpt_lache_couche,cpt_lache_visibilite,cpt_lache_habitat_lache, 
-                                cpt_lache_habitat_pertevue,cpt_lache_public,cpt_lache_eurodeer,cpt_heure_second_lache,cpt_ani_etiq,cpt_date,cpt_annee_suivi,cpt_cap_id)
-                                VALUES ('%s',' %s','%s', '%s','%s', '%s',%s, '%s',' %s','%s',' %s', '%s','%s',' %s',' %s','%s','%s','%s','%s','%s')", gettime,input$vitesse,input$allure,
-                                input$gratte_collier,input$tombe, input$cabriole_saut, input$nbre_stops,input$cri,input$titube,input$couche,
-                                input$visibilite,input$habitat,input$habitat_perte,input$nbre_personnes,input$Notation_euro,gettime2,110,Sys.Date(),format(Sys.time(), "%Y"),max_valuebis))
-      }    
-      else {
-        dbSendQuery(con,sprintf("INSERT INTO cmpt.t_capture_cpt ( cpt_heure_lache, cpt_lache_course, cpt_lache_bolide, cpt_lache_gratte_collier, 
-                                cpt_lache_tombe,cpt_lache_nbre_stop, cpt_lache_aboiement_cri,cpt_lache_titube, cpt_lache_couche,cpt_lache_visibilite,cpt_lache_habitat_lache, 
-                                cpt_lache_habitat_pertevue,cpt_lache_public,cpt_lache_eurodeer,cpt_ani_etiq,cpt_date,cpt_annee_suivi,cpt_cap_id)
-                                VALUES ('%s',' %s','%s', '%s', '%s',%s, '%s',' %s','%s',' %s', '%s','%s',' %s',' %s','%s','%s','%s','%s')", gettime,input$vitesse,input$allure,
-                                input$gratte_collier,input$tombe,input$nbre_stops,input$cri,input$titube,input$couche,
-                                input$visibilite,input$habitat,input$habitat_perte,input$nbre_personnes,input$Notation_euro,110,Sys.Date(),format(Sys.time(), "%Y"),max_valuebis))
-      }
-    }}
+  # modalCallback2 <- function(value) {
+  #   if (value == TRUE) {
+  #     gettime= as.character(input$time)
+  #     gettime=strsplit(gettime, " ")[[1]]
+  #     gettime=gettime[2]
+  #     gettime2= as.character(input$time2)
+  #     gettime2=strsplit(gettime2, " ")[[1]]
+  #     gettime2=gettime2[2]
+  #     
+  #     if (!is.na(gettime2)) {
+  #       dbSendQuery(con,sprintf("INSERT INTO cmpt.t_capture_cpt ( cpt_heure_lache, cpt_lache_course, cpt_lache_bolide, cpt_lache_gratte_collier, 
+  #                               cpt_lache_tombe,cpt_lache_cabriole,cpt_lache_nbre_stop, cpt_lache_aboiement_cri,cpt_lache_titube, cpt_lache_couche,cpt_lache_visibilite,cpt_lache_habitat_lache, 
+  #                               cpt_lache_habitat_pertevue,cpt_lache_public,cpt_lache_eurodeer,cpt_heure_second_lache,cpt_ani_etiq,cpt_date,cpt_annee_suivi,cpt_cap_id)
+  #                               VALUES ('%s',' %s','%s', '%s','%s', '%s',%s, '%s',' %s','%s',' %s', '%s','%s',' %s',' %s','%s','%s','%s','%s','%s')", gettime,input$vitesse,input$allure,
+  #                               input$gratte_collier,input$tombe, input$cabriole_saut, input$nbre_stops,input$cri,input$titube,input$couche,
+  #                               input$visibilite,input$habitat,input$habitat_perte,input$nbre_personnes,input$Notation_euro,gettime2,110,Sys.Date(),format(Sys.time(), "%Y"),max_valuebis))
+  #     }    
+  #     else {
+  #       dbSendQuery(con,sprintf("INSERT INTO cmpt.t_capture_cpt ( cpt_heure_lache, cpt_lache_course, cpt_lache_bolide, cpt_lache_gratte_collier, 
+  #                               cpt_lache_tombe,cpt_lache_nbre_stop, cpt_lache_aboiement_cri,cpt_lache_titube, cpt_lache_couche,cpt_lache_visibilite,cpt_lache_habitat_lache, 
+  #                               cpt_lache_habitat_pertevue,cpt_lache_public,cpt_lache_eurodeer,cpt_ani_etiq,cpt_date,cpt_annee_suivi,cpt_cap_id)
+  #                               VALUES ('%s',' %s','%s', '%s', '%s',%s, '%s',' %s','%s',' %s', '%s','%s',' %s',' %s','%s','%s','%s','%s')", gettime,input$vitesse,input$allure,
+  #                               input$gratte_collier,input$tombe,input$nbre_stops,input$cri,input$titube,input$couche,
+  #                               input$visibilite,input$habitat,input$habitat_perte,input$nbre_personnes,input$Notation_euro,110,Sys.Date(),format(Sys.time(), "%Y"),max_valuebis))
+  #     }
+  #   }}
+  # 
+  # modalCallback_capture <- function(value) {
+  #   if (value == TRUE) {
+  #     
+  #     gettime3= as.character(input$cpt_heure_debut_filet)
+  #     gettime3=strsplit(gettime3, " ")[[1]]
+  #     gettime3=gettime3[2]
+  #     gettime4= as.character(input$cpt_temps_filet)
+  #     gettime4=strsplit(gettime4, " ")[[1]]
+  #     gettime4=gettime4[2]    
+  #     
+  #     
+  #     dbSendQuery(con,sprintf("update cmpt.t_capture_cpt SET cpt_nom_capteur = '%s' , cpt_nbre_pers_experimentes = '%s', 
+  #                             cpt_heure_debut_filet = '%s', 
+  #                             cpt_temps_filet = '%s', cpt_arrivee_filet_course = '%s', 
+  #                             cpt_arrivee_filet_panique = '%s', cpt_filet_lutte = '%s', 
+  #                             cpt_filet_haletement = '%s', cpt_filet_cri = '%s'
+  #                             where cpt_id = 771",input$nom_capteur_txt, input$Nbre_pers_experimentes, gettime3, gettime4, input$cpt_filet_vitesse, 
+  #                             input$cpt_filet_allure, input$cpt_filet_lutte, input$cpt_filet_halete,input$cpt_filet_cri))
+  #   }
+  # }
+  # 
+  # modalCallback_sabot <- function(value) {
+  #   if (value == TRUE) {
+  #     
+  #     gettime5= as.character(input$cpt_heure_mise_sabot)
+  #     gettime5=strsplit(gettime5, " ")[[1]]
+  #     gettime5=gettime5[2]
+  #     gettime6= as.character(input$cpt_heure_fin_surv)
+  #     gettime6=strsplit(gettime6, " ")[[1]]
+  #     gettime6=gettime6[2] 
+  #     
+  #     dbSendQuery(con,sprintf("update cmpt.t_capture_cpt SET cpt_heure_mise_sabot = '%s' , cpt_dose_acepromazine = '%s', 
+  #                             cpt_sabot_retournement = '%s', 
+  #                             cpt_sabot_couche = '%s', cpt_sabot_agitation = '%s', 
+  #                             cpt_hre_fin_surv = '%s', cpt_remarque = '%s'
+  #                             where cpt_id = 771", gettime5, input$cpt_dose_acepromazine ,input$cpt_sabot_retournement,input$cpt_sabot_couche, 
+  #                             input$cpt_sabot_agitation,gettime6, input$Remarques))
+  #     
+  #     # # (cap_id from public.t_capture_cap where cap_num_sabot = '",input$numSabot_capture,"' and 
+  #     #                             cap_date =  '",input$date_capture,"')"))
+  #     
+  #   }
+  # }
+  # 
+  # idSite2=''
+  # idTagOrG=''
+  # idTagOrD=''
   
-  modalCallback_capture <- function(value) {
-    if (value == TRUE) {
-      
-      gettime3= as.character(input$cpt_heure_debut_filet)
-      gettime3=strsplit(gettime3, " ")[[1]]
-      gettime3=gettime3[2]
-      gettime4= as.character(input$cpt_temps_filet)
-      gettime4=strsplit(gettime4, " ")[[1]]
-      gettime4=gettime4[2]    
-      
-      
-      dbSendQuery(con,sprintf("update cmpt.t_capture_cpt SET cpt_nom_capteur = '%s' , cpt_nbre_pers_experimentes = '%s', 
-                              cpt_heure_debut_filet = '%s', 
-                              cpt_temps_filet = '%s', cpt_arrivee_filet_course = '%s', 
-                              cpt_arrivee_filet_panique = '%s', cpt_filet_lutte = '%s', 
-                              cpt_filet_haletement = '%s', cpt_filet_cri = '%s'
-                              where cpt_id = 771",input$nom_capteur_txt, input$Nbre_pers_experimentes, gettime3, gettime4, input$cpt_filet_vitesse, 
-                              input$cpt_filet_allure, input$cpt_filet_lutte, input$cpt_filet_halete,input$cpt_filet_cri))
-    }
-  }
-  
-  modalCallback_sabot <- function(value) {
-    if (value == TRUE) {
-      
-      gettime5= as.character(input$cpt_heure_mise_sabot)
-      gettime5=strsplit(gettime5, " ")[[1]]
-      gettime5=gettime5[2]
-      gettime6= as.character(input$cpt_heure_fin_surv)
-      gettime6=strsplit(gettime6, " ")[[1]]
-      gettime6=gettime6[2] 
-      
-      dbSendQuery(con,sprintf("update cmpt.t_capture_cpt SET cpt_heure_mise_sabot = '%s' , cpt_dose_acepromazine = '%s', 
-                              cpt_sabot_retournement = '%s', 
-                              cpt_sabot_couche = '%s', cpt_sabot_agitation = '%s', 
-                              cpt_hre_fin_surv = '%s', cpt_remarque = '%s'
-                              where cpt_id = 771", gettime5, input$cpt_dose_acepromazine ,input$cpt_sabot_retournement,input$cpt_sabot_couche, 
-                              input$cpt_sabot_agitation,gettime6, input$Remarques))
-      
-      # # (cap_id from public.t_capture_cap where cap_num_sabot = '",input$numSabot_capture,"' and 
-      #                             cap_date =  '",input$date_capture,"')"))
-      
-    }
-  }
-  
-  idSite2=''
-  idTagOrG=''
-  idTagOrD=''
-  
-  #### Créer le csv  :
+  ##################           CSV CHECKLIST 1                          #####     
   
       modalCallback_check1 = function(value) {
         if (value == TRUE) {
@@ -1525,16 +1537,40 @@ server <- function(input, output,session) {
             heure_totale = input$time2}
           else {heure_totale = as.integer(input$time) - as.integer(input$cpt_heure_debut_filet)}
           
-          remarque_tot = paste0(input$remarques_capt, input$Remarques, input$remarques_table, input$remarques_lacher, collapse = "~")
+
           
-          if (!is.null(input$time2)){
-            remise_sabot = 1}
-          else {remise_sabot = ""}
+          if (as.integer(mois)>=10) {
+            annee_suivie = as.integer(annee) + 1  }
+          if (as.integer(mois)<10) {annee_suivie = annee}
           
-          if(input$nAnimal!="") {
+          if (faon1 != 'oui' ) {
+            cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
+          
+          if (faon1 == 'oui' ) {
+            cap_bague = paste0("F", "_", input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
+          
+          if (input$newTagD == T  && (faon2 != 'oui' )) {
+            cap_bague2 = paste0(input$idTagOrD3, "_", str_sub(annee_suivie, -2)) }
+          
+          if (input$newTagD == T  && (faon2 == 'oui' )) {
+            cap_bague2 = paste0("F", "_", input$idTagOrD3, "_", str_sub(annee_suivie, -2)) }
+          
+          if ((input$newTagG == T) && (faon2 != 'oui' )) {
+            cap_bague2 = paste0(input$idTagOrG3, "_", str_sub(annee_suivie, -2)) }
+          
+          if ((input$newTagG == T) && (faon2 == 'oui' )) {
+            cap_bague2 = paste0("F", "_", input$idTagOrG3, "_", str_sub(annee_suivie, -2)) }
+          
+          if (input$newTagD == F && input$newTagG == F) {
+            cap_bague2 = paste0(input$nAnimal2, "_", str_sub(annee_suivie, -2)) }
+          
+          loc_sonde = as.integer(dbGetQuery(con, "select tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus'")[1,1])
+          
+          
+          if(((input$estNouvelAnimal == 'oui') || (input$estNouvelAnimal == 'non' && input$identifie == 'non')) && input$nAnimal!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal))
             save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal))))
-            save1 = cbind(save1,data.frame("N° bague annee capture" = c("")))
+            save1 = cbind(save1,data.frame("N° bague annee capture" = c(cap_bague)))
             save1 = cbind(save1,data.frame("Nombre capture" = c(1)))
             save1 = cbind(save1,data.frame("inconnue" = c("")))
             save1 = cbind(save1,data.frame("Site Capture" = c(input$idSite)))
@@ -1543,8 +1579,11 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("jour" = c(jour)))
             save1 = cbind(save1,data.frame("mois" = c(mois)))
             save1 = cbind(save1,data.frame("annee" = c(annee)))
-            save1 = cbind(save1,data.frame("annee  de suivi" = c(annee)))
-            save1 = cbind(save1,data.frame("Sexe" = c(input$sexe)))
+            save1 = cbind(save1,data.frame("annee  de suivi" = c(annee_suivie)))
+            if (!is.null(input$sexe)) {
+              save1 = cbind(save1,data.frame("Sexe" = c(input$sexe))) }
+            if (is.null(input$sexe)) {
+              save1 = cbind(save1,data.frame("Sexe" = c(""))) }            
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
             save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
@@ -1564,13 +1603,27 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("glucose" = c(input$tglucose)))
             save1 = cbind(save1,data.frame("T°C_ext" = c("")))
             save1 = cbind(save1,data.frame("TIQUES FIXES" = c(input$tiques)))
-            save1 = cbind(save1,data.frame(if (exists("peau")) {"Peau" = c(peau)} else {"Peau" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("poils")) {"poils" = c(poils)} else {"poils" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("sang")) {"sang" = c(sang)} else {"sang" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("feces")) {"feces" = c(feces)} else {"feces" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("tiques")) {"tiques" = c(tiques)} else {"tiques" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("vagin")) {"vaginal" = c(vagin)} else {"vaginal" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("nez")) {"Nasal" = c(nez)} else {"Nasal" = ""}))
+            if (exists("peau")) {
+            save1 = cbind(save1,data.frame("Peau" = c(peau))) }
+            else {save1 = cbind(save1,data.frame("Peau" = c("")))}
+            if (exists("poils")) {
+              save1 = cbind(save1,data.frame("poils" = c(poils))) }
+            else {save1 = cbind(save1,data.frame("poils" = c("")))}
+            if (exists("sang")) {
+              save1 = cbind(save1,data.frame("sang" = c(sang))) }
+            else {save1 = cbind(save1,data.frame("sang" = c("")))}
+            if (exists("feces")) {
+              save1 = cbind(save1,data.frame("feces" = c(feces))) }
+            else {save1 = cbind(save1,data.frame("feces" = c("")))}
+            if (exists("tiques")) {
+              save1 = cbind(save1,data.frame("tiques" = c(tiques))) }
+            else {save1 = cbind(save1,data.frame("tiques" = c("")))}
+            if (exists("vagin")) {
+              save1 = cbind(save1,data.frame("vaginal" = c(vagin))) }
+            else {save1 = cbind(save1,data.frame("vaginal" = c("")))}
+            if (exists("nez")) {
+              save1 = cbind(save1,data.frame("Nasal" = c(nez))) }
+            else {save1 = cbind(save1,data.frame("Nasal" = c("")))}
             save1 = cbind(save1,data.frame("remarque" = c(input$remarques_prel)))
             save1 = cbind(save1,data.frame("Collier" = c(collier_tech_test)))
             save1 = cbind(save1,data.frame("accelero" = c(collier_acc)))
@@ -1591,20 +1644,20 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("Date mort arrondie" = c("")))
             save1 = cbind(save1,data.frame("Cause detaille" = c("")))
             save1 = cbind(save1,data.frame("cause categories" = c("")))
-            save1 = cbind(save1,data.frame("nom capteur" = c(input$nom_capteur_txt)))
-            save1 = cbind(save1,data.frame("nombre d'experimentes (n)" = c(input$Nbre_pers_experimentes)))
-            if (is.null(input$cpt_filet_vitesse)) { save1 = cbind(save1,data.frame("arrivee filet course (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("arrivee filet course (1/0)" = (c(input$cpt_filet_vitesse))))}
-            if (is.null(input$cpt_filet_allure)) { save1 = cbind(save1,data.frame("arrivee filet panique (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("arrivee filet panique (1/0)" = (c(input$cpt_filet_allure))))}
-            if (is.null(input$cpt_filet_lutte)) { save1 = cbind(save1,data.frame("lutte" = (c(""))))} else {save1 = cbind(save1,data.frame("lutte" = (c(input$cpt_filet_lutte))))}
-            if (is.null(input$cpt_filet_halete)) { save1 = cbind(save1,data.frame("haletement (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("haletement (1/0)" = (c(input$cpt_filet_halete))))}
-            if (is.null(input$cpt_filet_cri)) { save1 = cbind(save1,data.frame("cri (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("cri (1/0)" = (c(input$cpt_filet_cri))))}
-            save1 = cbind(save1,data.frame(" acepromazine (1=0,3cc)" = c(input$cpt_dose_acepromazine)))
+            save1 = cbind(save1,data.frame("nom capteur" = c("")))
+            save1 = cbind(save1,data.frame("nombre d'experimentes (n)" = c("")))
+            save1 = cbind(save1,data.frame("arrivee filet course (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("arrivee filet panique (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("lutte" = (c(""))))
+            save1 = cbind(save1,data.frame("haletement (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("cri (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("acepromazine (1=0,3cc)" = c("")))
             save1 = cbind(save1,data.frame("num_sabot" = c(input$numSabot)))
-            if (is.null(input$cpt_sabot_couche)) { save1 = cbind(save1,data.frame("couche (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("couche (1/0)" = (c(input$cpt_sabot_couche))))}
-            if (is.null(input$cpt_sabot_agitation)) { save1 = cbind(save1,data.frame("agitation (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("agitation (1/0)" = (c(input$cpt_sabot_agitation))))}
-            if (is.null(input$cpt_sabot_retournement)) { save1 = cbind(save1,data.frame("retournement (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("retournement (1/0)" = (c(input$cpt_sabot_retournement))))}
-            save1 = cbind(save1,data.frame("hre fin surv" = c(input$cpt_heure_fin_surv)))
-            save1 = cbind(save1,data.frame("surveillance (mn)" = c(as.integer(input$cpt_heure_fin_surv) - as.integer(input$cpt_heure_mise_sabot))))
+            save1 = cbind(save1,data.frame("couche (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("agitation (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("retournement (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("hre fin surv" = c("")))
+            save1 = cbind(save1,data.frame("surveillance (mn)" = c("")))
             save1 = cbind(save1,data.frame("distance (KM)" = c("")))
             if (is.null(input$lutte)) { save1 = cbind(save1,data.frame("lutte (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("lutte (1/0)" = (c(input$lutte))))}
             if (is.null(input$halete)) { save1 = cbind(save1,data.frame("halete (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("halete (1/0)" = (c(input$halete))))}
@@ -1613,46 +1666,45 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("T°C 2" = c("")))
             save1 = cbind(save1,data.frame("Cœur 1" = c("")))
             save1 = cbind(save1,data.frame("Cœur 2" = c("")))
-            save1 = cbind(save1,data.frame("localisation sonde temperature" = c("")))
+            save1 = cbind(save1,data.frame("localisation sonde temperature" = c(loc_sonde))) 
             save1 = cbind(save1,data.frame("eurodeer" = c(input$Notation_euro_table)))
-            if (is.null(input$titube)) { save1 = cbind(save1,data.frame("titube (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("titube (1/0)" = (c(input$titube))))}
-            if (is.null(input$couche)) { save1 = cbind(save1,data.frame("couche (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("couche (1/0)" = (c(input$couche))))}
-            if (is.null(input$vitesse)) { save1 = cbind(save1,data.frame("course (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("course (1/0)" = (c(input$vitesse))))}
-            if (is.null(input$tombe)) { save1 = cbind(save1,data.frame("tombe (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("tombe (1/0)"  = (c(input$tombe))))}
-            if (is.null(input$gratte_collier)) { save1 = cbind(save1,data.frame("gratte collier (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("gratte collier (1/0)" = (c(input$gratte_collier))))}
-            if (is.null(input$cabriole_saut)) { save1 = cbind(save1,data.frame("cabriole (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("cabriole (1/0)" = (c(input$cabriole_saut))))}
-            if (is.null(input$allure)) { save1 = cbind(save1,data.frame("bolide (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("bolide (1/0)" = (c(input$allure))))}
-            if (is.null(input$cri)) { save1 = cbind(save1,data.frame("aboiement/cri (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("aboiement/cri (1/0)" = (c(input$cri))))}
-            
-            save1 = cbind(save1,data.frame("filet" = c(input$cpt_temps_filet)))
+            save1 = cbind(save1,data.frame("titube (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("couche (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("course (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("tombe (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("gratte collier (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("cabriole (1/0)" = (c("")))) 
+            save1 = cbind(save1,data.frame("bolide (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("aboiement/cri (1/0)" = (c("")))) 
+            save1 = cbind(save1,data.frame("filet" = c("")))
             save1 = cbind(save1,data.frame("sabot sur place" = c("")))
             save1 = cbind(save1,data.frame("transport+attente" = c("")))
             save1 = cbind(save1,data.frame("marquage" = c(as.integer(input$time_table) - as.integer(input$time_caract))))
-            save1 = cbind(save1,data.frame("total" = c(heure_totale)))
-            save1 = cbind(save1,data.frame("capture" = c(input$cpt_heure_debut_filet)))
-            save1 = cbind(save1,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
-            save1 = cbind(save1,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
+            save1 = cbind(save1,data.frame("total" = c("")))
+            save1 = cbind(save1,data.frame("capture" = c("")))
+            save1 = cbind(save1,data.frame("sabot" = c("")))
+            save1 = cbind(save1,data.frame("acepro" = c("")))
             save1 = cbind(save1,data.frame("transport" = c("")))
             save1 = cbind(save1,data.frame("table" = c(input$time_caract)))
-            save1 = cbind(save1,data.frame("lache" = c(input$time)))
-            save1 = cbind(save1,data.frame("remarque_lacher" = c(remarque_tot)))
-            if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = (c(input$cribague))))}
-            if (is.null(input$criautre)) { save1 = cbind(save1,data.frame("autre" = (c(""))))} else {save1 = cbind(save1,data.frame("autre" = (c(input$criautre))))}
+            save1 = cbind(save1,data.frame("lache" = c("")))
+            save1 = cbind(save1,data.frame("remarque_lacher" = c("")))
+            if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = c(input$cribague)) )}
+            if (is.null(input$criautre)) { save1 = cbind(save1,data.frame("autre" = (c(""))))} else {save1 = cbind(save1,data.frame("autre" = c(input$criautre)))}
             
-            save1 = cbind(save1,data.frame("stop" = c(input$nbre_stops)))
-            save1 = cbind(save1,data.frame("habitat lacher" = c(input$habitat)))
-            save1 = cbind(save1,data.frame("habite perte vue" = c(input$habitat_perte)))
-            save1 = cbind(save1,data.frame("visibilite" = c(input$visibilite),options(stringsAsFactors = F)))
-            save1 = cbind(save1,data.frame("nb_public" = c(input$nbre_personnes),options(stringsAsFactors = F)))
-            save1 = cbind(save1,data.frame("eurodeer_lacher" = c(input$Notation_euro)))
+            save1 = cbind(save1,data.frame("stop" = c("")))
+            save1 = cbind(save1,data.frame("habitat lacher" = c("")))
+            save1 = cbind(save1,data.frame("habite perte vue" = c("")))
+            save1 = cbind(save1,data.frame("visibilite" = c("")))
+            save1 = cbind(save1,data.frame("nb_public" = c("")))
+            save1 = cbind(save1,data.frame("eurodeer_lacher" = c("")))
             save1 = cbind(save1,data.frame("remise sabot" = c("")))
-            save1 = cbind(save1,data.frame("heure_lacher_2" = c(input$time2)))
+            save1 = cbind(save1,data.frame("heure_lacher_2" = c("")))
           }
           
-          if(input$nAnimal2!="") {
+          if(input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$nAnimal2!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal2))
             save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal2))))
-            save1 = cbind(save1,data.frame("N° bague annee capture" = c("")))
+            save1 = cbind(save1,data.frame("N° bague annee capture" = c(cap_bague2)))
             save1 = cbind(save1,data.frame("Nombre capture" = c(nbre_capt)))
             save1 = cbind(save1,data.frame("inconnue" = c("")))
             save1 = cbind(save1,data.frame("Site Capture" = c(input$idSite2)))
@@ -1661,21 +1713,41 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("jour" = c(jour)))
             save1 = cbind(save1,data.frame("mois" = c(mois)))
             save1 = cbind(save1,data.frame("annee" = c(annee)))
-            save1 = cbind(save1,data.frame("annee  de suivi" = c(annee)))
-            save1 = cbind(save1,data.frame("Sexe" = c(input$sexe)))
+            save1 = cbind(save1,data.frame("annee  de suivi" = c(annee_suivie)))
+            if (!is.null(input$sexe)) {
+              save1 = cbind(save1,data.frame("Sexe" = c(input$sexe))) }
+            if (is.null(input$sexe)) {
+              save1 = cbind(save1,data.frame("Sexe" = c(""))) }
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
             save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
             save1 = cbind(save1,data.frame("etat_sante" = c(bledia)))
-            save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD2)))
-            save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG2)))
-            save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d2)))
-            save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g2)))
+   
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == F) {
+              save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD2))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == T) {
+              save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD3))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == F) {
+              save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG2))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == T) {
+              save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG3))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == F) {
+              save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d2)))}
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == T) {
+              save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d3))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == F) {
+              save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g2))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == T) {
+              save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g3))) }
             save1 = cbind(save1,data.frame("cap_pertinent" = c(cap_pertinent)))
-            if (input$idRFID2!=""){
+            if (input$newRFIDbox == F && input$idRFID2!=""){
               save1 = cbind(save1,data.frame("RFID" = c(input$idRFID2)))}
-            if (input$idRFID_new!=""){
+            if (input$newRFIDbox == F && input$idRFID2==""){
+              save1 = cbind(save1,data.frame("RFID" = c("")))}
+            if (input$newRFIDbox == T && input$idRFID_new!=""){
               save1 = cbind(save1,data.frame("RFID" = c(input$idRFID_new)))}
+            if (input$newRFIDbox == T && input$idRFID_new==""){
+              save1 = cbind(save1,data.frame("RFID" = c("")))}
             save1 = cbind(save1,data.frame("Poids" = c(input$pSabotPlein - input$pSabotVide)))
             save1 = cbind(save1,data.frame("Cir Cou" = c(input$cirCou)))
             save1 = cbind(save1,data.frame("Long patte Ar" = c(input$lPattArriere)))
@@ -1685,13 +1757,27 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("glucose" = c(input$tglucose)))
             save1 = cbind(save1,data.frame("T°C_ext" = c("")))
             save1 = cbind(save1,data.frame("TIQUES FIXES" = c(input$tiques)))
-            save1 = cbind(save1,data.frame(if (exists("peau")) {"Peau" = c(peau)} else {"Peau" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("poils")) {"poils" = c(poils)} else {"poils" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("sang")) {"sang" = c(sang)} else {"sang" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("feces")) {"feces" = c(feces)} else {"feces" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("tiques")) {"tiques" = c(tiques)} else {"tiques" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("vagin")) {"vaginal" = c(vagin)} else {"vaginal" = ""}))
-            save1 = cbind(save1,data.frame(if (exists("nez")) {"Nasal" = c(nez)} else {"Nasal" = ""}))
+            if (exists("peau")) {
+              save1 = cbind(save1,data.frame("Peau" = c(peau))) }
+            else {save1 = cbind(save1,data.frame("Peau" = c("")))}
+            if (exists("poils")) {
+              save1 = cbind(save1,data.frame("poils" = c(poils))) }
+            else {save1 = cbind(save1,data.frame("poils" = c("")))}
+            if (exists("sang")) {
+              save1 = cbind(save1,data.frame("sang" = c(sang))) }
+            else {save1 = cbind(save1,data.frame("sang" = c("")))}
+            if (exists("feces")) {
+              save1 = cbind(save1,data.frame("feces" = c(feces))) }
+            else {save1 = cbind(save1,data.frame("feces" = c("")))}
+            if (exists("tiques")) {
+              save1 = cbind(save1,data.frame("tiques" = c(tiques))) }
+            else {save1 = cbind(save1,data.frame("tiques" = c("")))}
+            if (exists("vagin")) {
+              save1 = cbind(save1,data.frame("vaginal" = c(vagin))) }
+            else {save1 = cbind(save1,data.frame("vaginal" = c("")))}
+            if (exists("nez")) {
+              save1 = cbind(save1,data.frame("Nasal" = c(nez))) }
+            else {save1 = cbind(save1,data.frame("Nasal" = c("")))}
             save1 = cbind(save1,data.frame("remarque" = c(input$remarques_prel)))
             save1 = cbind(save1,data.frame("Collier" = c(collier_tech_test)))
             save1 = cbind(save1,data.frame("accelero" = c(collier_acc)))
@@ -1712,20 +1798,20 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("Date mort arrondie" = c("")))
             save1 = cbind(save1,data.frame("Cause detaille" = c("")))
             save1 = cbind(save1,data.frame("cause categories" = c("")))
-            save1 = cbind(save1,data.frame("nom capteur" = c(input$nom_capteur_txt)))
-            save1 = cbind(save1,data.frame("nombre d'experimentes (n)" = c(input$Nbre_pers_experimentes)))
-            if (is.null(input$cpt_filet_vitesse)) { save1 = cbind(save1,data.frame("arrivee filet course (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("arrivee filet course (1/0)" = (c(input$cpt_filet_vitesse))))}
-            if (is.null(input$cpt_filet_allure)) { save1 = cbind(save1,data.frame("arrivee filet panique (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("arrivee filet panique (1/0)" = (c(input$cpt_filet_allure))))}
-            if (is.null(input$cpt_filet_lutte)) { save1 = cbind(save1,data.frame("lutte" = (c(""))))} else {save1 = cbind(save1,data.frame("lutte" = (c(input$cpt_filet_lutte))))}
-            if (is.null(input$cpt_filet_halete)) { save1 = cbind(save1,data.frame("haletement (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("haletement (1/0)" = (c(input$cpt_filet_halete))))}
-            if (is.null(input$cpt_filet_cri)) { save1 = cbind(save1,data.frame("cri (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("cri (1/0)" = (c(input$cpt_filet_cri))))}
-            save1 = cbind(save1,data.frame(" acepromazine (1=0,3cc)" = c(input$cpt_dose_acepromazine)))
+            save1 = cbind(save1,data.frame("nom capteur" = c("")))
+            save1 = cbind(save1,data.frame("nombre d'experimentes (n)" = c("")))
+            save1 = cbind(save1,data.frame("arrivee filet course (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("arrivee filet panique (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("lutte" = (c(""))))
+            save1 = cbind(save1,data.frame("haletement (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("cri (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("acepromazine (1=0,3cc)" = c("")))
             save1 = cbind(save1,data.frame("num_sabot" = c(input$numSabot)))
-            if (is.null(input$cpt_sabot_couche)) { save1 = cbind(save1,data.frame("couche (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("couche (1/0)" = (c(input$cpt_sabot_couche))))}
-            if (is.null(input$cpt_sabot_agitation)) { save1 = cbind(save1,data.frame("agitation (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("agitation (1/0)" = (c(input$cpt_sabot_agitation))))}
-            if (is.null(input$cpt_sabot_retournement)) { save1 = cbind(save1,data.frame("retournement (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("retournement (1/0)" = (c(input$cpt_sabot_retournement))))}
-            save1 = cbind(save1,data.frame("hre fin surv" = c(input$cpt_heure_fin_surv)))
-            save1 = cbind(save1,data.frame("surveillance (mn)" = c(as.integer(input$cpt_heure_fin_surv) - as.integer(input$cpt_heure_mise_sabot))))
+            save1 = cbind(save1,data.frame("couche (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("agitation (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("retournement (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("hre fin surv" = c("")))
+            save1 = cbind(save1,data.frame("surveillance (mn)" = c("")))
             save1 = cbind(save1,data.frame("distance (KM)" = c("")))
             if (is.null(input$lutte)) { save1 = cbind(save1,data.frame("lutte (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("lutte (1/0)" = (c(input$lutte))))}
             if (is.null(input$halete)) { save1 = cbind(save1,data.frame("halete (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("halete (1/0)" = (c(input$halete))))}
@@ -1734,46 +1820,44 @@ server <- function(input, output,session) {
             save1 = cbind(save1,data.frame("T°C 2" = c("")))
             save1 = cbind(save1,data.frame("Cœur 1" = c("")))
             save1 = cbind(save1,data.frame("Cœur 2" = c("")))
-            save1 = cbind(save1,data.frame("localisation sonde temperature" = c("")))
+            save1 = cbind(save1,data.frame("localisation sonde temperature" = c(loc_sonde))) 
             save1 = cbind(save1,data.frame("eurodeer" = c(input$Notation_euro_table)))
-            if (is.null(input$titube)) { save1 = cbind(save1,data.frame("titube (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("titube (1/0)" = (c(input$titube))))}
-            if (is.null(input$couche)) { save1 = cbind(save1,data.frame("couche (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("couche (1/0)" = (c(input$couche))))}
-            if (is.null(input$vitesse)) { save1 = cbind(save1,data.frame("course (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("course (1/0)" = (c(input$vitesse))))}
-            if (is.null(input$tombe)) { save1 = cbind(save1,data.frame("tombe (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("tombe (1/0)"  = (c(input$tombe))))}
-            if (is.null(input$gratte_collier)) { save1 = cbind(save1,data.frame("gratte collier (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("gratte collier (1/0)" = (c(input$gratte_collier))))}
-            if (is.null(input$cabriole_saut)) { save1 = cbind(save1,data.frame("cabriole (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("cabriole (1/0)" = (c(input$cabriole_saut))))}
-            if (is.null(input$allure)) { save1 = cbind(save1,data.frame("bolide (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("bolide (1/0)" = (c(input$allure))))}
-            if (is.null(input$cri)) { save1 = cbind(save1,data.frame("aboiement/cri (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("aboiement/cri (1/0)" = (c(input$cri))))}
+            save1 = cbind(save1,data.frame("titube (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("couche (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("course (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("tombe (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("gratte collier (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("cabriole (1/0)" = (c("")))) 
+            save1 = cbind(save1,data.frame("bolide (1/0)" = (c(""))))
+            save1 = cbind(save1,data.frame("aboiement/cri (1/0)" = (c(""))))
 
-            save1 = cbind(save1,data.frame("filet" = c(input$cpt_temps_filet)))
+            save1 = cbind(save1,data.frame("filet" = c("")))
             save1 = cbind(save1,data.frame("sabot sur place" = c("")))
             save1 = cbind(save1,data.frame("transport+attente" = c("")))
             save1 = cbind(save1,data.frame("marquage" = c(as.integer(input$time_table) - as.integer(input$time_caract))))
-            save1 = cbind(save1,data.frame("total" = c(heure_totale)))
-            save1 = cbind(save1,data.frame("capture" = c(input$cpt_heure_debut_filet)))
-            save1 = cbind(save1,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
-            save1 = cbind(save1,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
+            save1 = cbind(save1,data.frame("total" = c("")))
+            save1 = cbind(save1,data.frame("capture" = c("")))
+            save1 = cbind(save1,data.frame("sabot" = c("")))
+            save1 = cbind(save1,data.frame("acepro" = c("")))
             save1 = cbind(save1,data.frame("transport" = c("")))
             save1 = cbind(save1,data.frame("table" = c(input$time_caract)))
-            save1 = cbind(save1,data.frame("lache" = c(input$time)))
-            save1 = cbind(save1,data.frame("remarque_lacher" = c(remarque_tot)))
+            save1 = cbind(save1,data.frame("lache" = c("")))
+            save1 = cbind(save1,data.frame("remarque_lacher" = c("")))
             if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = c(input$cribague)) )}
             if (is.null(input$criautre)) { save1 = cbind(save1,data.frame("autre" = (c(""))))} else {save1 = cbind(save1,data.frame("autre" = c(input$criautre)))}
 
-            save1 = cbind(save1,data.frame("stop" = c(input$nbre_stops)))
-            save1 = cbind(save1,data.frame("habitat lacher" = c(input$habitat)))
-            save1 = cbind(save1,data.frame("habite perte vue" = c(input$habitat_perte)))
-            save1 = cbind(save1,data.frame("visibilite" = c(input$visibilite)))
-            save1 = cbind(save1,data.frame("nb_public" = c(input$nbre_personnes)))
-            save1 = cbind(save1,data.frame("eurodeer_lacher" = c(input$Notation_euro)))
-            save1 = cbind(save1,data.frame("remise sabot" = c(remise_sabot)))
-            save1 = cbind(save1,data.frame("heure_lacher_2" = c(input$time2)))
+            save1 = cbind(save1,data.frame("stop" = c("")))
+            save1 = cbind(save1,data.frame("habitat lacher" = c("")))
+            save1 = cbind(save1,data.frame("habite perte vue" = c("")))
+            save1 = cbind(save1,data.frame("visibilite" = c("")))
+            save1 = cbind(save1,data.frame("nb_public" = c("")))
+            save1 = cbind(save1,data.frame("eurodeer_lacher" = c("")))
+            save1 = cbind(save1,data.frame("remise sabot" = c("")))
+            save1 = cbind(save1,data.frame("heure_lacher_2" = c("")))
             
           }
 
-          write.table(x = save1, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append=T, row.names=F, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), sep=";", na="")
-          
-          shinyjs::js$refresh()
+          write.table(x = save1, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append=T, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), sep=";", na="", row.names = F)
           
   
   ##################           BASE DE DONNEES                          #################
@@ -1805,63 +1889,198 @@ server <- function(input, output,session) {
 
 #### Nouvel animal ####
     
-  if (input$estNouvelAnimal == 'oui') {
-    dbSendQuery(con,sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani))
-    
-    find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
-    find_ani_id <- find_ani_id[1,1]
-    find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
-    find_site_id <- find_site_id[1,1]
-    
-    dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-                            cap_poids, cap_circou, cap_lpa, cap_etat_sante cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-                            cap_tag_gauche_metal) values ('%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-                            find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-                            bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
-
-    find_cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_ani_id= '",find_ani_id,"' order by cap_id DESC"))
-    find_cap_id <- find_cap_id[1,1]
+  # if (input$estNouvelAnimal == 'oui') {
+  #   dbSendQuery(con,sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani))
+  #   
+  #   find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
+  #   find_ani_id <- find_ani_id[1,1]
+  #   find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
+  #   find_site_id <- find_site_id[1,1]
+  #   
+  #   dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
+  #                           cap_poids, cap_circou, cap_lpa, cap_etat_sante cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
+  #                           cap_tag_gauche_metal) values ('%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+  #                           find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+  #                           bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
+  # 
+  #   find_cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_ani_id= '",find_ani_id,"' order by cap_id DESC"))
+  #   find_cap_id <- find_cap_id[1,1]
     
     ## Faire une boucle sur le tableau des blessures 
     
-    dbSendQuery(con, sprintf("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('%s', '%s','%s', '%s', '%s')",
-                             find_cap_id ))  }
+    # dbSendQuery(con, sprintf("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('%s', '%s','%s', '%s', '%s')",
+    #                          find_cap_id ))  }
     
 #### Ancien animal  ####
     
-  else if (input$estNouvelAnimal == 'non' && input$identifie == 'non') {
-    dbSendQuery(con,sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani))
-    
-    find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
-    find_ani_id <- find_ani_id[1,1]
-    find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
-    find_site_id <- find_site_id[1,1]
-    
-    if (!is.null(ligne_selection)) { cap_pertinent2 = TRUE} else { cap_pertinent2 = FALSE}
-    
-    dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-                            cap_poids, cap_circou, cap_lpa, cap_etat_sante,cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-                            cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-                            find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-                            bledia,gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
-      
-    dbSendQuery(con, sprintf("INSERT INTO public.t_correspondance_animal_cor(cor_ancien, cor_valide) values ('%s','%s')", input$nAnimal, input$nAnimal))}
+  # else if (input$estNouvelAnimal == 'non' && input$identifie == 'non') {
+  #   dbSendQuery(con,sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani))
+  #   
+  #   find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
+  #   find_ani_id <- find_ani_id[1,1]
+  #   find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
+  #   find_site_id <- find_site_id[1,1]
+  #   
+  #   if (!is.null(ligne_selection)) { cap_pertinent2 = TRUE} else { cap_pertinent2 = FALSE}
+  #   
+  #   dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
+  #                           cap_poids, cap_circou, cap_lpa, cap_etat_sante,cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
+  #                           cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+  #                           find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+  #                           bledia,gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
+  #     
+  #   dbSendQuery(con, sprintf("INSERT INTO public.t_correspondance_animal_cor(cor_ancien, cor_valide) values ('%s','%s')", input$nAnimal, input$nAnimal))}
 
 #### Ancien animal mais sans identifiant ####
     
-  else if (input$estNouvelAnimal == 'non' && input$identifie == 'oui') {
-    
-    find_ani_id2 = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal2,"'"))
-    find_ani_id2 <- find_ani_id2[1,1]
-    find_site_id2 = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '", input$idSite2,"'"))
-    find_site_id2 <- find_site_id2[1,1]
-    
-    dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-                            cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-                            cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-                            find_ani_id2, find_site_id2, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-                            bledia,gettime, cap_pertinent, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))}
+  # else if (input$estNouvelAnimal == 'non' && input$identifie == 'oui') {
+  #   
+  #   find_ani_id2 = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal2,"'"))
+  #   find_ani_id2 <- find_ani_id2[1,1]
+  #   find_site_id2 = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '", input$idSite2,"'"))
+  #   find_site_id2 <- find_site_id2[1,1]
+  #   
+  #   dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
+  #                           cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
+  #                           cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+  #                           find_ani_id2, find_site_id2, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+  #                           bledia,gettime, cap_pertinent, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))}
       
-    }}
+        }}
+      
+  ##################           CSV CHECKLIST 2                          #####     
+      
+      modalCallback_check2 = function  (value) {
+        if (value == TRUE) {
+
+          fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), 
+                                   sep=";", header = T)
+          
+          remarque_tot = paste0(input$remarques_capt, input$Remarques, input$remarques_table, input$remarques_lacher, collapse = "~")
+          
+          if ((input$time2)!=""){
+            remise_sabot = 1}
+          else {remise_sabot = ""}
+          
+          if (input$nAnimal != "") {
+            select_line = which(fichier_lu[1]==(input$nAnimal),arr.ind=TRUE)[1] }
+          if (input$nAnimal2 != "") {
+            select_line = which(fichier_lu[1]==(input$nAnimal2),arr.ind=TRUE)[1] }
+
+          save2 = data.frame()
+          save2 = data.frame("N°Animal" = (c(input$nAnimal2)))
+          if (is.null(input$titube)) { save2 = cbind(save2,data.frame("titube (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("titube (1/0)" = (c(input$titube))))}
+          if (is.null(input$couche)) { save2 = cbind(save2,data.frame("couche (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("couche (1/0)" = (c(input$couche))))}
+          if (is.null(input$vitesse)) { save2 = cbind(save2,data.frame("course (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("course (1/0)" = (c(input$vitesse))))}
+          if (is.null(input$tombe)) { save2 = cbind(save2,data.frame("tombe (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("tombe (1/0)"  = (c(input$tombe))))}
+          if (is.null(input$gratte_collier)) { save2 = cbind(save2,data.frame("gratte collier (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("gratte collier (1/0)" = (c(input$gratte_collier))))}
+          if (is.null(input$cabriole_saut)) { save2 = cbind(save2,data.frame("cabriole (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("cabriole (1/0)" = (c(input$cabriole_saut))))}
+          if (is.null(input$allure)) { save2 = cbind(save2,data.frame("bolide (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("bolide (1/0)" = (c(input$allure))))}
+          if (is.null(input$cri)) { save2 = cbind(save2,data.frame("aboiement/cri (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("aboiement/cri (1/0)" = (c(input$cri))))}
+          save2 = cbind(save2,data.frame("lache" = c(input$time), stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("remarque_lacher" = c(remarque_tot),stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("stop" = c(input$nbre_stops),stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("habitat lacher" = c(input$habitat),stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("habite perte vue" = c(input$habitat_perte),stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("visibilite" = c(input$visibilite),stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("nb_public" = c(input$nbre_personnes),stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("eurodeer_lacher" = c(input$Notation_euro),stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("remise sabot" = c(remise_sabot),stringsAsFactors = FALSE))
+          save2 = cbind(save2,data.frame("heure_lacher_2" = c(input$time2),stringsAsFactors = FALSE))
+
+          fichier_lu$titube..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"titube..1.0."])
+          fichier_lu$couche..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"couche..1.0."])
+          fichier_lu$course..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"course..1.0."])
+          fichier_lu$tombe..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"tombe..1.0."])
+          fichier_lu$gratte.collier..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"gratte.collier..1.0."])
+          fichier_lu$bolide..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"bolide..1.0."])
+          fichier_lu$cabriole..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"cabriole..1.0."])
+          fichier_lu$aboiement.cri..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"aboiement.cri..1.0."])
+          
+          fichier_lu$lache[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"lache"])
+          fichier_lu$remarque_lacher[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"remarque_lacher"])
+          fichier_lu$stop[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"stop"])
+          fichier_lu$habitat.lacher[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"habitat.lacher"])
+          fichier_lu$habite.perte.vue[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"habite.perte.vue"])
+          fichier_lu$visibilite[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"visibilite"])
+          fichier_lu$nb_public[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"nb_public"])
+          fichier_lu$eurodeer_lacher[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"eurodeer_lacher"])
+          fichier_lu$remise.sabot[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"remise.sabot"])
+          fichier_lu$heure_lacher_2[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"heure_lacher_2"])
+          
+           
+          write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
+          
+          shinyjs::js$refresh()
+          
+             
+        }}
+      
+  ##################           CSV CHECKLIST 3                          #####     
+      
+      
+      modalCallback_check3 = function(value) {
+        if (value == TRUE) {
+          
+          #date_fichier = gsub("-","_",input$date_capture)
+          
+          fichier_lu2 <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), 
+                                   sep=";", header = T)
+          
+          if (input$numSabot != "") {
+            select_line = which(fichier_lu2[68]==(input$numSabot),arr.ind=TRUE)[1] }
+          
+          num_sabot_retrieve = dbGetQuery(con, "SELECT cap_num_sabot FROM public.t_capture_cap, public.t_animal_ani where cap_date='2010-02-04' and cap_ani_id = ani_id and ani_etiq = '",fichier_lu2$N.Animal[select_line],"'")
+          
+          save3 = data.frame()
+          
+          save3 = data.frame("num_sabot" = c(num_sabot_retrieve))
+          save3 = cbind(save3,data.frame("nom capteur" = c(input$nom_capteur_txt)))
+          save3 = cbind(save3,data.frame("nombre d'experimentes (n)" = c(input$Nbre_pers_experimentes)))
+          if (is.null(input$cpt_filet_vitesse)) { save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(input$cpt_filet_vitesse))))}
+          if (is.null(input$cpt_filet_allure)) { save3 = cbind(save3,data.frame("arrivee filet panique (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet panique (1/0)" = (c(input$cpt_filet_allure))))}
+          if (is.null(input$cpt_filet_lutte)) { save3 = cbind(save3,data.frame("lutte" = (c(""))))} else {save3 = cbind(save3,data.frame("lutte" = (c(input$cpt_filet_lutte))))}
+          if (is.null(input$cpt_filet_halete)) { save3 = cbind(save3,data.frame("haletement (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("haletement (1/0)" = (c(input$cpt_filet_halete))))}
+          if (is.null(input$cpt_filet_cri)) { save3 = cbind(save3,data.frame("cri (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("cri (1/0)" = (c(input$cpt_filet_cri))))}
+          save3 = cbind(save3,data.frame("filet" = c(input$cpt_temps_filet)))
+          save3 = cbind(save3,data.frame("capture" = c(input$cpt_heure_debut_filet)))
+          
+          save3 = cbind(save3,data.frame("acepromazine (1=0,3cc)" = c(input$cpt_dose_acepromazine)))
+          save3 = cbind(save3,data.frame("total" = c(heure_totale)))
+          save3 = cbind(save3,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
+          save3 = cbind(save3,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
+          if (is.null(input$cpt_sabot_couche)) { save3 = cbind(save3,data.frame("couche (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("couche (1/0)" = (c(input$cpt_sabot_couche))))}
+          if (is.null(input$cpt_sabot_agitation)) { save3 = cbind(save3,data.frame("agitation (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("agitation (1/0)" = (c(input$cpt_sabot_agitation))))}
+          if (is.null(input$cpt_sabot_retournement)) { save3 = cbind(save3,data.frame("retournement (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("retournement (1/0)" = (c(input$cpt_sabot_retournement))))}
+          save3 = cbind(save3,data.frame("surveillance (mn)" = c(as.integer(input$cpt_heure_fin_surv) - as.integer(input$cpt_heure_mise_sabot))))
+          save3 = cbind(save3,data.frame("hre fin surv" = c(input$cpt_heure_fin_surv)))
+        
+          fichier_lu2$num_sabot[select_line] <- paste(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"num_sabot"])
+          fichier_lu2$nom.capteur[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"nom.capteur"])
+          fichier_lu2$nombre.d.experimentes..n.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"nombre.d.experimentes..n."])
+          fichier_lu2$arrivee.filet.course..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"arrivee.filet.course..1.0."])
+          fichier_lu2$arrivee.filet.panique..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"arrivee.filet.panique..1.0."])
+          fichier_lu2$lutte[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"lutte"])
+          fichier_lu2$haletement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"haletement..1.0."])
+          fichier_lu2$cri..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"cri..1.0."])
+          fichier_lu2$filet[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"filet"])
+          fichier_lu2$capture[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"capture"])
+          
+          fichier_lu2$acepromazine..1.0.3cc.[select_line] <- paste(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"acepromazine..1.0.3cc."])
+          fichier_lu2$total[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"total"])
+          fichier_lu2$sabot[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"sabot"])
+          fichier_lu2$acepro[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"acepro"])
+          fichier_lu2$couche..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"couche..1.0."])
+          fichier_lu2$agitation..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"agitation..1.0."])
+          fichier_lu2$retournement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"retournement..1.0."])
+          fichier_lu2$surveillance..mn.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"surveillance..mn."])
+          fichier_lu2$hre.fin.surv[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"hre.fin.surv"])
+          
+          write.table(fichier_lu2, file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep = ";", na = "", append = F, row.names = F)
+          
+          shinyjs::js$refresh()
+          
+        }}
+      
   
 }

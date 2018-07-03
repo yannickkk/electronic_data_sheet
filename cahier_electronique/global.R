@@ -10,6 +10,7 @@ library(chron)
 library(shinyWidgets)
 library(shinyjs)
 library(V8)
+library(stringr)
 source("connect.R")
 
 
