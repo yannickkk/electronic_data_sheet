@@ -342,8 +342,17 @@ server <- function(input, output,session) {
   
   #########          Récupération de l'heure                                        #########    
   
+
+  
   observeEvent(input$to_current_time_caract, {
-    updateTimeInput(session, "time_caract", value = Sys.time())
+    
+    gettime= as.character(Sys.time())
+    gettime=strsplit(gettime, " ")[[1]]
+    gettime=gettime[2]
+    
+    #output$time_caract <- renderText({gettime})
+      
+    updateTextInput(session, "time_caract", value = gettime)
   })
   
   #########          Récupération du site                                           #########    
@@ -668,7 +677,11 @@ server <- function(input, output,session) {
   })
   
   observeEvent(input$to_current_time_table, {
-    updateTimeInput(session, "time_table", value = Sys.time())
+    
+    gettime= as.character(Sys.time())
+    gettime=strsplit(gettime, " ")[[1]]
+    gettime=gettime[2]
+    updateTextInput(session, "time_table", value = gettime)
   })
   
   observeEvent(input$criautre, {
@@ -995,11 +1008,17 @@ server <- function(input, output,session) {
   
   
   observeEvent(input$to_current_time, {
-    updateTimeInput(session, "time", value = Sys.time())
+    gettime= as.character(Sys.time())
+    gettime=strsplit(gettime, " ")[[1]]
+    gettime=gettime[2]
+    updateTextInput(session, "time", value = gettime)
   })
   
   observeEvent(input$to_current_time2, {
-    updateTimeInput(session, "time2", value = Sys.time())
+    gettime= as.character(Sys.time())
+    gettime=strsplit(gettime, " ")[[1]]
+    gettime=gettime[2]
+    updateTextInput(session, "time2", value = gettime)
   })
   
   observeEvent(input$save_checklist2, { 
@@ -1533,12 +1552,6 @@ server <- function(input, output,session) {
           diarrhee = paste("diarrhee/",input$diarrhee, sep="")
           bledia = paste(input$liste_blessures, diarrhee)
           
-          if (!is.null(input$time2)){
-            heure_totale = input$time2}
-          else {heure_totale = as.integer(input$time) - as.integer(input$cpt_heure_debut_filet)}
-          
-
-          
           if (as.integer(mois)>=10) {
             annee_suivie = as.integer(annee) + 1  }
           if (as.integer(mois)<10) {annee_suivie = annee}
@@ -1858,94 +1871,7 @@ server <- function(input, output,session) {
           }
 
           write.table(x = save1, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append=T, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), sep=";", na="", row.names = F)
-          
-  
-  ##################           BASE DE DONNEES                          #################
-  
-    date_mod = input$date_caract
-    date_mod = format(date_mod, "%d/%m/%Y")
-    date_mod = as.character(date_mod)
-    annee = strsplit(date_mod, "/")[[1]][3]
-    
-    if (startsWith(input$nAnimal, "F")){
-      faon =  TRUE }
-    else {faon= FALSE}
-    
-    if (input$age == '<1' || input$age == '1' ) {
-      cat_age_all = "jeune" }
-    else if (input$age=='1-2' || input$age=='2') {
-      cat_age_all = "yearling"}
-    else if (input$age=='2-4' || input$age=='3' || input$age=='4.5' || input$age=='4-6' || input$age=='6' || input$age=='>=6') {cat_age_all="adulte"}
-    else {cat_age_all="" }
-    
-    if (input$nAnimal2!="") {
-    cap_pertinent = dbGetQuery(con,paste0("select cap_annee_suivi from public.t_capture_cap, public.t_animal_ani where cap_ani_id=ani_id and ani_etiq = '",input$nAnimal2,"' order by cap_annee_suivi DESC"))
-    cap_pertinent <- as.character(cap_pertinent[1,1])
-    if (annee == cap_pertinent) {cap_pertinent = FALSE} else {cap_pertinent = TRUE} }
-    
-    gettime= as.character(Sys.time())
-    gettime=strsplit(gettime, " ")[[1]]
-    gettime=gettime[2]
-
-#### Nouvel animal ####
-    
-  # if (input$estNouvelAnimal == 'oui') {
-  #   dbSendQuery(con,sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani))
-  #   
-  #   find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
-  #   find_ani_id <- find_ani_id[1,1]
-  #   find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
-  #   find_site_id <- find_site_id[1,1]
-  #   
-  #   dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-  #                           cap_poids, cap_circou, cap_lpa, cap_etat_sante cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-  #                           cap_tag_gauche_metal) values ('%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                           find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                           bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
-  # 
-  #   find_cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_ani_id= '",find_ani_id,"' order by cap_id DESC"))
-  #   find_cap_id <- find_cap_id[1,1]
-    
-    ## Faire une boucle sur le tableau des blessures 
-    
-    # dbSendQuery(con, sprintf("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('%s', '%s','%s', '%s', '%s')",
-    #                          find_cap_id ))  }
-    
-#### Ancien animal  ####
-    
-  # else if (input$estNouvelAnimal == 'non' && input$identifie == 'non') {
-  #   dbSendQuery(con,sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani))
-  #   
-  #   find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
-  #   find_ani_id <- find_ani_id[1,1]
-  #   find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
-  #   find_site_id <- find_site_id[1,1]
-  #   
-  #   if (!is.null(ligne_selection)) { cap_pertinent2 = TRUE} else { cap_pertinent2 = FALSE}
-  #   
-  #   dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-  #                           cap_poids, cap_circou, cap_lpa, cap_etat_sante,cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-  #                           cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                           find_ani_id, find_site_id, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                           bledia,gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))
-  #     
-  #   dbSendQuery(con, sprintf("INSERT INTO public.t_correspondance_animal_cor(cor_ancien, cor_valide) values ('%s','%s')", input$nAnimal, input$nAnimal))}
-
-#### Ancien animal mais sans identifiant ####
-    
-  # else if (input$estNouvelAnimal == 'non' && input$identifie == 'oui') {
-  #   
-  #   find_ani_id2 = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal2,"'"))
-  #   find_ani_id2 <- find_ani_id2[1,1]
-  #   find_site_id2 = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '", input$idSite2,"'"))
-  #   find_site_id2 <- find_site_id2[1,1]
-  #   
-  #   dbSendQuery(con,sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,
-  #                           cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal,
-  #                           cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                           find_ani_id2, find_site_id2, "test", as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                           bledia,gettime, cap_pertinent, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g))}
-      
+        
         }}
       
   ##################           CSV CHECKLIST 2                          #####     
@@ -1997,19 +1923,330 @@ server <- function(input, output,session) {
           fichier_lu$cabriole..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"cabriole..1.0."])
           fichier_lu$aboiement.cri..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"aboiement.cri..1.0."])
           
-          fichier_lu$lache[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"lache"])
+          fichier_lu$lache[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"lache"])
           fichier_lu$remarque_lacher[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"remarque_lacher"])
           fichier_lu$stop[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"stop"])
-          fichier_lu$habitat.lacher[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"habitat.lacher"])
-          fichier_lu$habite.perte.vue[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"habite.perte.vue"])
-          fichier_lu$visibilite[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"visibilite"])
+          fichier_lu$habitat.lacher[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"habitat.lacher"])
+          fichier_lu$habite.perte.vue[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"habite.perte.vue"])
+          fichier_lu$visibilite[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"visibilite"])
           fichier_lu$nb_public[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"nb_public"])
-          fichier_lu$eurodeer_lacher[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"eurodeer_lacher"])
+          fichier_lu$eurodeer_lacher[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"eurodeer_lacher"])
           fichier_lu$remise.sabot[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"remise.sabot"])
           fichier_lu$heure_lacher_2[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"heure_lacher_2"])
           
            
           write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
+          
+          ##################           BASE DE DONNEES                          #################
+          
+          date_mod = input$date_caract
+          date_mod = format(date_mod, "%d/%m/%Y")
+          date_mod = as.character(date_mod)
+          annee = strsplit(date_mod, "/")[[1]][3]
+          jour = strsplit(date_mod, "/")[[1]][1]
+          mois = strsplit(date_mod, "/")[[1]][2]
+          
+          diarrhee = paste("diarrhee/",input$diarrhee, sep="")
+          bledia = paste(input$liste_blessures, diarrhee)
+          
+          if (input$nAnimal != "") { 
+            if (startsWith(input$nAnimal, "F")){
+              faon =  TRUE }
+            else {faon= FALSE} }
+          
+          if (input$nAnimal2 != "") { 
+            if (startsWith(input$nAnimal2, "F")){
+              faon =  TRUE }
+            else {faon= FALSE} }
+          
+          if (input$age == '<1' || input$age == '1' ) {
+            cat_age_all = "jeune" }
+          else if (input$age=='1-2' || input$age=='2') {
+            cat_age_all = "yearling"}
+          else if (input$age=='2-4' || input$age=='3' || input$age=='4.5' || input$age=='4-6' || input$age=='6' || input$age=='>=6') {cat_age_all="adulte"}
+          else {cat_age_all="" }
+          
+          if (input$nAnimal2!="") {
+            cap_pertinent = dbGetQuery(con,paste0("select cap_annee_suivi from public.t_capture_cap, public.t_animal_ani where cap_ani_id=ani_id and ani_etiq = '",input$nAnimal2,"' order by cap_annee_suivi DESC"))
+            cap_pertinent <- as.character(cap_pertinent[1,1])
+            if (annee == cap_pertinent) {cap_pertinent = FALSE} else {cap_pertinent = TRUE} }
+          
+          gettime= as.character(Sys.time())
+          gettime=strsplit(gettime, " ")[[1]]
+          gettime=gettime[2]
+          
+          if (as.integer(mois)>=10) {
+            annee_suivie = as.integer(annee) + 1  }
+          if (as.integer(mois)<10) {annee_suivie = annee}
+          
+          if (!is.null(input$criautre) && !is.null(input$cribague)) {
+            if (input$criautre!='0' || (input$cribague=='1-2' || input$cribague=='>2'))
+            {cri_total = 1}
+            else {cri_total = 0}
+          }
+          else {cri_total=""}
+          
+          remarque_tot = paste0(input$remarques_capt, input$Remarques, input$remarques_table, input$remarques_lacher, collapse = "~")
+          
+          id_lgg = dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'longueur bois gauche' ")
+          id_lgd = dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'longueur bois droit' ")
+          id_etat_bois =  dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'etat des bois' ")
+          id_lactation =  dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'lactation' ")
+          
+          value_etatbois = dbGetQuery(con, paste0("SELECT etb_id from lu_tables.tr_etat_bois_etb where etb_description = '",input$etatBois,"' "))[1,1]
+          
+          # var_mesure_lgg = dbGetQuery(con, "select var_id")
+          # var_mesure_lgd = dbGetQuery(con, "")
+          # var_mesure_etat_bois =  dbGetQuery(con, "")
+          # var_mesure_lactation =  dbGetQuery(con, "")
+          
+          
+          #### Nouvel animal ####
+          
+          if (input$estNouvelAnimal == 'oui') {
+            
+            if (faon == F) {
+              cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
+            
+            if (faon == T) {
+              cap_bague = paste0("F", "_", input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
+            
+            send_new1 =  sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani)
+            
+            send_new1 = gsub("'NA'","NULL", send_new1)
+            send_new1 = gsub("''","NULL", send_new1)
+            
+            dbSendQuery(con,send_new1) 
+            
+            find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
+            find_ani_id <- find_ani_id[1,1]
+            find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
+            find_site_id <- find_site_id[1,1]
+            
+            send_new2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                                find_ani_id, find_site_id, cap_bague, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+                                bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g)
+            
+            send_new2 = gsub("'NA'","NULL", send_new2)
+            send_new2 = gsub("''","NULL", send_new2)
+            
+            dbSendQuery(con,send_new2)
+            
+            find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
+            
+            dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID))
+            
+            send_new3 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id) 
+                            values ('",input$nAnimal,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
+                                    '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
+                                    '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
+            
+            send_new3 = gsub("'NA'","NULL", send_new3)
+            send_new3 = gsub("''","NULL", send_new3)
+            
+            dbSendQuery(con, send_new3) 
+            
+            if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
+              send_new4 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')") 
+              dbSendQuery(con, send_new4)}
+            
+            if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
+              send_new5 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')") 
+              dbSendQuery(con, send_new5) }
+            
+            if (input$etatBois != "" && input$sexe == 'M') {
+              send_new6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')") 
+              dbSendQuery(con, send_new6) }
+            
+            if (input$lactation != "" && input$sexe == 'F') {
+              send_new7 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')") 
+              dbSendQuery(con, send_new7) }
+            
+          }
+          
+          ## Faire une boucle sur le tableau des blessures 
+          
+          # dbSendQuery(con, sprintf("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('%s', '%s','%s', '%s', '%s')",
+          #                          find_cap_id ))  }
+          
+          ####  Ancien animal mais sans identifiant  ####
+          
+          else if (input$estNouvelAnimal == 'non' && input$identifie == 'non') {
+            
+            if (faon == F) {
+              cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
+            
+            if (faon == T) {
+              cap_bague = paste0("F", "_", input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
+            
+            send_old_lost1 = sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani)
+            
+            send_old_lost1 = gsub("'NA'","NULL", send_old_lost1)
+            send_old_lost1 = gsub("''","NULL", send_old_lost1)
+            
+            dbSendQuery(con,send_old_lost1)
+            
+            find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
+            find_ani_id <- find_ani_id[1,1]
+            find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
+            find_site_id <- find_site_id[1,1]
+            
+            if (!is.null(ligne_selection)) { cap_pertinent2 = TRUE} else { cap_pertinent2 = FALSE}
+            
+            send_old_lost2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,cap_poids, cap_circou, cap_lpa, cap_etat_sante,cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                                     find_ani_id, find_site_id, cap_bague, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+                                     bledia,gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g)
+            
+            send_old_lost2 = gsub("'NA'","NULL", send_old_lost2)
+            send_old_lost2 = gsub("''","NULL", send_old_lost2)
+            
+            dbSendQuery(con,send_old_lost2)
+            
+            send_old_lost3 = sprintf("INSERT INTO public.t_correspondance_animal_cor(cor_ancien, cor_valide) values ('%s','%s')", input$nAnimal, input$nAnimal)
+            
+            send_old_lost3 = gsub("'NA'","NULL", send_old_lost3)
+            send_old_lost3 = gsub("''","NULL", send_old_lost3)
+            
+            dbSendQuery(con,send_old_lost3)
+            
+            find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
+            
+            dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID))
+            
+            send_old_lost4 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id) 
+                            values ('",input$nAnimal,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
+                           '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
+                           '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
+            
+            send_old_lost4 = gsub("'NA'","NULL", send_old_lost4)
+            send_old_lost4 = gsub("''","NULL", send_old_lost4)
+            
+            dbSendQuery(con, send_old_lost4) 
+            
+            if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
+              send_old_lost5 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')") 
+              dbSendQuery(con, send_old_lost5)}
+            
+            if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
+              send_old_lost6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')") 
+              dbSendQuery(con, send_old_lost6) }
+            
+            if (input$etatBois != "" && input$sexe == 'M') {
+              send_old_lost7 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')") 
+              dbSendQuery(con, send_old_lost7) }
+            
+            if (input$lactation != "" && input$sexe == 'F') {
+              send_old_lost8 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')") 
+              dbSendQuery(con, send_old_lost8) }
+            
+          }
+          
+          
+          
+          #### Ancien animal identifié ####
+          
+          else if (input$estNouvelAnimal == 'non' && input$identifie == 'oui') {
+            
+            if (input$newTagD == T  && (faon == F )) {
+              cap_bague2 = paste0(input$idTagOrD3, "_", str_sub(annee_suivie, -2)) }
+            
+            if (input$newTagD == T  && (faon == T )) {
+              cap_bague2 = paste0("F", "_", input$idTagOrD3, "_", str_sub(annee_suivie, -2)) }
+            
+            if ((input$newTagG == T) && (faon == F )) {
+              cap_bague2 = paste0(input$idTagOrG3, "_", str_sub(annee_suivie, -2)) }
+            
+            if ((input$newTagG == T) && (faon == T )) {
+              cap_bague2 = paste0("F", "_", input$idTagOrG3, "_", str_sub(annee_suivie, -2)) }
+            
+            if (input$newTagD == F && input$newTagG == F) {
+              cap_bague2 = paste0(input$nAnimal2, "_", str_sub(annee_suivie, -2)) }
+            
+            find_ani_id2 = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal2,"'"))
+            find_ani_id2 <- find_ani_id2[1,1]
+            find_site_id2 = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '", input$idSite2,"'"))
+            find_site_id2 <- find_site_id2[1,1]
+            
+            if (input$newTagG == F && input$newTagD == F) {
+              
+              send1 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,  cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                              find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+                              bledia,gettime, cap_pertinent, input$numSabot, input$idTagOrD2, input$idTagOrG2, input$metal_tag_d2, input$metal_tag_g2)
+              
+              send1 = gsub("'NA'","NULL", send1)
+              send1 = gsub("''","NULL", send1)
+              
+              dbSendQuery(con,send1) }
+            
+            
+            else if (input$newTagG == T && input$newTagD == F) { 
+              
+              send2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                              find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+                              bledia,gettime, cap_pertinent, input$numSabot, input$idTagOrD2, input$idTagOrG3, input$metal_tag_d2, input$metal_tag_g3)
+              
+              send2 = gsub("'NA'","NULL", send2)
+              send2 = gsub("''","NULL", send2)
+              
+              dbSendQuery(con,send2) }
+            
+            
+            else if (input$newTagG == F && input$newTagD == T) { 
+              
+              send3 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                              find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+                              bledia,gettime, cap_pertinent, input$numSabot, input$idTagOrD3, input$idTagOrG2, input$metal_tag_d3, input$metal_tag_g2)
+              
+              send3 = gsub("'NA'","NULL", send3)
+              send3 = gsub("''","NULL", send3)
+              
+              dbSendQuery(con,send3) }
+            
+            
+            else if (input$newTagG == T && input$newTagD == T) { 
+              
+              send4 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+                              find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+                              bledia , gettime, cap_pertinent, input$numSabot, input$idTagOrD3, input$idTagOrG3, input$metal_tag_d3, input$metal_tag_g3)
+              
+              send4 = gsub("'NA'","NULL", send4)
+              send4 = gsub("''","NULL", send4)
+              
+              dbSendQuery(con, send4) }
+            
+            find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
+            
+            if (input$newRFIDbox == T && input$idRFID_new != "") {
+              dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID_new)) }
+            
+            send5 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id) 
+                            values ('",input$nAnimal2,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
+                            '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
+                            '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
+            
+            send5 = gsub("'NA'","NULL", send5)
+            send5 = gsub("''","NULL", send5)
+            
+            #♠dbSendQuery(con, send5) 
+            
+            if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
+              send6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')") 
+              dbSendQuery(con, send6)}
+            
+            if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
+              send7 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')") 
+              dbSendQuery(con, send7) }
+           
+            if (input$etatBois != "" && input$sexe == 'M') {
+              send8 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')") 
+              dbSendQuery(con, send8) }
+           
+            if (input$lactation != "" && input$sexe == 'F') {
+              send9 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')") 
+              dbSendQuery(con, send9) }
+            
+          }
+          
           
           shinyjs::js$refresh()
           
@@ -2027,14 +2264,18 @@ server <- function(input, output,session) {
           fichier_lu2 <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), 
                                    sep=";", header = T)
           
-          if (input$numSabot != "") {
-            select_line = which(fichier_lu2[68]==(input$numSabot),arr.ind=TRUE)[1] }
+          if (input$numSabot_capture != "") {
+            select_line = which(fichier_lu2[68]==(input$numSabot_capture),arr.ind=TRUE)[1] }
           
-          num_sabot_retrieve = dbGetQuery(con, "SELECT cap_num_sabot FROM public.t_capture_cap, public.t_animal_ani where cap_date='2010-02-04' and cap_ani_id = ani_id and ani_etiq = '",fichier_lu2$N.Animal[select_line],"'")
+          #num_sabot_retrieve = dbGetQuery(con, "SELECT cap_num_sabot FROM public.t_capture_cap, public.t_animal_ani where cap_date='2010-02-04' and cap_ani_id = ani_id and ani_etiq = '",fichier_lu2$N.Animal[select_line],"'")
+          
+          if (!is.null(input$time2)){
+            heure_totale = input$time2}
+          else {heure_totale = as.integer(input$time) - as.integer(input$cpt_heure_debut_filet)}
           
           save3 = data.frame()
           
-          save3 = data.frame("num_sabot" = c(num_sabot_retrieve))
+          save3 = data.frame("num_sabot" = c(input$numSabot_capture))
           save3 = cbind(save3,data.frame("nom capteur" = c(input$nom_capteur_txt)))
           save3 = cbind(save3,data.frame("nombre d'experimentes (n)" = c(input$Nbre_pers_experimentes)))
           if (is.null(input$cpt_filet_vitesse)) { save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(input$cpt_filet_vitesse))))}
@@ -2055,26 +2296,26 @@ server <- function(input, output,session) {
           save3 = cbind(save3,data.frame("surveillance (mn)" = c(as.integer(input$cpt_heure_fin_surv) - as.integer(input$cpt_heure_mise_sabot))))
           save3 = cbind(save3,data.frame("hre fin surv" = c(input$cpt_heure_fin_surv)))
         
-          fichier_lu2$num_sabot[select_line] <- paste(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"num_sabot"])
-          fichier_lu2$nom.capteur[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"nom.capteur"])
-          fichier_lu2$nombre.d.experimentes..n.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"nombre.d.experimentes..n."])
-          fichier_lu2$arrivee.filet.course..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"arrivee.filet.course..1.0."])
-          fichier_lu2$arrivee.filet.panique..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"arrivee.filet.panique..1.0."])
-          fichier_lu2$lutte[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"lutte"])
-          fichier_lu2$haletement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"haletement..1.0."])
-          fichier_lu2$cri..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"cri..1.0."])
-          fichier_lu2$filet[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"filet"])
-          fichier_lu2$capture[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"capture"])
+          fichier_lu2$num_sabot[select_line] <- paste(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"num_sabot"])
+          fichier_lu2$nom.capteur[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"nom.capteur"])
+          fichier_lu2$nombre.d.experimentes..n.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"nombre.d.experimentes..n."])
+          fichier_lu2$arrivee.filet.course..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"arrivee.filet.course..1.0."])
+          fichier_lu2$arrivee.filet.panique..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"arrivee.filet.panique..1.0."])
+          fichier_lu2$lutte[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"lutte"])
+          fichier_lu2$haletement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"haletement..1.0."])
+          fichier_lu2$cri..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"cri..1.0."])
+          fichier_lu2$filet[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"filet"])
+          fichier_lu2$capture[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"capture"])
           
-          fichier_lu2$acepromazine..1.0.3cc.[select_line] <- paste(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"acepromazine..1.0.3cc."])
-          fichier_lu2$total[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"total"])
-          fichier_lu2$sabot[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"sabot"])
-          fichier_lu2$acepro[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"acepro"])
-          fichier_lu2$couche..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"couche..1.0."])
-          fichier_lu2$agitation..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"agitation..1.0."])
-          fichier_lu2$retournement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"retournement..1.0."])
-          fichier_lu2$surveillance..mn.[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"surveillance..mn."])
-          fichier_lu2$hre.fin.surv[select_line] <- paste0(save3[match(fichier_lu2$N.Animal[select_line],save3$N.Animal),"hre.fin.surv"])
+          fichier_lu2$acepromazine..1.0.3cc.[select_line] <- paste(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"acepromazine..1.0.3cc."])
+          fichier_lu2$total[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"total"])
+          fichier_lu2$sabot[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"sabot"])
+          fichier_lu2$acepro[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"acepro"])
+          fichier_lu2$couche..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"couche..1.0."])
+          fichier_lu2$agitation..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"agitation..1.0."])
+          fichier_lu2$retournement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"retournement..1.0."])
+          fichier_lu2$surveillance..mn.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"surveillance..mn."])
+          fichier_lu2$hre.fin.surv[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"hre.fin.surv"])
           
           write.table(fichier_lu2, file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep = ";", na = "", append = F, row.names = F)
           

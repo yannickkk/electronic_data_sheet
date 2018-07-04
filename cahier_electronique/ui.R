@@ -53,6 +53,8 @@ contentcaractanimal = fluidPage(
     column(12),
     
     column(2, textInput("time_caract", h4("Heure Début:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
+
+           #textOutput("time_caract"),actionButton("to_current_time_caract", "Heure de début")),
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
     column(2, awesomeRadio(inputId = "estNouvelAnimal", choices = c("oui", "non"),selected = "oui",label = h4("1ere Capture"))),
@@ -113,7 +115,7 @@ contentcaractanimal = fluidPage(
     column(2, numericInput("lPattArriere", value='', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
     column(2, numericInput("tglucose", value="", h4("Taux de Glucose"), min=0)),
-    column(2, selectizeInput("age", h4("Age"), choices =c("<1","1","1-2","2","2-4","3","4-5","4-6","6",">=6","NA"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2, selectizeInput("age", h4("Age"), choices =c("<1","1","1-2","2","2-4","3","4-5","4-6",">=6","NA"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, textInput("remarque_ani", h4("Remarques"), value = "")),
     column(12),
     column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
@@ -200,8 +202,8 @@ contenttable = fluidPage(
            textInput("remarques_table", h4("Remarques"), value="" )), 
     column(2,textInput("time_table", h4("Heure de fin:"),value=""),
            actionButton("to_current_time_table", "Afficher l'heure")),
-    column(1,radioButtons("lutte",h4("Lutte"), choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected = character(0))),
-    column(1,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(T,F), selected =character(0))),
+    column(1,radioButtons("lutte",h4("Lutte"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
+    column(1,radioButtons("halete",h4("Halete"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = F)),
     column(1,radioButtons("cribague",h4("Cri Bague"), choices  = list("NA","0", "1-2", ">2"),  selected =character(0))),
     column(1,radioButtons("criautre", h4("Cri Autre"), choices = list("0", "1-2", ">2"), selected = F)),
     
@@ -263,25 +265,25 @@ contentcheck1 =  fluidPage(fluidRow(
 contentlacher = fluidPage(
   # titlePanel("Comportement au lâcher"),
   fluidRow(
-    column(2,textInput("time", h4("Heure de lâcher:"), value = "")),
-           #actionButton("to_current_time", "Afficher l'heure")),
+    column(2,textInput("time", h4("Heure de lâcher:"), value = ""),
+           actionButton("to_current_time", "Afficher l'heure")),
     
-    column(2, textInput("time2", h4("Heure de 2nd lâcher:"), value = "")),
-           #actionButton("to_current_time2", "Afficher l'heure")),
+    column(2, textInput("time2", h4("Heure de 2nd lâcher:"), value = ""),
+           actionButton("to_current_time2", "Afficher l'heure")),
     
     column(2,numericInput("nbre_stops",value="", h4("Nombre de stops"),min=0)),
     column(2,selectizeInput("nbre_personnes", h4("Nbre de personnes"), choices = list("4-5","6-10","11-20", "21-50",">50"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     
     column(12,hr()),
     
-    column(1,radioButtons("vitesse",h4("Vitesse"),choiceNames = list("Pas","Course"),choiceValues = list(0,1), selected = character(0))),
-    column(1,radioButtons("allure",h4("Allure"),choiceNames = list("Reflechi","Bolide"),choiceValues = list(0,1), selected = character(0))),
-    column(1,radioButtons("cabriole_saut",h4("Cabriole"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
-    column(1,radioButtons("gratte_collier", h4("Gratte collier"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
-    column(1,radioButtons("tombe", h4("Tombe"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
-    column(1,radioButtons("cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = character(0))),
-    column(1,radioButtons("titube",h4("Titube"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = character(0))),
-    column(1,radioButtons("couche",h4("Couche"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
+    column(1,radioButtons("vitesse",h4("Vitesse"),choiceNames = list("Pas","Course"),choiceValues = list(0,1), selected = F)),
+    column(1,radioButtons("allure",h4("Allure"),choiceNames = list("Reflechi","Bolide"),choiceValues = list(0,1), selected = F)),
+    column(1,radioButtons("cabriole_saut",h4("Cabriole"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
+    column(1,radioButtons("gratte_collier", h4("Gratte collier"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
+    column(1,radioButtons("tombe", h4("Tombe"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
+    column(1,radioButtons("cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = F)),
+    column(1,radioButtons("titube",h4("Titube"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = F)),
+    column(1,radioButtons("couche",h4("Couche"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
     
     column(12,hr()),
     
