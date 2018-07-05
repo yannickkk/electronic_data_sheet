@@ -121,8 +121,8 @@ contentcaractanimal = fluidPage(
     column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,selectizeInput("tiques", h4("Nombre Tiques"), choices = c(1:30,'>30'), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,textInput("parasites", h4("Autres parasites"), value = "")),
+    column(2,selectizeInput("zone_etude", h4("Zone d'etude"), choices = c("Aurignac", "Gardouch"), selected = "Aurignac" )),
     column(2,conditionalPanel(condition = "input.sexe == 'F'", selectizeInput("lactation", h4("Lactation"), choices = c("oui", "non", "indeterminé"),  options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)))
-
   ),
   
   conditionalPanel(

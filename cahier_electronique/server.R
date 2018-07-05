@@ -2065,6 +2065,7 @@ server <- function(input, output,session) {
               dbSendQuery(con, send_new7) }
             
             for (i in 1:nrow(blessure)) {
+              if (nrow(blessure) !=0) {
               liste_trait = blessure[i,3]
               liste_trait =  strsplit(as.character(liste_trait), split = "_")
               for (j in 1:length(liste_trait[[1]])) {
@@ -2077,7 +2078,23 @@ server <- function(input, output,session) {
                 send_new8 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
                 dbSendQuery(con, send_new8)
               }
-            }
+            } }
+            
+            for (i in 1:nrow(prelevement)) {
+              if (nrow(prelevement) !=0) {
+                prel_type = prelevement[i,1]
+                prel_loc = prelevement[i,2]
+                prel_cont = prelevement[i,3]
+                prel_solv = prelevement[i,4]
+                prel_nb = prelevement[i,5]
+                prel_remarque = prelevement[i,6]
+                id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
+                id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
+                id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
+                id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
+                send_new9 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
+                dbSendQuery(con, send_new9)
+              }}
             
           }
           
@@ -2154,6 +2171,7 @@ server <- function(input, output,session) {
               dbSendQuery(con, send_old_lost8) }
             
             for (i in 1:nrow(blessure)) {
+              if (nrow(blessure) !=0) {
               liste_trait = blessure[i,3]
               liste_trait =  strsplit(as.character(liste_trait), split = "_")
               for (j in 1:length(liste_trait[[1]])) {
@@ -2166,7 +2184,23 @@ server <- function(input, output,session) {
                 send_old_lost9 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
                 dbSendQuery(con, send_old_lost9)
               }
-            }
+            }}
+            
+            for (i in 1:nrow(prelevement)) {
+              if (nrow(prelevement) !=0) {
+                prel_type = prelevement[i,1]
+                prel_loc = prelevement[i,2]
+                prel_cont = prelevement[i,3]
+                prel_solv = prelevement[i,4]
+                prel_nb = prelevement[i,5]
+                prel_remarque = prelevement[i,6]
+                id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
+                id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
+                id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
+                id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
+                send_old_lost10 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
+                dbSendQuery(con, send_old_lost10)
+            }}
             
           }
           
@@ -2280,27 +2314,42 @@ server <- function(input, output,session) {
             }
 
            for (i in 1:nrow(blessure)) {
-             liste_trait = blessure[i,3]
-             liste_trait =  strsplit(as.character(liste_trait), split = "_")
-             for (j in 1:length(liste_trait[[1]])) {
-               ble_loc = blessure[i,1]
-               ble_grav = blessure[i,2]
-               ble_trait = liste_trait[[1]][j]
-               id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
-               id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
-               id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
-               send10 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
-               dbSendQuery(con, send10)
+             if (nrow(blessure) !=0) {
+               liste_trait = blessure[i,3]
+               liste_trait =  strsplit(as.character(liste_trait), split = "_")
+               for (j in 1:length(liste_trait[[1]])) {
+                 ble_loc = blessure[i,1]
+                 ble_grav = blessure[i,2]
+                 ble_trait = liste_trait[[1]][j]
+                 id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
+                 id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
+                 id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
+                 send10 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
+                 #dbSendQuery(con, send10)
+               }
              }
-           }
-            
-            
-          }
+           }  
           
+           for (i in 1:nrow(prelevement)) {
+             if (nrow(prelevement) !=0) {
+               prel_type = prelevement[i,1]
+               prel_loc = prelevement[i,2]
+               prel_cont = prelevement[i,3]
+               prel_solv = prelevement[i,4]
+               prel_nb = prelevement[i,5]
+               prel_remarque = prelevement[i,6]
+               id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
+               id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
+               id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
+               id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
+               send11 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
+               #dbSendQuery(con, send11)
+           }}
+             
+          }
           
           shinyjs::js$refresh()
           
-             
           
         }}
       
