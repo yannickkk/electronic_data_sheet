@@ -2064,12 +2064,24 @@ server <- function(input, output,session) {
               send_new7 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')") 
               dbSendQuery(con, send_new7) }
             
+            for (i in 1:nrow(blessure)) {
+              liste_trait = blessure[i,3]
+              liste_trait =  strsplit(as.character(liste_trait), split = "_")
+              for (j in 1:length(liste_trait[[1]])) {
+                ble_loc = blessure[i,1]
+                ble_grav = blessure[i,2]
+                ble_trait = liste_trait[[1]][j]
+                id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
+                id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
+                id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
+                send_new8 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
+                dbSendQuery(con, send_new8)
+              }
+            }
+            
           }
           
-          ## Faire une boucle sur le tableau des blessures 
-          
-          # dbSendQuery(con, sprintf("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('%s', '%s','%s', '%s', '%s')",
-          #                          find_cap_id ))  }
+         
           
           #### Ancien animal mais sans identifiant  ####
           
@@ -2140,6 +2152,21 @@ server <- function(input, output,session) {
             if (input$lactation != "" && input$sexe == 'F') {
               send_old_lost8 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')") 
               dbSendQuery(con, send_old_lost8) }
+            
+            for (i in 1:nrow(blessure)) {
+              liste_trait = blessure[i,3]
+              liste_trait =  strsplit(as.character(liste_trait), split = "_")
+              for (j in 1:length(liste_trait[[1]])) {
+                ble_loc = blessure[i,1]
+                ble_grav = blessure[i,2]
+                ble_trait = liste_trait[[1]][j]
+                id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
+                id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
+                id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
+                send_old_lost9 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
+                dbSendQuery(con, send_old_lost9)
+              }
+            }
             
           }
           
@@ -2214,12 +2241,13 @@ server <- function(input, output,session) {
               send4 = gsub("'NA'","NULL", send4)
               send4 = gsub("''","NULL", send4)
               
-              dbSendQuery(con, send4) }
+              dbSendQuery(con, send4) 
+              }
             
             find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
             
-            if (input$newRFIDbox == T && input$idRFID_new != "") {
-              dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID_new)) }
+            # if (input$newRFIDbox == T && input$idRFID_new != "") {
+              #dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID_new)) }
             
             send5 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id) 
                             values ('",input$nAnimal2,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
@@ -2233,20 +2261,38 @@ server <- function(input, output,session) {
             
             if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
               send6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')") 
-              dbSendQuery(con, send6)}
+              #dbSendQuery(con, send6)
+              }
             
             if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
               send7 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')") 
-              dbSendQuery(con, send7) }
+              #dbSendQuery(con, send7) 
+              }
            
             if (input$etatBois != "" && input$sexe == 'M') {
               send8 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')") 
-              dbSendQuery(con, send8) }
+              #dbSendQuery(con, send8)
+              }
            
             if (input$lactation != "" && input$sexe == 'F') {
               send9 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')") 
-              dbSendQuery(con, send9) }
-            
+              #dbSendQuery(con, send9) 
+            }
+
+           for (i in 1:nrow(blessure)) {
+             liste_trait = blessure[i,3]
+             liste_trait =  strsplit(as.character(liste_trait), split = "_")
+             for (j in 1:length(liste_trait[[1]])) {
+               ble_loc = blessure[i,1]
+               ble_grav = blessure[i,2]
+               ble_trait = liste_trait[[1]][j]
+               id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
+               id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
+               id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
+               send10 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
+               dbSendQuery(con, send10)
+             }
+           }
             
             
           }
@@ -2255,6 +2301,7 @@ server <- function(input, output,session) {
           shinyjs::js$refresh()
           
              
+          
         }}
       
   ##################           CSV CHECKLIST 3                          #####     
