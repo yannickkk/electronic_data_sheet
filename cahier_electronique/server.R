@@ -938,6 +938,8 @@ server <- function(input, output,session) {
     ### Prelevement
     
     checklist_prel = data.frame()
+    
+    observeEvent(input$typetype, {
 
     for (i in (1:nrow(liste_prel_db))){
       temp = liste_prel_db[i,1]
@@ -947,7 +949,7 @@ server <- function(input, output,session) {
     if (nrow(checklist_prel)==0) {
       checklist_prel =  rbind(checklist_prel,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
 
-    output$tablechecklist_prel = DT::renderDT(checklist_prel)
+    output$tablechecklist_prel = DT::renderDT(checklist_prel) })
     
     ### Collier
     
@@ -2069,7 +2071,7 @@ server <- function(input, output,session) {
           # dbSendQuery(con, sprintf("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('%s', '%s','%s', '%s', '%s')",
           #                          find_cap_id ))  }
           
-          ####  Ancien animal mais sans identifiant  ####
+          #### Ancien animal mais sans identifiant  ####
           
           else if (input$estNouvelAnimal == 'non' && input$identifie == 'non') {
             
@@ -2244,6 +2246,8 @@ server <- function(input, output,session) {
             if (input$lactation != "" && input$sexe == 'F') {
               send9 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')") 
               dbSendQuery(con, send9) }
+            
+            
             
           }
           
