@@ -54,7 +54,6 @@ contentcaractanimal = fluidPage(
     
     column(2, textInput("time_caract", h4("Heure Début:"), value = NULL), actionButton("to_current_time_caract", "Heure de début")), 
 
-           #textOutput("time_caract"),actionButton("to_current_time_caract", "Heure de début")),
     column(2, dateInput('date_caract',label=h4("Date"),value = Sys.Date())),
     
     column(2, awesomeRadio(inputId = "estNouvelAnimal", choices = c("oui", "non"),selected = "oui",label = h4("1ere Capture"))),
@@ -84,25 +83,17 @@ contentcaractanimal = fluidPage(
                                    options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput1"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput2"))),
-    #column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    #column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = "",options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-    
+
     column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", selectizeInput("idSite2", h4("Site"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create=T), selected = NULL))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput3"))),
-    # column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' ", selectizeInput("idRFID2", h4("RFID"), choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
-   # column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui' && input.nAnimal2 !=''",  selectizeInput("idRFID_new", h4("RFID_new"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
 
     column(12),
     
-    # column(2,offset = 2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",  checkboxInput("metal_tag_g2", "Tag G. métal", value = FALSE ))),
-    # column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("metal_tag_d2", "Tag D. métal", value = FALSE ))),
     column(2,offset = 2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput4"))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput5"))),
     column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("newTagG", "New Tag G", value = F ))),
     column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("newTagD", "New Tag D", value = F ))),
     column(1,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("newRFIDbox", "Nouveau RFID", value = FALSE ))), 
-    # column(2, offset = 2 , conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput1"))),
-    # column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput2"))),
     column(12)
     
      ),
@@ -115,7 +106,7 @@ contentcaractanimal = fluidPage(
     column(2, numericInput("lPattArriere", value='', h4("Longueur patte arriere"),min=0, max=1)),
     uiOutput("out_lPattArriere"),
     column(2, numericInput("tglucose", value="", h4("Taux de Glucose"), min=0)),
-    column(2, selectizeInput("age", h4("Age"), choices =c("<1","1","1-2","2","2-4","3","4-5","4-6",">=6","NA"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2, selectizeInput("age", h4("Age"), choices =c("0.5" = "<1", "1.5" = "1", "2.5" = "2", "3.5" = '3', "4.5-5.5"= "4-5", ">6.5" = ">=6"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2, textInput("remarque_ani", h4("Remarques"), value = "")),
     column(12),
     column(2,selectizeInput("diarrhee", h4("Diarrhee ?"),choices = list(TRUE,FALSE), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),

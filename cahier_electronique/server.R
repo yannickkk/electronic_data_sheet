@@ -645,9 +645,9 @@ server <- function(input, output,session) {
   liste_prel_db = dbGetQuery(con,"select sav_intitule from lu_tables.tr_samples_verification_sav")
   
   ##################           RUBRIQUE COLLIER                         #################
-  
-  liste_collier <- dbGetQuery(con,"select eqc_annee_suivi, teq_nom_court, eqc_remarque, eqt_id_usuel,eqc_drop_off,sen_association, eqc_couleur_boitier, eqc_couleur_collier,eqt_frequence, eqc_memoire FROM public.t_equipement_eqt, public.t_equipement_conf_eqc, public.tr_type_equipement_teq,lu_tables.tr_sensors_sen  where eqc_eqt_id = eqt_id
-                              and teq_id = eqt_teq_id and eqc_sen_id=sen_id and eqc_annee_suivi = extract(year from now()) order by teq_nom_court")
+
+  liste_collier <- dbGetQuery(con,paste0("select eqc_annee_suivi, teq_nom_court, eqc_remarque, eqt_id_usuel,eqc_drop_off,sen_association, eqc_couleur_boitier, eqc_couleur_collier,eqt_frequence, eqc_memoire FROM public.t_equipement_eqt, public.t_equipement_conf_eqc, public.tr_type_equipement_teq,lu_tables.tr_sensors_sen  where eqc_eqt_id = eqt_id
+                              and teq_id = eqt_teq_id and eqc_sen_id=sen_id and eqc_annee_suivi = '",annee_suivie,"' order by teq_nom_court"))
   
   output$tablecollier = DT::renderDataTable(expr = liste_collier, selection = 'single')
   
@@ -701,9 +701,8 @@ server <- function(input, output,session) {
   
   temperature = data.frame()
   row.names(temperature) = NULL
-  
   output$tabletemperature = DT::renderDT(expr = temperature,server = F)
-  
+
   rv <- reactiveValues(i = 0)
   maxIter <- 1800
   plot_temp <<- data.frame()
@@ -716,12 +715,15 @@ server <- function(input, output,session) {
       tempb <- t(read.delim("C:/Users/marie/Desktop/w1_slave1"))[,1]
       tempb <- as.numeric(substr(tempb,as.numeric(regexpr("t=",tempb)[1])+2,as.numeric(nchar(tempb))))/1000
       table_temp <<- data.frame(rv$i, tempr, tempb)
-      plot_temp <<- rbind(data.frame(plot_temp), table_temp)
+      plot_temp <<- rbind(plot_temp, table_temp)
       par(mar = c(5,5,2,5))
       if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
-        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-20,rv$i), ylim=c(20,45), col="red", pch = 2 ) }
+        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-20,rv$i), ylim=c(20,45), col="red", pch = 2 ) 
+        temperature <<- rbind(temperature,data.frame("Date" = c(Sys.time()), "Temperature_r" =c(tempr), "Temperature_b" =c(tempb)))}
+
       else if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
-        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-20,rv$i), ylim=c(0,25), col="red", pch = 2 ) }
+        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-20,rv$i), ylim=c(0,25), col="red", pch = 2 ) 
+        temperature <<- rbind(temperature,data.frame("Date" = c(Sys.time()), "Temperature_r" =c(tempr), "Temperature_b" =c(tempb)))}
       
       par(new = T)
       if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
@@ -729,7 +731,6 @@ server <- function(input, output,session) {
       else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
         with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-20,rv$i), ylim=c(0,25), axes = F, xlab=NA, ylab=NA )) }
 
-      #with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-30,rv$i), ylim=c(0,25), axes = F, xlab=NA, ylab=NA ))
       axis(side = 4)
       mtext(side = 4, line = 3, 'Sonde blanche (°C)')
       legend(x = "left", y = "left", legend = c("Sonde rouge", "Sonde Blanche"), col = c("red","blue"), pch = c(2,1), lty = c(1,1))
@@ -737,26 +738,23 @@ server <- function(input, output,session) {
   })
   
   observeEvent(input$suivi_temp, {
+    doublons <- which(duplicated(temperature)) 
+    temperature <- temperature[-doublons,] 
+    
     if (input$suivi_temp == T) {
-      rv$i <- 0
+      
       observe({
         isolate({
-          rv$i <- rv$i + 1
+          rv$i = nrow(plot_temp) + 1
         })
-        
+   
         if (isolate(rv$i) < maxIter){
+          print(rv$i)
           invalidateLater(1000, session)
         }
       })
- } 
-    else if (input$suivi_temp == F) {
-      rv$i <- 0 }
-    })
-  
-  
-  
-  
-  
+    } 
+})
   
   ##################           RUBRIQUE HISTORIQUE                      #################
   
@@ -1431,13 +1429,13 @@ server <- function(input, output,session) {
           mois = strsplit(date_mod, "/")[[1]][2]
           annee = strsplit(date_mod, "/")[[1]][3]
           
-          if (input$age == '0.5') {
+          if (input$age == '0.5' || input$age == '<1' ) {
             cat_age_all = "jeune" 
             cat_age = "j"}
-          else if (input$age=='1.5') {
+          else if (input$age=='1.5' || input$age=='1' || input$age=='2') {
             cat_age_all = "yearling"
             cat_age = "y" }
-          else if (input$age=='2.5' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='>=6.5') {cat_age_all="adulte"
+          else if (input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"
           cat_age=""}
           else {cat_age_all="" 
           cat_age=""}
@@ -1555,8 +1553,8 @@ server <- function(input, output,session) {
           bledia = paste(input$liste_blessures, diarrhee)
           
           if (as.integer(mois)>=10) {
-            annee_suivie = as.integer(annee) + 1  }
-          if (as.integer(mois)<10) {annee_suivie = annee}
+            annee_suivie <<- as.integer(annee) + 1  }
+          if (as.integer(mois)<10) {annee_suivie <<- annee}
           
           if (faon1 != 'oui' ) {
             cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
@@ -1961,11 +1959,11 @@ server <- function(input, output,session) {
               faon =  TRUE }
             else {faon= FALSE} }
           
-          if (input$age == '<1' || input$age == '1' ) {
+          if (input$age == '<1' || input$age == '0.5' ) {
             cat_age_all = "jeune" }
-          else if (input$age=='1-2' || input$age=='2') {
+          else if (input$age=='1.5' || input$age=='2' || input$age=='1') {
             cat_age_all = "yearling"}
-          else if (input$age=='2-4' || input$age=='3' || input$age=='4.5' || input$age=='4-6' || input$age=='6' || input$age=='>=6') {cat_age_all="adulte"}
+          else if (input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"}
           else {cat_age_all="" }
           
           if (input$nAnimal2!="") {
@@ -1997,11 +1995,25 @@ server <- function(input, output,session) {
           
           value_etatbois = dbGetQuery(con, paste0("SELECT etb_id from lu_tables.tr_etat_bois_etb where etb_description = '",input$etatBois,"' "))[1,1]
           
-          # var_mesure_lgg = dbGetQuery(con, "select var_id")
-          # var_mesure_lgd = dbGetQuery(con, "")
-          # var_mesure_etat_bois =  dbGetQuery(con, "")
-          # var_mesure_lactation =  dbGetQuery(con, "")
+          cat_tempA = ""
+          cat_tempE = ""
           
+          ligne_selection = input$tablecollier_rows_selected
+          
+          for (i in 1:nrow(temperature)) {
+            if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+              cat_tempA = paste(cat_tempA, temperature$Temperature_r[i], sep = "~")
+            }
+            else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+              cat_tempA = paste(cat_tempA, temperature$Temperature_b[i], sep = "~")
+            }
+            if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+              cat_tempE = paste(cat_tempE, temperature$Temperature_r[i], sep = "~")
+            }
+            else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+              cat_tempE = paste(cat_tempE, temperature$Temperature_b[i], sep = "~")
+            }
+          }
           
           #### Nouvel animal ####
           
@@ -2095,6 +2107,38 @@ server <- function(input, output,session) {
                 send_new9 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
                 dbSendQuery(con, send_new9)
               }}
+            
+            for (i in 1:nrow(temperature)) {
+              if (nrow(temperature) !=0) {
+                if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+                  which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+                  send_new10 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+                  dbSendQuery(con, send_new10)
+                }}}
+            
+            for (i in 1:nrow(temperature)) {
+              if (nrow(temperature) !=0) {
+                if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+                  which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+                  send_new11 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+                  dbSendQuery(con, send_new11)
+                }}}
+            
+            for (i in 1:nrow(temperature)) {
+              if (nrow(temperature) !=0) {
+                if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+                  which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+                  send_new12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+                  dbSendQuery(con, send_new12)
+                }}}
+            
+            for (i in 1:nrow(temperature)) {
+              if (nrow(temperature) !=0) {
+                if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+                  which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+                  send_new13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+                  dbSendQuery(con, send_new13)
+                }}}
             
           }
           
@@ -2201,10 +2245,40 @@ server <- function(input, output,session) {
                 send_old_lost10 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
                 dbSendQuery(con, send_old_lost10)
             }}
-            
+          
+          for (i in 1:nrow(temperature)) {
+            if (nrow(temperature) !=0) {
+              if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+                which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+                send_old_lost11 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+                dbSendQuery(con, send_old_lost11)
+              }}}
+          
+          for (i in 1:nrow(temperature)) {
+            if (nrow(temperature) !=0) {
+              if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+                which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+                send_old_lost12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+                dbSendQuery(con, send_old_lost12)
+              }}}
+          
+          for (i in 1:nrow(temperature)) {
+            if (nrow(temperature) !=0) {
+              if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+                which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+                send_old_lost13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+                dbSendQuery(con, send_old_lost13)
+              }}}
+          
+          for (i in 1:nrow(temperature)) {
+            if (nrow(temperature) !=0) {
+              if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+                which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+                send_old_lost14 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+                dbSendQuery(con, send_old_lost14)
+              }}}
+          
           }
-          
-          
           
           #### Ancien animal identifié ####
           
@@ -2283,15 +2357,18 @@ server <- function(input, output,session) {
             # if (input$newRFIDbox == T && input$idRFID_new != "") {
               #dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID_new)) }
             
-            send5 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id) 
-                            values ('",input$nAnimal2,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
+            send5 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_tble_temp_animal, cpt_tble_temp_exterieur, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id) 
+                            values ('",input$nAnimal2,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"','",cat_tempA,"','",cat_tempE,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
                             '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
                             '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
+            
+            print(cat_tempA)
+            print(cat_tempE)
             
             send5 = gsub("'NA'","NULL", send5)
             send5 = gsub("''","NULL", send5)
             
-            #♠dbSendQuery(con, send5) 
+            #dbSendQuery(con, send5) 
             
             if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
               send6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')") 
@@ -2344,8 +2421,50 @@ server <- function(input, output,session) {
                id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
                send11 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
                #dbSendQuery(con, send11)
-           }}
-             
+             }}
+            
+            for (i in 1:nrow(temperature)) {
+              if (nrow(temperature) !=0) {
+                if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+                  which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+                  send12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+                  dbSendQuery(con, send12)
+               }}}
+            
+            for (i in 1:nrow(temperature)) {
+              if (nrow(temperature) !=0) {
+                if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+                  which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+                  send13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+                  dbSendQuery(con, send13)
+                }}}
+            
+            for (i in 1:nrow(temperature)) {
+              if (nrow(temperature) !=0) {
+                if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+                  which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+                  send14 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+                  dbSendQuery(con, send14)
+                }}}
+            
+            for (i in 1:nrow(temperature)) {
+              if (nrow(temperature) !=0) {
+                if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+                  which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+                  send15 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+                  dbSendQuery(con, send15)
+                }}}
+            
+            
+            find_eqt_id = dbGetQuery(con, paste0("select eqt_id from public.t_equipement_eqt where eqt_id_usuel = '",liste_collier[ligne_selection,4],"'"))[1,1]
+            find_pb_collier = dbGetQuery(con, paste0("select eqc_remarque from public.t_equipement_conf_eqc where eqc_eqt_id = '",find_eqt_id,"'"))[1,1]
+            
+            send16 = paste0("INSERT INTO public.tj_equipement_animal_eqt_ani_eqa (eqa_ani_id, eqa_eqt_id, eqa_date_debut, eqa_date_fin_arrondi, eqa_probleme, eqa_annee_suivi) VALUES 
+                      ('",find_ani_id2,"', '",find_eqt_id,"', '",as.character(input$date_caract),"', FALSE ,'",find_pb_collier,"','",annee_suivie,"')")
+            send16 = gsub("'NA'","NULL", send16)
+            send16 = gsub("''","NULL", send16)
+            dbSendQuery(con, send16)
+            
           }
           
           shinyjs::js$refresh()
