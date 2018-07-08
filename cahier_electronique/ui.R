@@ -315,12 +315,12 @@ contentcapture = fluidPage(
   #titlePanel("Comportement Capture"),
   fluidRow(
     
-    column(2,dateInput('date_capture',label=h4("Date"),value ='2017-01-01')),
+    column(2,dateInput('date_capture',label=h4("Date"),value ='2018-01-01')),
     column(3,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2,textInput("cpt_heure_debut_filet",h4("Heure arrivee filet"), value="")),
-          # actionButton("time_debut_filet", "Afficher l'heure")),
-    column(2,textInput("cpt_temps_filet", h4("Temps passe filet"), value="")),
-          # actionButton("time_filet", "Afficher l'heure")),
+    column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"))),
+           #actionButton("time_debut_filet", "Afficher l'heure")),
+    column(2,timeInput("cpt_temps_filet", h4("Temps passe filet"))),
+           #actionButton("time_filet", "Afficher l'heure")),
     column(12,hr()),
     
     column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
@@ -351,11 +351,11 @@ contentsabot = fluidPage(
   fluidRow(
     
     #Heure de mise en sabot
-    column(3, textInput("cpt_heure_mise_sabot", h4("Heure de mise en sabot:"), value="")),
+    column(3, timeInput("cpt_heure_mise_sabot", h4("Heure de mise en sabot:"))),
            #actionButton("time_sabot", "Afficher l'heure")),
     
     #Fin de surveillance
-    column(3,textInput("cpt_heure_fin_surv", h4("Fin de surveillance"),value="")),
+    column(3,timeInput("cpt_heure_fin_surv", h4("Fin de surveillance"))),
            #actionButton("time_fin", "Afficher l'heure")),
     
     column(12,hr()),
