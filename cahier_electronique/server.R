@@ -20,7 +20,6 @@ df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables
 colnames(df_blessure)<-c("ble_local","ble_gravite")
 
 
-
 server <- function(input, output,session) {
   
   ##################              RUBRIQUE ANIMAL                       #################
@@ -459,7 +458,17 @@ server <- function(input, output,session) {
   #   if(input$newRFIDbox == FALSE){
   # })
   
+
+  #########          Lecture RFID                                                   #########
   
+  observeEvent(input$rfid_read, {
+    
+    source(file = "lect_trans.R")
+    updateDateInput(session, "date_caract", value = date)
+    updateTextInput(session, "time_caract", value = time)
+    updateSelectizeInput(session, "idRFID2", selected = rfid)
+    
+  })
   
   ##################           RUBRIQUE BLESSURES                       #################
   

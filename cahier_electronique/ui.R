@@ -60,6 +60,7 @@ contentcaractanimal = fluidPage(
 
     column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", awesomeRadio(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))), conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", awesomeRadio(inputId = "identifie", choices = c("non"), selected = "non",label = h4("Identifé")))),
     column(1, awesomeRadio("sexe",h4("Sexe"),  choices = c("M","F"), selected = character(1))),
+    column(2, actionButton("rfid_read" ,h4("Lire RFID"))),
     
     column(12,hr()),
     
