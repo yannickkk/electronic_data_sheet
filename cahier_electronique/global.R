@@ -11,6 +11,8 @@ library(shinyWidgets)
 library(shinyjs)
 library(V8)
 library(stringr)
+library(serial)
+library(audio)
 source("connect.R")
 
 
