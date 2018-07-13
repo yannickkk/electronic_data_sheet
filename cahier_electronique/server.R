@@ -1402,7 +1402,7 @@ return(liste_collier)})
           if (as.integer(mois)<10) {annee_suivie <- annee}
           
           if (faon1 != 'oui' ) {
-            cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
+            cap_bague = paste0(input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
           
           if (faon1 == 'oui' ) {
             cap_bague = paste0("F", "_", input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
@@ -1574,6 +1574,8 @@ return(liste_collier)})
             save1 = cbind(save1,data.frame("heure_lacher_2" = c("")))
           }
           
+          ######## cas d''une recapture 
+          
           if(input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$nAnimal2!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal2))
             save1 = cbind(save1,data.frame("ani_nom" = c("")))
@@ -1614,6 +1616,12 @@ return(liste_collier)})
             if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == T) {
               save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g3))) }
             save1 = cbind(save1,data.frame("cap_pertinent" = c(cap_pertinent)))
+            if (input$sexe == 'M') {
+              save1 = cbind(save1,data.frame("cap_lactation" = c("non")))}
+            if (input$sexe == 'F') {
+              save1 = cbind(save1,data.frame("cap_lactation" = c(input$lactation)))}
+            if (is.null(input$sexe)) {
+              save1 = cbind(save1,data.frame("cap_lactation" = c("indeterminé"))) } 
             if (input$newRFIDbox == F && input$idRFID2!=""){
               save1 = cbind(save1,data.frame("RFID" = c(input$idRFID2)))}
             if (input$newRFIDbox == F && input$idRFID2==""){
