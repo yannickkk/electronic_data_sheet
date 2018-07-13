@@ -1277,10 +1277,10 @@ return(liste_collier)})
           if (input$age == '0.5' || input$age == '<1' ) {
             cat_age_all = "jeune" 
             cat_age = "j"}
-          else if (input$age=='1.5' || input$age=='1' || input$age=='2') {
+          else if (input$age=='1.5' || input$age=='1') {
             cat_age_all = "yearling"
             cat_age = "y" }
-          else if (input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"
+          else if (input$age=='2' || input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"
           cat_age=""}
           else {cat_age_all="" 
           cat_age=""}
