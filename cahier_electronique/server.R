@@ -1260,11 +1260,11 @@ return(liste_collier)})
           
           if (startsWith(input$nAnimal, "F")){
             faon1 =  "oui" }
-          else {faon1=""}
+          else {faon1="non"}
           
           if (startsWith(input$nAnimal2, "F")){
             faon2 =  "oui" }
-          else {faon2=""}
+          else {faon2="non"}
           
           date_mod = input$date_caract
           date_mod = format(date_mod, "%d/%m/%Y")
@@ -1793,7 +1793,7 @@ return(liste_collier)})
            
           write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
-          ##################           BASE DE DONNEES                          #################
+  ##################           BASE DE DONNEES                          #################
           
           # date_mod = input$date_caract
           # date_mod = format(date_mod, "%d/%m/%Y")
