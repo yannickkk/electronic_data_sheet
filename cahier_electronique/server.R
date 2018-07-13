@@ -1459,6 +1459,12 @@ return(liste_collier)})
             save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d)))
             save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g)))
             save1 = cbind(save1,data.frame("cap_pertinent" = c(TRUE)))
+            if (input$sexe == 'M') {
+              save1 = cbind(save1,data.frame("cap_lactation" = c("non")))}
+            if (input$sexe == 'F') {
+              save1 = cbind(save1,data.frame("cap_lactation" = c(input$lactation)))}
+            if (is.null(input$sexe)) {
+              save1 = cbind(save1,data.frame("cap_lactation" = c("indeterminé"))) } 
             save1 = cbind(save1,data.frame("RFID" = c(input$idRFID)))
             save1 = cbind(save1,data.frame("Poids" = c(input$pSabotPlein - input$pSabotVide)))
             save1 = cbind(save1,data.frame("Cir Cou" = c(input$cirCou)))
