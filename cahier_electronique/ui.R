@@ -94,7 +94,7 @@ contentcaractanimal = fluidPage(
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'",uiOutput("conditionalInput5"))),
     column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("newTagG", "New Tag G", value = F ))),
     column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("newTagD", "New Tag D", value = F ))),
-    column(1,conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("newRFIDbox", "Nouveau RFID", value = FALSE ))), 
+    column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non' && input.identifie == 'oui'", checkboxInput("newRFIDbox", "Nouveau RFID", value = FALSE ))), 
     column(12)
     
      ),
