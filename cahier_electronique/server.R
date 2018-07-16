@@ -823,16 +823,22 @@ return(liste_collier)})
     if ((input$numSabot)=="") {
       checklist1 = data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Numéro de Sabot"))}
     
-    if ((input$nAnimal)=="" & (input$estNouvelAnimal == 'oui')) {
+    if ((input$nAnimal =="") & input$estNouvelAnimal == 'oui') {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Numéro de l'animal")))}
     
-    if ((input$estNouvelAnimal == 'non') & (input$nAnimal2)=="") {
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$nAnimal2=="")) {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Numéro de l'animal")))}
     
-    if ((input$estNouvelAnimal == 'non') & (input$idSite2)=="") {
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'non')  & (input$nAnimal=="")) {
+      checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Numéro de l'animal")))}
+    
+    if ((input$estNouvelAnimal == 'non') & (input$identifie == 'oui') & (input$idSite2 =="")) {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nom du site")))}
     
-    if ((input$estNouvelAnimal == 'oui') & (input$idSite)=="") {
+    if ((input$estNouvelAnimal == 'non')  & (input$identifie == 'non') & (input$idSite =="")) {
+      checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nom du site")))}
+    
+    if ((input$estNouvelAnimal == 'oui') & (input$idSite=="")) {
       checklist1 = rbind(checklist1,data.frame("VALEUR_MANQUANTE_ANIMAL"= c("Nom du site")))}
     
     if ((input$identifie == 'non') & (input$idRFID)=="") {
