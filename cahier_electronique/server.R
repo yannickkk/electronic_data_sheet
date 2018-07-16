@@ -1260,11 +1260,11 @@ return(liste_collier)})
           
           if (startsWith(input$nAnimal, "F")){
             faon1 =  "oui" }
-          else {faon1=""}
+          else {faon1="non"}
           
           if (startsWith(input$nAnimal2, "F")){
             faon2 =  "oui" }
-          else {faon2=""}
+          else {faon2="non"}
           
           date_mod = input$date_caract
           date_mod = format(date_mod, "%d/%m/%Y")
@@ -1277,10 +1277,10 @@ return(liste_collier)})
           if (input$age == '0.5' || input$age == '<1' ) {
             cat_age_all = "jeune" 
             cat_age = "j"}
-          else if (input$age=='1.5' || input$age=='1' || input$age=='2') {
+          else if (input$age=='1.5' || input$age=='1') {
             cat_age_all = "yearling"
             cat_age = "y" }
-          else if (input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"
+          else if (input$age=='2' || input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"
           cat_age=""}
           else {cat_age_all="" 
           cat_age=""}
@@ -1792,7 +1792,7 @@ return(liste_collier)})
            
           write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
-          ##################           BASE DE DONNEES                          #################
+  ##################           BASE DE DONNEES                          #################
           
           # date_mod = input$date_caract
           # date_mod = format(date_mod, "%d/%m/%Y")
