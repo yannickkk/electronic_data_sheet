@@ -1430,12 +1430,12 @@ return(liste_collier)})
           
           #loc_sonde =  as.integer(dbGetQuery(con, "select tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus'")[1,1])
           
-          if (exists(gettime_table_posix)) {
-            if (exists(gettime_caract_posix)) {
+          if (exists("gettime_table_posix")) {
+            if (exists("gettime_caract_posix")) {
               time_marquage = as.chron(gettime_table_posix) - as.chron(gettime_caract_posix)
             }
             else {time_marquage=""}}
-          else{time_marquage==""}
+          else{time_marquage=""}
           
           if(((input$estNouvelAnimal == 'oui') || (input$estNouvelAnimal == 'non' && input$identifie == 'non')) && input$nAnimal!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal))
