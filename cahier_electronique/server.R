@@ -612,6 +612,12 @@ server <- function(input, output,session) {
       updateSelectizeInput(session,"localoca", selected="anus")}
     if (input$typetype == "poils") {
       updateSelectizeInput(session,"localoca", selected="coup")}
+    if (input$typetype == "mucus") {
+      updateSelectizeInput(session,"localoca", selected="vagin")}
+    if (input$typetype == "peau") {
+      updateSelectizeInput(session,"localoca", selected="oreille")}
+    if (input$typetype == "tiques") {
+      updateSelectizeInput(session,"localoca", selected="oreille")}
   })
   
   output$control3 <- renderUI({
