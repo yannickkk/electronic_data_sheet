@@ -1131,8 +1131,8 @@ return(liste_collier)})
     if ((input$time)=="") {
       checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Heure de lacher")))}
     
-    if ((input$time2)=="") {
-      checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Heure de 2nd lacher")))}
+    # if ((input$time2)=="") {
+    #   checklist2 = rbind(checklist2,data.frame("DONNNES_LACHER_MANQUANTES" = c("Heure de 2nd lacher")))}
     
     if (nrow(checklist2)==0) {
       checklist2 =  data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES"))}
@@ -1534,6 +1534,7 @@ return(liste_collier)})
             save1 = cbind(save1,data.frame("Date mort arrondie" = c("")))
             save1 = cbind(save1,data.frame("Cause detaille" = c("")))
             save1 = cbind(save1,data.frame("cause categories" = c("")))
+            save1 = cbind(save1,data.frame("Pds mort" = c("")))
             save1 = cbind(save1,data.frame("nom capteur" = c("")))
             save1 = cbind(save1,data.frame("nombre d'experimentes (n)" = c("")))
             save1 = cbind(save1,data.frame("arrivee filet course (1/0)" = (c(""))))
@@ -1698,6 +1699,7 @@ return(liste_collier)})
             save1 = cbind(save1,data.frame("Date mort arrondie" = c("")))
             save1 = cbind(save1,data.frame("Cause detaille" = c("")))
             save1 = cbind(save1,data.frame("cause categories" = c("")))
+            save1 = cbind(save1,data.frame("Pds mort" = c("")))
             save1 = cbind(save1,data.frame("nom capteur" = c("")))
             save1 = cbind(save1,data.frame("nombre d'experimentes (n)" = c("")))
             save1 = cbind(save1,data.frame("arrivee filet course (1/0)" = (c(""))))
@@ -1766,11 +1768,14 @@ return(liste_collier)})
       modalCallback_check2 = function  (value) {
         if (value == TRUE) {
           
-          print(input$cpt_heure_debut_filet)
+          #print(input$cpt_heure_debut_filet)
 
           fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), 
                                    sep=";", header = T)
           
+          colnames(fichier_lu)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
+          
+            
           remarque_tot = paste0(input$remarques_capt, input$Remarques, input$remarques_table, input$remarques_lacher, collapse = "~")
           
           if ((input$time2)!=""){
@@ -1782,47 +1787,17 @@ return(liste_collier)})
           if (input$nAnimal2 != "") {
             select_line = which(fichier_lu[1]==(input$nAnimal2),arr.ind=TRUE)[1] }
 
-          save2 = data.frame()
-          save2 = data.frame("N°Animal" = (c(input$nAnimal2)))
-          if (is.null(input$titube)) { save2 = cbind(save2,data.frame("titube (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("titube (1/0)" = (c(input$titube))))}
-          if (is.null(input$couche)) { save2 = cbind(save2,data.frame("couche (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("couche (1/0)" = (c(input$couche))))}
-          if (is.null(input$vitesse)) { save2 = cbind(save2,data.frame("course (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("course (1/0)" = (c(input$vitesse))))}
-          if (is.null(input$tombe)) { save2 = cbind(save2,data.frame("tombe (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("tombe (1/0)"  = (c(input$tombe))))}
-          if (is.null(input$gratte_collier)) { save2 = cbind(save2,data.frame("gratte collier (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("gratte collier (1/0)" = (c(input$gratte_collier))))}
-          if (is.null(input$cabriole_saut)) { save2 = cbind(save2,data.frame("cabriole (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("cabriole (1/0)" = (c(input$cabriole_saut))))}
-          if (is.null(input$allure)) { save2 = cbind(save2,data.frame("bolide (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("bolide (1/0)" = (c(input$allure))))}
-          if (is.null(input$cri)) { save2 = cbind(save2,data.frame("aboiement/cri (1/0)" = (c(""))))} else {save2 = cbind(save2,data.frame("aboiement/cri (1/0)" = (c(input$cri))))}
-          save2 = cbind(save2,data.frame("lache" = c(input$time), stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("remarque_lacher" = c(remarque_tot),stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("stop" = c(input$nbre_stops),stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("habitat lacher" = c(input$habitat),stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("habite perte vue" = c(input$habitat_perte),stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("visibilite" = c(input$visibilite),stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("nb_public" = c(input$nbre_personnes),stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("eurodeer_lacher" = c(input$Notation_euro),stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("remise sabot" = c(remise_sabot),stringsAsFactors = FALSE))
-          save2 = cbind(save2,data.frame("heure_lacher_2" = c(input$time2),stringsAsFactors = FALSE))
-
-          fichier_lu$titube..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"titube..1.0."])
-          fichier_lu$couche..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"couche..1.0."])
-          fichier_lu$course..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"course..1.0."])
-          fichier_lu$tombe..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"tombe..1.0."])
-          fichier_lu$gratte.collier..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"gratte.collier..1.0."])
-          fichier_lu$bolide..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"bolide..1.0."])
-          fichier_lu$cabriole..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"cabriole..1.0."])
-          fichier_lu$aboiement.cri..1.0.[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"aboiement.cri..1.0."])
-          
-          fichier_lu$lache[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"lache"])
-          fichier_lu$remarque_lacher[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"remarque_lacher"])
-          fichier_lu$stop[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"stop"])
-          fichier_lu$habitat.lacher[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"habitat.lacher"])
-          fichier_lu$habite.perte.vue[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"habite.perte.vue"])
-          fichier_lu$visibilite[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"visibilite"])
-          fichier_lu$nb_public[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"nb_public"])
-          fichier_lu$eurodeer_lacher[select_line] <- paste(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"eurodeer_lacher"])
-          fichier_lu$remise.sabot[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"remise.sabot"])
-          fichier_lu$heure_lacher_2[select_line] <- paste0(save2[match(fichier_lu$N.Animal[select_line],save2$N.Animal),"heure_lacher_2"])
-          
+          ####column to fill
+          col_concerned<- c("titube (1/0)","couche (1/0)", "course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","lache","stop","habitat lacher","habite perte vue","visibilite","nb_public","eurodeer_lacher","heure_lacher_2")
+          ####reactive values names
+          reactive_values <- c("titube" ,"couche","vitesse","tombe","gratte_collier","cabriole_saut","allure","cri","time","nbre_stops","habitat","habitat_perte","visibilite","nbre_personnes","Notation_euro","time2")
+          ####loop to fill each column with corresponding reactive_value
+          for (i in 1: length(col_concerned)){
+            if (is.null(col_concerned[i])) {fichier_lu[select_line, col_concerned[i]]<- c("")} else {fichier_lu[select_line,col_concerned[i]]<- input[[reactive_values[i]]]}
+          }
+          print(i)  
+          fichier_lu[select_line,"remise sabot"]<- remise_sabot
+          fichier_lu[select_line,"remarque_lacher"]<- remarque_tot
            
           write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
