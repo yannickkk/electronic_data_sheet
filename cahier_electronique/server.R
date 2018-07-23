@@ -463,11 +463,18 @@ server <- function(input, output,session) {
   
   observeEvent(input$rfid_read, {
     
-    source(file = "lect_trans.R")
-    updateDateInput(session, "date_caract", value = date)
-    updateTextInput(session, "time_caract", value = time)
+    source(file = "read_RFID.R")
+    # updateDateInput(session, "date_caract", value = date)
+    # updateTextInput(session, "time_caract", value = time)
     updateSelectizeInput(session, "idRFID2", selected = rfid)
-    
+    updateTextInput(session, "idRFID", value = rfid)
+  })
+  
+  #########          effacer mémoire RFID prend 40 secondes                         ##########
+ 
+  observeEvent(input$rfid_clear, {
+    source(file = "clear_RFID.R")
+    updateTextInput(session, "rfid_erase", value = resultat)
   })
   
   ##################           RUBRIQUE BLESSURES                       #################
