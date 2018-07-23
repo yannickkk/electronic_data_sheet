@@ -30,7 +30,9 @@ contentcaractanimal = fluidPage(
                     #idSite2 + div> div>.item {
                     color: blue !important;}
                     #nAnimal2 + div> div>.item {
-                    color: blue !important;}       "))
+                    color: blue !important;}
+                    #rfid_erase + div> div>.item {
+                    color: blue !important;}      "))
     ),
   
   fluidRow(
@@ -60,17 +62,18 @@ contentcaractanimal = fluidPage(
 
     column(1, conditionalPanel(condition = "input.estNouvelAnimal == 'non'", awesomeRadio(inputId = "identifie", choices = c("oui","non"), selected = "non",label = h4("Identifé"))), conditionalPanel(condition = "input.estNouvelAnimal == 'oui'", awesomeRadio(inputId = "identifie", choices = c("non"), selected = "non",label = h4("Identifé")))),
     column(1, awesomeRadio("sexe",h4("Sexe"),  choices = c("M","F"), selected = character(1))),
-    column(2, actionButton("rfid_read" ,h4("Lire RFID"))),
+    column(1, textInput("rfid_erase", h4("GR250"), value = ""), actionButton("rfid_clear", "effacer mémoire")),
+    column(1, actionButton("rfid_read" ,h4("Lire RFID"))),
     
     column(12,hr()),
     
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput(inputId = "nAnimal", value = "",label = h4("N° Animal")))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput("idTagOrG", h4("Tag Oreille Gauche"),value=""))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", textInput("idTagOrD", h4("Tag Oreille Droite"),value=""))),
-    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifie == 'non'", selectizeInput("idSite", h4("Site"),choices = "",
-                                                                                                                                                         options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create = T), selected = NULL))),
+    column(2,conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || input.estNouvelAnimal == 'non' && input.identifie == 'non'", selectizeInput("idSite", h4("Site"),choices = "",                                                                                                                                                        options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'), create = T), selected = NULL))),
     column(2, conditionalPanel(condition = "input.estNouvelAnimal == 'oui' || (input.estNouvelAnimal == 'non' && input.identifie == 'non')", selectizeInput("idRFID", h4("RFID"),
                                                                                                                                                             choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL))),
+    
   
     column(12),
     column(1,offset = 1),
