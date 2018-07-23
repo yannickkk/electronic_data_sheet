@@ -689,9 +689,9 @@ return(liste_collier)})
   affichage_choix_collier <- observeEvent(input$tablecollier_rows_selected, {
     if (!is.null(input$tablecollier_rows_selected)) {
       ligne_selection = input$tablecollier_rows_selected
-      collier_tech = query()[ligne_selection,2]
-      collier_col_c = query()[ligne_selection,8]
-      collier_col_b = query()[ligne_selection,7]
+      collier_tech = query()[ligne_selection,"teq_nom_court"]
+      collier_col_c = query()[ligne_selection,"eqc_couleur_collier"]
+      collier_col_b = query()[ligne_selection,"eqc_couleur_boitier"]
       cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_c)," boitier ", toupper(collier_col_b) )
       output$collier_choisi = renderText(cat_col)
     }
@@ -1312,9 +1312,9 @@ return(liste_collier)})
           else {cri_total=""}
           
           ligne_selection = input$tablecollier_rows_selected
-          collier_tech = query()[ligne_selection,2]
-          collier_col_b = query()[ligne_selection,8]
-          collier_col_c = query()[ligne_selection,7]
+          collier_tech = query()[ligne_selection,"teq_nom_court"]
+          collier_col_c = query()[ligne_selection,"eqc_couleur_collier"]
+          collier_col_b = query()[ligne_selection,"eqc_couleur_boitier"]
           cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c))
           
           if (input$nAnimal2!="") {
@@ -1382,36 +1382,38 @@ return(liste_collier)})
             else{collier_tech_test = ""}}
           else{collier_tech_test = ""}
           
-          sen_association =  dbGetQuery(con,"select sen_association from lu_tables.tr_sensors_sen")
+          sen_association <-  dbGetQuery(con,"select sen_association from lu_tables.tr_sensors_sen")
           sen_id_acc <- sen_association[grep("accelerometre",as.character(sen_association[,1])),1]
           sen_id_prox <- sen_association[grep("proximite",as.character(sen_association[,1])),1]
           sen_id_act <- sen_association[grep("activite",as.character(sen_association[,1])),1]
           
           if (!is.null(ligne_selection)) {
-            collier_test = query()[ligne_selection,6]
-          collier_id_usuel = query()[ligne_selection,4] }
+            collier_test = query()[ligne_selection,"sen_association"]
+          collier_id_usuel = query()[ligne_selection,"eqt_id_usuel"] }
           else { collier_id_usuel = ""}
 
-          collier_tech_test=""
-          collier_acc = ""
-          collier_prox =""
-          collier_act=""
+           #collier_tech_test=""
+           # collier_acc = ""
+           # collier_prox =""
+           # collier_act=""
 
-        if (exists("collier_test")) {
+        if (collier_test != "rien") {
             if (!is.null(ligne_selection)) {
               if (collier_test %in% sen_id_acc) {
-               collier_acc = 1}}}
+               collier_acc = 1} else {collier_acc =""}
+              }}
           
-        if (exists("collier_test")) {
+        if (collier_test != "rien") {
           if (!is.null(ligne_selection)) {
             if (collier_test %in% sen_id_prox) {
-              collier_prox = 1 }}}
+              collier_prox = 1 } else {collier_prox =""}
+            }}
             
-        if (exists("collier_test")) {
+        if (collier_test != "rien") {
           if (!is.null(ligne_selection)) {                
             if (collier_test %in% sen_id_act) {
-              collier_act = 1}}
-          }
+              collier_act = 1} else {collier_act =""}
+            }}
           
           diarrhee = paste("diarrhee/",input$diarrhee, sep="")
           bledia = paste(input$liste_blessures, diarrhee)
@@ -1767,9 +1769,8 @@ return(liste_collier)})
       
       modalCallback_check2 = function  (value) {
         if (value == TRUE) {
-          
-          #print(input$cpt_heure_debut_filet)
 
+          ###ici on recharge le fichier alors que l'on pourrait utiliser save1
           fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), 
                                    sep=";", header = T)
           
@@ -1788,14 +1789,14 @@ return(liste_collier)})
             select_line = which(fichier_lu[1]==(input$nAnimal2),arr.ind=TRUE)[1] }
 
           ####column to fill
-          col_concerned<- c("titube (1/0)","couche (1/0)", "course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","lache","stop","habitat lacher","habite perte vue","visibilite","nb_public","eurodeer_lacher","heure_lacher_2")
+          col_concerned<- c("titube (1/0)","couche (1/0)", "course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","lache","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer_lacher","hre_lacher_2")
           ####reactive values names
           reactive_values <- c("titube" ,"couche","vitesse","tombe","gratte_collier","cabriole_saut","allure","cri","time","nbre_stops","habitat","habitat_perte","visibilite","nbre_personnes","Notation_euro","time2")
           ####loop to fill each column with corresponding reactive_value
           for (i in 1: length(col_concerned)){
             if (is.null(col_concerned[i])) {fichier_lu[select_line, col_concerned[i]]<- c("")} else {fichier_lu[select_line,col_concerned[i]]<- input[[reactive_values[i]]]}
           }
-          print(i)  
+          #####add fill the last column automatically  
           fichier_lu[select_line,"remise sabot"]<- remise_sabot
           fichier_lu[select_line,"remarque_lacher"]<- remarque_tot
            
@@ -2459,8 +2460,11 @@ return(liste_collier)})
           fichier_lu2 <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), 
                                    sep=";", header = T)
           
+          colnames(fichier_lu2)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
+          
+          
           if (input$numSabot_capture != "") {
-            select_line = which(fichier_lu2[68]==(input$numSabot_capture),arr.ind=TRUE)[1] }
+            select_line = which(fichier_lu2[,c("Date","sabot")]==c(input$date_caract, input$numSabot_capture),arr.ind=TRUE)[1] }
           
           #num_sabot_retrieve = dbGetQuery(con, "SELECT cap_num_sabot FROM public.t_capture_cap, public.t_animal_ani where cap_date='2010-02-04' and cap_ani_id = ani_id and ani_etiq = '",fichier_lu2$N.Animal[select_line],"'")
           
