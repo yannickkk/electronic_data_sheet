@@ -1170,7 +1170,7 @@ observe({
              if ((input$date_capture)!="") { if(input$numSabot_capture!="") {
                fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep=";", header = T)
                  colnames(fichier_lu)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
-                 select_line = which(fichier_lu[,c("num_sabot")]==c(input$numSabot_capture),arr.ind=TRUE)[1]
+                 select_line <<- which(fichier_lu[,c("num_sabot")]==c(input$numSabot_capture),arr.ind=TRUE)[1]
                  ani <- fichier_lu[select_line, c("N°Animal")]
                  ani2<- fichier_lu[select_line, c("N°Animal")]
                  sexe<- fichier_lu[select_line, c("Sexe")]
@@ -1193,7 +1193,14 @@ observe({
   ##################           RUBRIQUE SABOT                           #################
   
   updateSelectizeInput(session, "cpt_dose_acepromazine", choices = dbGetQuery(con,"select distinct cpt_dose_acepromazine from cmpt.t_capture_cpt order by cpt_dose_acepromazine"))
-  
+
+#####calcul de l'heure en sabot 
+observe({
+  if (!is.na(strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))) { if (!is.na(input$cpt_temps_filet)) {
+   heure_sab<- strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S") + input$cpt_temps_filet*60
+   updateTimeInput(session, "cpt_heure_mise_sabot", value = heure_sab)
+  }}
+}) 
   
   ##################           RUBRIQUE CHECKLIST 3                     #################
   
@@ -1205,21 +1212,20 @@ observe({
   row.names(checklist_sabot) = NULL
   output$tablechecklist_sabot = DT::renderDT(expr = checklist_sabot,server = F)
   
-  output$checklist_3 <- renderUI( {
-    #cat(file=stderr(), "testttt2t", input$titube, "\n")
+  output$checklist_capture <- renderUI( {
     
+    if (length(unlist(strsplit(as.character(input$cpt_heure_debut_filet), " "))) == 2){
     gettime=as.character(input$cpt_heure_debut_filet)
     gettime=strsplit(gettime, " ")[[1]]
-    gettime=gettime[2]
-    gettime2=as.character(input$cpt_temps_filet)
-    gettime2=strsplit(gettime2, " ")[[1]]
-    gettime2=gettime2[2]
+    gettime<<-sub(":00$","", gettime[2])} else {gettime <- "00:00"}
+    if (length(strsplit(as.character(input$cpt_heure_mise_sabot), " ")[[1]]) == 2){
     gettime3=as.character(input$cpt_heure_mise_sabot)
     gettime3=strsplit(gettime3, " ")[[1]]
-    gettime3=gettime3[2]
+    gettime3<<-sub(":00$","", gettime3[2])}else{gettime3 <- "00:00"}
+    if (length(strsplit(as.character(input$cpt_heure_fin_surv), " ")[[1]]) == 2){
     gettime4=as.character(input$cpt_heure_fin_surv)
     gettime4=strsplit(gettime4, " ")[[1]]
-    gettime4=gettime4[2]
+    gettime4<<-sub(":00$","", gettime4[2])} else {gettime4 <- "00:00"}
 
     checklist_capture = data.frame()
     
@@ -1228,31 +1234,31 @@ observe({
     
     if ((input$date_capture)=="")  {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Date")))}
-    print(gettime)
-    if ((gettime)=='00:00:00')  {
+    
+    if ((gettime)== "00:00")  {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Heure début filet")))}
     
-    if ((gettime2)=='00:00:00')  {
+    if (is.na(input$cpt_temps_filet))  {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Temps passé au filet")))}
     
     if ((input$nom_capteur_txt)=="") {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Capteurs")))}
-    
+
     if ((input$Nbre_pers_experimentes)=="") {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de personnes expérimentées")))}
-    
+
     if (is.null(input$cpt_filet_vitesse)) {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Vitesse filet")))}
-    
+
     if (is.null(input$cpt_filet_allure)) {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Allure filet")))}
-    
+
     if (is.null(input$cpt_filet_lutte)) {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Lutte filet")))}
-    
+
     if (is.null(input$cpt_filet_halete)) {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Halete")))}
-    
+
     if (is.null(input$cpt_filet_cri)) {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Cri")))}
     
@@ -1263,10 +1269,10 @@ observe({
     
     checklist_sabot = data.frame()
     
-    if ((gettime3)=='00:00:00') {
+    if ((gettime3)=="00:00") {
       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure mise en sabot")))}
 
-    if ((gettime4)=='00:00:00') {
+    if ((gettime4)=="00:00") {
       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure fin de surveillance")))}
 
     if ((input$cpt_dose_acepromazine)=="") {
@@ -1280,7 +1286,7 @@ observe({
 
     if (is.null(input$cpt_sabot_agitation)) {
       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Agité ?")))}
-    
+
     if ((input$Observateur)=="") {
       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Observateur")))}
     
@@ -1292,7 +1298,7 @@ observe({
     
     ### Bilan
     
-    observeEvent(input$valid_checklist_capture, ignoreInit = T, {
+    observeEvent(input$valid_checklist3, ignoreInit = T, {
       if  ((checklist_capture[1,1]!="PAS DE DONNEES MANQUANTES") || (checklist_sabot[1,1]!="PAS DE DONNEES MANQUANTES")) 
       {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE, callbackR = modalCallback_check3)}
       else      
@@ -2487,18 +2493,11 @@ observe({
 
           fichier_lu2 <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), 
                                    sep=";", header = T)
-          
+          print(fichier_lu2)
           colnames(fichier_lu2)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
-          
-          
-          if (input$numSabot_capture != "") {
-            select_line = which(fichier_lu2[,c("Date","num_sabot")]==c(input$date_capture, input$numSabot_capture),arr.ind=TRUE)[1] }
-          
-          print(select_line)
-          #num_sabot_retrieve = dbGetQuery(con, "SELECT cap_num_sabot FROM public.t_capture_cap, public.t_animal_ani where cap_date='2010-02-04' and cap_ani_id = ani_id and ani_etiq = '",fichier_lu2$N.Animal[select_line],"'")
-          
+
           if (!is.null(input$time2)){
-            heure_totale = input$time2}
+            heure_totale = as.integer(input$time2) - as.integer(input$cpt_heure_debut_filet)}
           else {heure_totale = as.integer(input$time) - as.integer(input$cpt_heure_debut_filet)}
           
           save3 = data.frame()

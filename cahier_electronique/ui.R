@@ -313,7 +313,6 @@ contentcheck2 = fluidPage(fluidRow(
 
 ##################           Rubrique Capture              #################
 
-
 contentcapture = fluidPage(
   
   #titlePanel("Comportement Capture"),
@@ -321,9 +320,9 @@ contentcapture = fluidPage(
 
     column(2,selectizeInput("date_capture",label=h4("Date"),choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(3,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"), seconds = F)),
+    column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
            #actionButton("time_debut_filet", "Afficher l'heure")),
-    column(2,timeInput("cpt_temps_filet", h4("Temps passe filet"), seconds = F)),
+    column(2,numericInput("cpt_temps_filet", h4("Temps passe filet"), value = NA, min = 0, max = 60, step = 1)),
            #actionButton("time_filet", "Afficher l'heure")),
     column(12,hr()),
     
@@ -355,11 +354,11 @@ contentsabot = fluidPage(
   fluidRow(
     
     #Heure de mise en sabot
-    column(3, timeInput("cpt_heure_mise_sabot", h4("Heure de mise en sabot:"))),
+    column(3, timeInput("cpt_heure_mise_sabot", h4("Heure de mise en sabot:"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
            #actionButton("time_sabot", "Afficher l'heure")),
     
     #Fin de surveillance
-    column(3,timeInput("cpt_heure_fin_surv", h4("Fin de surveillance"))),
+    column(3,timeInput("cpt_heure_fin_surv", h4("Fin de surveillance"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
            #actionButton("time_fin", "Afficher l'heure")),
     
     column(12,hr()),
@@ -396,7 +395,7 @@ contentsabot = fluidPage(
 ##################           Rubrique Checklist 3          #################
 
 contentcheck3 = fluidPage(fluidRow(
-  uiOutput("checklist_3"),
+  uiOutput("checklist_capture"),
   column(4, h3("Checklist - Capture"), offset = 1),
   column(4, h3("Checklist - Sabot"), offset = 1),
   column(4,tabPanel("Checklist Capture", DT::dataTableOutput("tablechecklist_capture")), offset=1), 
