@@ -318,12 +318,12 @@ contentcapture = fluidPage(
   
   #titlePanel("Comportement Capture"),
   fluidRow(
-    
-    column(2,dateInput('date_capture',label=h4("Date"),value ='2018-01-01')),
+
+    column(2,selectizeInput("date_capture",label=h4("Date"),choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(3,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-    column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"))),
+    column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"), seconds = F)),
            #actionButton("time_debut_filet", "Afficher l'heure")),
-    column(2,timeInput("cpt_temps_filet", h4("Temps passe filet"))),
+    column(2,timeInput("cpt_temps_filet", h4("Temps passe filet"), seconds = F)),
            #actionButton("time_filet", "Afficher l'heure")),
     column(12,hr()),
     
@@ -399,7 +399,7 @@ contentcheck3 = fluidPage(fluidRow(
   uiOutput("checklist_3"),
   column(4, h3("Checklist - Capture"), offset = 1),
   column(4, h3("Checklist - Sabot"), offset = 1),
-  column(4,tabPanel("Checklist Capture", DT::dataTableOutput("tablechecklist3")), offset=1), 
+  column(4,tabPanel("Checklist Capture", DT::dataTableOutput("tablechecklist_capture")), offset=1), 
   column(4,tabPanel("Checklist Sabot", DT::dataTableOutput("tablechecklist_sabot")), offset=1),
   column(12,hr()),
   column(12,useShinyalert(), actionButton("valid_checklist3","ENREGISTRER LES DONNEES", width='50%'), offset = 1),
