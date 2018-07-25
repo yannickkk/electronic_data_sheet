@@ -2497,8 +2497,10 @@ observe({
           colnames(fichier_lu2)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
 
           if (!is.null(input$time2)){
-            heure_totale = as.integer(input$time2) - as.integer(input$cpt_heure_debut_filet)}
-          else {heure_totale = as.integer(input$time) - as.integer(input$cpt_heure_debut_filet)}
+            duree_totale <- sub(" hours","",sub("Time difference of ","",difftime(strptime(input$time2, "%Y-%m-%d %H:%M:%S"), strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))))}
+          else {duree_totale <- sub(" hours","",sub("Time difference of ","",difftime(strptime(input$time, "%Y-%m-%d %H:%M:%S"), strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))))}
+                
+          duree_totale<- times(as.numeric(duree_totale) / (24 * 60))
           
           save3 = data.frame()
           
@@ -2514,7 +2516,7 @@ observe({
           save3 = cbind(save3,data.frame("capture" = c(input$cpt_heure_debut_filet,stringsAsFactors = FALSE)))
           
           save3 = cbind(save3,data.frame("acepromazine (1=0,3cc)" = c(input$cpt_dose_acepromazine),stringsAsFactors = FALSE))
-          save3 = cbind(save3,data.frame("total" = c(heure_totale)))
+          save3 = cbind(save3,data.frame("total" = c(duree_totale)))
           save3 = cbind(save3,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
           save3 = cbind(save3,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
           if (is.null(input$cpt_sabot_couche)) { save3 = cbind(save3,data.frame("couche (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("couche (1/0)" = (c(input$cpt_sabot_couche))))}
