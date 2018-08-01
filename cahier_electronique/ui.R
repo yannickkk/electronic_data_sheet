@@ -182,8 +182,9 @@ contentcollier = fluidPage(
     #column(12,hr()),
     column(7, DT::dataTableOutput("tablecollier")),
     column(12,hr()),
-    column(4, h4("Le collier choisi est (tech, collier, boitier): "), verbatimTextOutput("collier_choisi") ,offset = 1),
-    column(4, textInput("remarque_collier", label="Remarques") , offset = 2),
+    column(3, h4("Le collier choisi est (tech, collier, boitier): "), verbatimTextOutput("collier_choisi") ,offset = 1),
+    column(3, textInput("remarque_collier", label="Remarques") , offset = 1),
+    column(2, actionButton("sup_col", "Désélectionner") , offset = 2),
     useShinyalert()
   ))
 

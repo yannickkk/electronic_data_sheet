@@ -706,6 +706,12 @@ return(liste_collier)})
     }
   })
   
+  observeEvent(input$sup_col, {
+  proxy <- dataTableProxy("tablecollier",session, deferUntilFlush = FALSE)
+  reloadData(proxy, resetPaging = TRUE, clearSelection = c("all"))
+  ####remise a jour de la ligne texte de selection du collier
+  output$collier_choisi = renderText("")
+  })
   
   ##################           RUBRIQUE TABLE                           #################
   
@@ -1828,17 +1834,18 @@ observe({
           for (i in 1:length(awe_radio_input)){
             updateRadioButtons(session, awe_radio_input[i],  choices = choix[[awe_radio_input[i]]], selected = NA)}
           
+          ###effacement du tableau de prelevements
+          prelevement <<- prelevement[-as.numeric(input$tableprelevement_rows_selected),]
+          output$tableprelevement = DT::renderDT(prelevement,server = F)
+          ###effacement des blessures
+          blessure <- data.frame()
+          output$tableblessure = DT::renderDT(blessure,server = F) 
+          ####deselection du collier
+          proxy <- dataTableProxy("tablecollier",session, deferUntilFlush = FALSE)
+          reloadData(proxy, resetPaging = TRUE, clearSelection = c("all"))
+          ####remise a jour de la ligne texte de selection du collier
+          output$collier_choisi = renderText("")  
           
-          # updateSelectizeInput(session, "idRFID", choices = choix[["idRFID"]], selected = NULL)
-          # updateSelectizeInput(session, "numSabot", choices = choix[["numSabot"]], selected = NULL)
-          # prelevement <<- prelevement[-as.numeric(input$tableprelevement_rows_selected),]
-          # output$tableprelevement = DT::renderDT(prelevement,server = F)
-          # blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
-          # output$tableblessure = DT::renderDT(blessure,server = F) 
-          # 
-          # proxy <- dataTableProxy("tablecollier")
-          # reactive(proxy %>% selectRows(NULL)) 
-            
         }}
       
   ##################           CSV CHECKLIST 3                          #####     
