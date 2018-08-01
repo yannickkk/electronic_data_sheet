@@ -24,21 +24,21 @@ server <- function(input, output,session) {
   
   ##################              RUBRIQUE ANIMAL                       #################
   
-  updateSelectizeInput(session, "idRFID", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
-  updateSelectizeInput(session, "idSite", choices = dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit"))
-  updateSelectizeInput(session, "nAnimal2", choices = dbGetQuery(con,"select ani_etiq from public.t_animal_ani order by ani_id DESC"))
-  updateNumericInput(session, "cirCou", max = dbGetQuery(con,"select max(cap_circou) from t_capture_cap"))
-  updateNumericInput(session, "lPattArriere", max = dbGetQuery(con,"select max(cap_lpa) from t_capture_cap"))
-  updateNumericInput(session, "lBoisGauche", max = dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca"))
-  updateNumericInput(session, "lBoisDroit", max = dbGetQuery(con,"select max(nca_valeur) from public.tj_mesureenum_capture_nca"))
-  updateSelectizeInput(session, "etatBois", choices = dbGetQuery(con,"select distinct etb_description from lu_tables.tr_etat_bois_etb order by etb_description"))
-  #updateSelectizeInput(session, "idTagOrG2", choices = dbGetQuery(con, "select distinct cap_tag_gauche from public.t_capture_cap"))
-  #updateSelectizeInput(session, "idTagOrD2", choices = dbGetQuery(con, "select distinct cap_tag_droit from public.t_capture_cap"))
-  #updateSelectizeInput(session, "idRFID2", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id"))
-  updateSelectizeInput(session, "idSite2", choices = dbGetQuery(con, "select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani))"))
-  #updateSelectizeInput(session, "idRFID_new", choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")) 
-  #updateSelectizeInput(session, "age", choices = dbGetQuery(con,"select dent_valeur from lu_tables.tr_denture_dent")) 
-  updateSelectizeInput(session, "numSabot", choices = dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab order by sab_id")) 
+  updateSelectizeInput(session, "idRFID", choices = choix[["idRFID"]], selected = NULL) 
+  updateSelectizeInput(session, "idSite", choices = choix[["idSite"]], selected = NULL)
+  updateSelectizeInput(session, "nAnimal2", choices =choix[["nAnimal2"]], selected = NULL)
+  updateNumericInput(session, "cirCou", max = choix[["cirCou"]])
+  updateNumericInput(session, "lPattArriere", max = choix[["lPattArriere"]])
+  updateNumericInput(session, "lBoisGauche", max = choix[["lBoisGauche"]])
+  updateNumericInput(session, "lBoisDroit", max = choix[["lBoisDroit"]])
+  updateSelectizeInput(session, "etatBois", choices = choix[["etatBois"]], selected = NULL)
+  #updateSelectizeInput(session, "idTagOrG2", choices = choix[["idTagOrG2"]], selected = NULL)
+  #updateSelectizeInput(session, "idTagOrD2", choices = choix[["idTagOrD2"]], selected = NULL)
+  #updateSelectizeInput(session, "idRFID2", choices = choix[["idRFID2"]], selected = NULL)
+  updateSelectizeInput(session, "idSite2", choices = choix[["idSite2"]], selected = NULL)
+  #updateSelectizeInput(session, "idRFID_new", choices = choix[["idRFID_new"]], selected = NULL) 
+  #updateSelectizeInput(session, "age", choices = choix[["age"]], selected = NULL) 
+  updateSelectizeInput(session, "numSabot", choices = choix[["numSabot"]], selected = NULL) 
   
   #########          Sélection site/RFID/tag à partir du n°animal                   #########
   
@@ -275,7 +275,7 @@ server <- function(input, output,session) {
   
   modalCallback_sabot_plein <- function(value) {
     if (value == FALSE) {
-      updateNumericInput(session, "pSabotPlein" , value = 0)}}
+      updateNumericInput(session, "pSabotPlein" , value = NA)}}
   
   output$out_sabot_vide <- renderUI({
     if (!is.na(input$pSabotVide)) {
@@ -285,7 +285,7 @@ server <- function(input, output,session) {
   
   modalCallback_sabot_vide <- function(value) {
     if (value == FALSE) {
-      updateNumericInput(session, "pSabotVide" , value = 0)}}
+      updateNumericInput(session, "pSabotVide" , value = NA)}}
   
   
   ### Cou
@@ -298,7 +298,7 @@ server <- function(input, output,session) {
   
   modalCallback_circou <- function(value) {
     if (value == FALSE) {
-      updateNumericInput(session, "cirCou" , value = 0)}}
+      updateNumericInput(session, "cirCou" , value = NA)}}
   
   ### Patte
   
@@ -310,7 +310,7 @@ server <- function(input, output,session) {
   
   modalCallback_lg_patte <- function(value) {
     if (value == FALSE) {
-      updateNumericInput(session, "lPattArriere" , value = 0)}}
+      updateNumericInput(session, "lPattArriere" , value = NA)}}
   
   ### Bois
   
@@ -515,6 +515,10 @@ server <- function(input, output,session) {
     output$tableblessure = DT::renderDT(blessure,server = F)
     #print(blessure[1][1])
     #print(blessure$Liste)
+    updateSelectizeInput(session,"grave", options=list(selected=NULL))
+    updateSelectizeInput(session,"locali", options=list(selected=NULL))
+    updateSelectizeInput(session,"traitement", options=list(selected=NULL))
+    updateTextInput(session, "remarques_ble", value = "", placeholder = "Remarque")
   })
   
   observeEvent(input$ajoutBle, {
@@ -524,6 +528,9 @@ server <- function(input, output,session) {
       liste_blessures <- paste0(liste_blessures, blessure[i,]$Liste, "~")
       i=i+1
       updateTextInput(session, "liste_blessures", value = liste_blessures)
+      updateSelectizeInput(session,"solsol", options=list(selected=NULL))
+
+      
     }
     
   })
@@ -590,8 +597,9 @@ server <- function(input, output,session) {
     output$tableprelevement = DT::renderDT(prelevement,server = F)
     updateSelectizeInput(session,"typetype", options=list(selected=NULL))
     updateSelectizeInput(session,"solsol", options=list(selected=NULL))
-    updateTextInput(session, "remarques_prel", value = "")
-  
+    updateTextInput(session, "remarques_prel", value = "", placeholder = "Remarque")
+    updateSelectizeInput(session,"nbre_echant", choices =list( 1,2,3,4,5) ,options=list(create=T), selected = as.character(1))
+    
  })
   
   ### Mise en forme des prélevements en cascade :
@@ -656,10 +664,11 @@ server <- function(input, output,session) {
   })
   
   observeEvent(input$ajout_prelev, {
-    cat_prelevement1 = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
-    cat_prelevement = paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol), "_",c(input$nbre_echant))
+    cat_prelevement1 <- paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol))
+    cat_prelevement <- paste0( c(input$typetype), "_" , c(input$localoca), "_", c(input$condi), "_", c(input$solsol), "_",c(input$nbre_echant),"_",c(input$remarques_prel))
     liste_prelevement[nrow(prelevement)] <<- cat_prelevement
     liste_prelevement2[nrow(prelevement)] <<- cat_prelevement1
+    updateTextInput(session, "remarques_prel", value = NULL)
     
   })
   
@@ -683,7 +692,7 @@ liste_collier <- dbGetQuery(con,paste0("select eqc_annee_suivi, teq_nom_court, e
                               and teq_id = eqt_teq_id and eqc_sen_id=sen_id and eqc_annee_suivi = '",annee_suivie,"' order by teq_nom_court")) 
 
 return(liste_collier)})
-  
+
   output$tablecollier = DT::renderDataTable(expr = query() , selection = 'single')
   
   affichage_choix_collier <- observeEvent(input$tablecollier_rows_selected, {
@@ -700,10 +709,10 @@ return(liste_collier)})
   
   ##################           RUBRIQUE TABLE                           #################
   
-  updateSelectizeInput(session, "Notation_euro_table", choices = dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect"))
-  updateSelectizeInput(session, "position_temp1", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
+  updateSelectizeInput(session, "Notation_euro_table", choices = choix[["Notation_euro_table"]])
+  updateSelectizeInput(session, "position_temp1", choices = choix[["position_temp1"]], 
                        options=list(create= TRUE), selected = 'anus')
-  updateSelectizeInput(session, "position_temp2", choices = dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel"), 
+  updateSelectizeInput(session, "position_temp2", choices = choix[["position_temp2"]], 
                        options=list(create= TRUE), selected = 'exterieur')
   
   observeEvent(input$identifie, {
@@ -795,17 +804,7 @@ return(liste_collier)})
   ##################           RUBRIQUE HISTORIQUE                      #################
   
   output$historique <- DT::renderDataTable({
-    
-    # outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
-    #                               t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois,  count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as capteurs from (SELECT eqc_sen_id, cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
-    #                               teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association, sen_id,eqc_annee_suivi, cpt_annee_suivi,cpt_ani_etiq
-    #                               FROM public.v_aniposi_gpsgsm, public.t_equipement_conf_eqc, lu_tables.tr_sensors_sen, cmpt.t_capture_cpt ) as t where t.ani_etiq =  '",input$nAnimal2,"' and eqc_sen_id=sen_id and cpt_annee_suivi=eqc_annee_suivi and cpt_ani_etiq=ani_etiq group by t.ani_etiq, t.ani_sexe, t.cap_date, t.cap_poids, t.cap_lpa, t.cap_age_classe, t.sit_nom_court,
-    #                               t.teq_nom_court, t.cap_annee_suivi, t.eqa_date_debut, t.eqa_date_fin, t.temps_suivi, t.eqt_id_usuel, t.mar_libelle, t.mod_libelle,t.sen_association order by cap_date"))
-    #
-    
-    # ret <- DT::datatable(outp)
-    # return(ret)
-    
+  
     outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
                                   t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois, count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as                        capteurs
                                   from (SELECT cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
@@ -1045,24 +1044,25 @@ return(liste_collier)})
   
   ##################           RUBRIQUE LACHER                          #################
   
-  updateSelectizeInput(session, "habitat", choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_lache) from cmpt.t_capture_cpt order by cpt_lache_habitat_lache ASC"))
-  updateSelectizeInput(session, "habitat_perte", choices = dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_pertevue) from cmpt.t_capture_cpt order by cpt_lache_habitat_pertevue ASC"))
-  updateSelectizeInput(session, "Notation_euro", choices = dbGetQuery(con,"select (ecl_comportement_lache) from lu_tables.tr_eurodeer_comp_lache_ecl"))
+  updateSelectizeInput(session, "habitat", choices = choix[["habitat"]])
+  updateSelectizeInput(session, "habitat_perte", choices = choix[["habitat_perte"]])
+  updateSelectizeInput(session, "Notation_euro", choices = choix[["Notation_euro"]])
   
   
   observeEvent(input$to_current_time, {
     gettime_time_posix <<- Sys.time()
-    gettime_time= as.character(Sys.time())
-    gettime_time=strsplit(gettime_time, " ")[[1]]
-    gettime_time = gettime_time[2]
+    gettime_time <- as.character(Sys.time())
+    gettime_time <- strsplit(gettime_time, " ")[[1]]
+    gettime_time <- gettime_time[2]
     updateTextInput(session, "time", value = gettime_time)
   })
+  
   
   observeEvent(input$to_current_time2, {
     gettime_time2_posix <<- Sys.time()
     gettime_time2= as.character(Sys.time())
     gettime_time2=strsplit(gettime_time2, " ")[[1]]
-    gettime_time2 = gettime_time2[2]
+    gettime_time2<- gettime_time2[2]
     updateTextInput(session, "time2", value = gettime_time2)
   })
   
@@ -1152,7 +1152,7 @@ return(liste_collier)})
   
   ##################           RUBRIQUE CAPTURE                         #################
   
-updateSelectizeInput(session, "numSabot_capture", choices = dbGetQuery(con,paste0("select toto.sab_valeur from (select distinct sab_id, sab_valeur FROM lu_tables.tr_sabots_sab order by sab_id) as toto")))
+updateSelectizeInput(session, "numSabot_capture", choices = choix[["numSabot_capture"]])
   
 ####affichage des dates disponibles
 observe({
@@ -1172,15 +1172,23 @@ observe({
                  colnames(fichier_lu)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
                  select_line <<- which(fichier_lu[,c("num_sabot")]==c(input$numSabot_capture),arr.ind=TRUE)[1]
                  ani <- fichier_lu[select_line, c("N°Animal")]
-                 ani2<- fichier_lu[select_line, c("N°Animal")]
+                 ani2<- ani
                  sexe<- fichier_lu[select_line, c("Sexe")]
                  age<- fichier_lu[select_line, c("Age cahier")]
                  tagd<- fichier_lu[select_line, c("cap_tag_droit")]
                  tagg<- fichier_lu[select_line, c("cap_tag_gauche")]
                  poids<-fichier_lu[select_line, c("Poids")]
                  sante<-fichier_lu[select_line, c("etat_sante")]
-                 updateSelectizeInput(session, "nAnimal",  selected = ani)
-                 #updateSelectizeInput(session, "nAnimal2",  selected = ani2)
+                 site<-fichier_lu[select_line, c("Site Capture")]
+                 anim<-dbGetQuery(con, "Select ani_etiq from t_animal_ani")
+                 if (length(grep(ani2,as.character(anim[,1]))) != 0){
+                   updateRadioButtons(session,"estNouvelAnimal", selected = "non")
+                   updateSelectizeInput(session, "idSite2",  selected = site2)
+                   updateSelectizeInput(session, "nAnimal2",  selected = ani2)
+                 }else {
+                   updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
+                   updateSelectizeInput(session, "idSite",  selected = site)
+                   updateSelectizeInput(session, "nAnimal",  selected = ani)}
                  updateRadioButtons(session, "sexe", selected = sexe)
                  updateSelectizeInput(session, "age",  selected = age)
                  updateSelectizeInput(session, "cap_tag_droit",  selected = tagd)
@@ -1434,19 +1442,17 @@ observe({
         if (!is.null(ligne_selection)) {
             if (collier_test != "rien") {
               if (collier_test %in% sen_id_acc) {
-               collier_acc <- 1}}} else {collier_acc <- ""}
-              
+               collier_acc <- 1} else {collier_acc <- ""}} else {collier_acc <- ""}} else {collier_acc <- ""}
+          
         if (!is.null(ligne_selection)) {
           if (collier_test != "rien") {
             if (collier_test %in% sen_id_prox) {
-              collier_prox = 1 }}} else {collier_prox =""}
-            
+              collier_prox = 1 } else {collier_prox <- ""}} else {collier_prox <- ""}} else {collier_prox <- ""}
             
         if (!is.null(ligne_selection)) {
           if (collier_test != "rien") {                
             if (collier_test %in% sen_id_act) {
-              collier_act = 1}}} else {collier_act =""}
-           
+              collier_act = 1}else {collier_act <- ""}} else {collier_act <- ""}} else {collier_act <- ""}
           
           diarrhee = paste("diarrhee/",input$diarrhee, sep="")
           bledia = paste(input$liste_blessures, diarrhee)
@@ -1480,12 +1486,11 @@ observe({
           
           if (exists("gettime_table_posix")) {
             if (exists("gettime_caract_posix")) {
-              time_marquage = as.chron(gettime_table_posix) - as.chron(gettime_caract_posix)
-            }
-            else {time_marquage=""}}
-          else{time_marquage=""}
-          
-          if(((input$estNouvelAnimal == 'oui') || (input$estNouvelAnimal == 'non' && input$identifie == 'non')) && input$nAnimal!="") {
+            duree_marquage <- times(as.numeric(difftime(gettime_table_posix, gettime_caract_posix)) / (24*3600))}
+            else {duree_marquage=""}} else {duree_marquage=""}
+ 
+          ######cas d''une capture         
+ if(((input$estNouvelAnimal == 'oui') || (input$estNouvelAnimal == 'non' && input$identifie == 'non')) && input$nAnimal!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal))
             save1 = cbind(save1,data.frame("ani_nom" = c("")))
             save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal))))
@@ -1499,10 +1504,8 @@ observe({
             save1 = cbind(save1,data.frame("mois" = c(mois)))
             save1 = cbind(save1,data.frame("annee" = c(annee)))
             save1 = cbind(save1,data.frame("annee  de suivi" = c(annee_suivie)))
-            if (!is.null(input$sexe)) {
-              save1 = cbind(save1,data.frame("Sexe" = c(input$sexe))) }
-            if (is.null(input$sexe)) {
-              save1 = cbind(save1,data.frame("Sexe" = c(""))) }            
+            if (!is.null(input$sexe)) {save1 = cbind(save1,data.frame("Sexe" = c(input$sexe))) }
+            if (is.null(input$sexe)) {save1 = cbind(save1,data.frame("Sexe" = c(""))) }            
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
             save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
@@ -1512,12 +1515,9 @@ observe({
             save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d)))
             save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g)))
             save1 = cbind(save1,data.frame("cap_pertinent" = c(TRUE)))
-            if (input$sexe == 'M') {
-              save1 = cbind(save1,data.frame("cap_lactation" = c("non")))}
-            if (input$sexe == 'F') {
-              save1 = cbind(save1,data.frame("cap_lactation" = c(input$lactation)))}
-            if (is.null(input$sexe)) {
-              save1 = cbind(save1,data.frame("cap_lactation" = c("indeterminé"))) } 
+            if (is.null(input$sexe)) {save1 = cbind(save1,data.frame("cap_lactation" = c("indeterminé"))) }
+            if (input$sexe == 'M') {save1 = cbind(save1,data.frame("cap_lactation" = c("")))}
+            if (input$sexe == 'F') {save1 = cbind(save1,data.frame("cap_lactation" = c(input$lactation)))}
             save1 = cbind(save1,data.frame("RFID" = c(input$idRFID)))
             save1 = cbind(save1,data.frame("Poids" = c(input$pSabotPlein - input$pSabotVide)))
             save1 = cbind(save1,data.frame("Cir Cou" = c(input$cirCou)))
@@ -1528,28 +1528,15 @@ observe({
             save1 = cbind(save1,data.frame("glucose" = c(input$tglucose)))
             save1 = cbind(save1,data.frame("T°C_ext" = c("")))
             save1 = cbind(save1,data.frame("TIQUES FIXES" = c(input$tiques)))
-            if (exists("peau")) {
-            save1 = cbind(save1,data.frame("Peau" = c(peau))) }
-            else {save1 = cbind(save1,data.frame("Peau" = c("")))}
-            if (exists("poils")) {
-              save1 = cbind(save1,data.frame("poils" = c(poils))) }
-            else {save1 = cbind(save1,data.frame("poils" = c("")))}
-            if (exists("sang")) {
-              save1 = cbind(save1,data.frame("sang" = c(sang))) }
-            else {save1 = cbind(save1,data.frame("sang" = c("")))}
-            if (exists("feces")) {
-              save1 = cbind(save1,data.frame("feces" = c(feces))) }
-            else {save1 = cbind(save1,data.frame("feces" = c("")))}
-            if (exists("tiques")) {
-              save1 = cbind(save1,data.frame("tiques" = c(tiques))) }
-            else {save1 = cbind(save1,data.frame("tiques" = c("")))}
-            if (exists("vagin")) {
-              save1 = cbind(save1,data.frame("vaginal" = c(vagin))) }
-            else {save1 = cbind(save1,data.frame("vaginal" = c("")))}
-            if (exists("nez")) {
-              save1 = cbind(save1,data.frame("Nasal" = c(nez))) }
-            else {save1 = cbind(save1,data.frame("Nasal" = c("")))}
-            save1 = cbind(save1,data.frame("remarque" = c(input$remarques_prel)))
+            save1 = cbind(save1,data.frame("autres parasites"= c(input$parasites)))
+            if (exists("peau")) {save1 = cbind(save1,data.frame("Peau" = c(peau))) } else {save1 = cbind(save1,data.frame("Peau" = c("")))}
+            if (exists("poils")) {save1 = cbind(save1,data.frame("poils" = c(poils))) } else {save1 = cbind(save1,data.frame("poils" = c("")))}
+            if (exists("sang")) {save1 = cbind(save1,data.frame("sang" = c(sang))) } else {save1 = cbind(save1,data.frame("sang" = c("")))}
+            if (exists("feces")) {save1 = cbind(save1,data.frame("feces" = c(feces))) } else {save1 = cbind(save1,data.frame("feces" = c("")))}
+            if (exists("tiques")) {save1 = cbind(save1,data.frame("tiques" = c(tiques))) }else {save1 = cbind(save1,data.frame("tiques" = c("")))}
+            if (exists("vagin")) {save1 = cbind(save1,data.frame("vaginal" = c(vagin))) } else {save1 = cbind(save1,data.frame("vaginal" = c("")))}
+            if (exists("nez")) {save1 = cbind(save1,data.frame("Nasal" = c(nez))) } else {save1 = cbind(save1,data.frame("Nasal" = c("")))}
+            if (!is.null(input$remarques_ani)) {save1 = cbind(save1,data.frame("remarque" = c(input$remarques_ani)))} else {save1 = cbind(save1,data.frame("remarque" = c("")))}
             save1 = cbind(save1,data.frame("Collier" = c(collier_tech_test)))
             save1 = cbind(save1,data.frame("accelero" = c(collier_acc)))
             save1 = cbind(save1,data.frame("proximite" = c(collier_prox)))
@@ -1561,7 +1548,7 @@ observe({
             save1 = cbind(save1,data.frame("suivi_GPS oui si>60jours" = c("")))
             save1 = cbind(save1,data.frame("jrs_suivi" = c("")))
             save1 = cbind(save1,data.frame("capteur Activite" = c(collier_act)))
-            save1 = cbind(save1,data.frame("probleme collier" = c(input$remarque_collier)))
+            if (!is.null(input$remarque_collier)) {save1 = cbind(save1,data.frame("probleme collier" = c(input$remarque_collier)))} else {save1 = cbind(save1,data.frame("probleme collier" = c("")))}
             save1 = cbind(save1,data.frame("site vie" = c("")))
             save1 = cbind(save1,data.frame("secteur" = c("")))
             save1 = cbind(save1,data.frame("Mort" = c("")))
@@ -1606,7 +1593,7 @@ observe({
             save1 = cbind(save1,data.frame("filet" = c("")))
             save1 = cbind(save1,data.frame("sabot sur place" = c("")))
             save1 = cbind(save1,data.frame("transport+attente" = c("")))
-            save1 = cbind(save1,data.frame("marquage" = c(time_marquage) ))
+            save1 = cbind(save1,data.frame("marquage" = c(duree_marquage) ))
             save1 = cbind(save1,data.frame("total" = c("")))
             save1 = cbind(save1,data.frame("capture" = c("")))
             save1 = cbind(save1,data.frame("sabot" = c("")))
@@ -1614,10 +1601,9 @@ observe({
             save1 = cbind(save1,data.frame("transport" = c("")))
             save1 = cbind(save1,data.frame("table" = c(input$time_caract)))
             save1 = cbind(save1,data.frame("lache" = c("")))
-            save1 = cbind(save1,data.frame("remarque_lacher" = c("")))
+            save1 = cbind(save1,data.frame("remarque_generale" = c("")))
             if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = c(input$cribague)) )}
             if (is.null(input$criautre)) { save1 = cbind(save1,data.frame("autre" = (c(""))))} else {save1 = cbind(save1,data.frame("autre" = c(input$criautre)))}
-            
             save1 = cbind(save1,data.frame("stop" = c("")))
             save1 = cbind(save1,data.frame("habitat lacher" = c("")))
             save1 = cbind(save1,data.frame("habite perte vue" = c("")))
@@ -1630,10 +1616,10 @@ observe({
           
           ######## cas d''une recapture 
           
-          if(input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$nAnimal2!="") {
+ if(input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$nAnimal2!="") {
             save1 = data.frame("N°Animal" = c(input$nAnimal2))
             save1 = cbind(save1,data.frame("ani_nom" = c("")))
-            save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal2))))
+            save1 = cbind(save1,data.frame("N°Animal telemetrie" = c(paste0(tolower(input$sexe),cat_age,"_",input$nAnimal2))))#change
             save1 = cbind(save1,data.frame("N° bague annee capture" = c(cap_bague2)))
             save1 = cbind(save1,data.frame("Nombre capture" = c(nbre_capt)))
             save1 = cbind(save1,data.frame("inconnue" = c("")))
@@ -1644,46 +1630,28 @@ observe({
             save1 = cbind(save1,data.frame("mois" = c(mois)))
             save1 = cbind(save1,data.frame("annee" = c(annee)))
             save1 = cbind(save1,data.frame("annee  de suivi" = c(annee_suivie)))
-            if (!is.null(input$sexe)) {
-              save1 = cbind(save1,data.frame("Sexe" = c(input$sexe))) }
-            if (is.null(input$sexe)) {
-              save1 = cbind(save1,data.frame("Sexe" = c(""))) }
+            if (!is.null(input$sexe)) {save1 = cbind(save1,data.frame("Sexe" = c(input$sexe))) }
+            if (is.null(input$sexe)) {save1 = cbind(save1,data.frame("Sexe" = c(""))) }
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
             save1 = cbind(save1,data.frame("categorie d'age" = c(cat_age_all)))
             save1 = cbind(save1,data.frame("etat_sante" = c(bledia)))
-   
-            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == F) {
-              save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD2))) }
-            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == T) {
-              save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD3))) }
-            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == F) {
-              save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG2))) }
-            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == T) {
-              save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG3))) }
-            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == F) {
-              save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d2)))}
-            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == T) {
-              save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d3))) }
-            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == F) {
-              save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g2))) }
-            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == T) {
-              save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g3))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == F) {save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD2))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == T) {save1 = cbind(save1,data.frame("cap_tag_droit" = c(input$idTagOrD3))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == F) {save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG2))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == T) {save1 = cbind(save1,data.frame("cap_tag_gauche" = c(input$idTagOrG3))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == F) {save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d2)))}
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagD == T) {save1 = cbind(save1,data.frame("cap_tag_droit_metal" = c(input$metal_tag_d3))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == F) {save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g2))) }
+            if (input$estNouvelAnimal == 'non' && input$identifie == 'oui' && input$newTagG == T) {save1 = cbind(save1,data.frame("cap_tag_gauche_metal" = c(input$metal_tag_g3))) }
             save1 = cbind(save1,data.frame("cap_pertinent" = c(cap_pertinent)))
-            if (input$sexe == 'M') {
-              save1 = cbind(save1,data.frame("cap_lactation" = c("non")))}
-            if (input$sexe == 'F') {
-              save1 = cbind(save1,data.frame("cap_lactation" = c(input$lactation)))}
-            if (is.null(input$sexe)) {
-              save1 = cbind(save1,data.frame("cap_lactation" = c("indeterminé"))) } 
-            if (input$newRFIDbox == F && input$idRFID2!=""){
-              save1 = cbind(save1,data.frame("RFID" = c(input$idRFID2)))}
-            if (input$newRFIDbox == F && input$idRFID2==""){
-              save1 = cbind(save1,data.frame("RFID" = c("")))}
-            if (input$newRFIDbox == T && input$idRFID_new!=""){
-              save1 = cbind(save1,data.frame("RFID" = c(input$idRFID_new)))}
-            if (input$newRFIDbox == T && input$idRFID_new==""){
-              save1 = cbind(save1,data.frame("RFID" = c("")))}
+            if (is.null(input$sexe)) {save1 = cbind(save1,data.frame("cap_lactation" = c("indeterminé"))) }
+            if (input$sexe == 'M') {save1 = cbind(save1,data.frame("cap_lactation" = c("non")))}
+            if (input$sexe == 'F') {save1 = cbind(save1,data.frame("cap_lactation" = c(input$lactation)))}
+            if (input$newRFIDbox == F && input$idRFID2!=""){save1 = cbind(save1,data.frame("RFID" = c(input$idRFID2)))}
+            if (input$newRFIDbox == F && input$idRFID2==""){save1 = cbind(save1,data.frame("RFID" = c("")))}
+            if (input$newRFIDbox == T && input$idRFID_new!=""){save1 = cbind(save1,data.frame("RFID" = c(input$idRFID_new)))}
+            if (input$newRFIDbox == T && input$idRFID_new==""){ save1 = cbind(save1,data.frame("RFID" = c("")))}
             save1 = cbind(save1,data.frame("Poids" = c(input$pSabotPlein - input$pSabotVide)))
             save1 = cbind(save1,data.frame("Cir Cou" = c(input$cirCou)))
             save1 = cbind(save1,data.frame("Long patte Ar" = c(input$lPattArriere)))
@@ -1693,28 +1661,15 @@ observe({
             save1 = cbind(save1,data.frame("glucose" = c(input$tglucose)))
             save1 = cbind(save1,data.frame("T°C_ext" = c("")))
             save1 = cbind(save1,data.frame("TIQUES FIXES" = c(input$tiques)))
-            if (exists("peau")) {
-              save1 = cbind(save1,data.frame("Peau" = c(peau))) }
-            else {save1 = cbind(save1,data.frame("Peau" = c("")))}
-            if (exists("poils")) {
-              save1 = cbind(save1,data.frame("poils" = c(poils))) }
-            else {save1 = cbind(save1,data.frame("poils" = c("")))}
-            if (exists("sang")) {
-              save1 = cbind(save1,data.frame("sang" = c(sang))) }
-            else {save1 = cbind(save1,data.frame("sang" = c("")))}
-            if (exists("feces")) {
-              save1 = cbind(save1,data.frame("feces" = c(feces))) }
-            else {save1 = cbind(save1,data.frame("feces" = c("")))}
-            if (exists("tiques")) {
-              save1 = cbind(save1,data.frame("tiques" = c(tiques))) }
-            else {save1 = cbind(save1,data.frame("tiques" = c("")))}
-            if (exists("vagin")) {
-              save1 = cbind(save1,data.frame("vaginal" = c(vagin))) }
-            else {save1 = cbind(save1,data.frame("vaginal" = c("")))}
-            if (exists("nez")) {
-              save1 = cbind(save1,data.frame("Nasal" = c(nez))) }
-            else {save1 = cbind(save1,data.frame("Nasal" = c("")))}
-            save1 = cbind(save1,data.frame("remarque" = c(input$remarques_prel)))
+            save1 = cbind(save1,data.frame("autres parasites"= c(input$parasites)))
+            if (exists("peau")) {save1 = cbind(save1,data.frame("Peau" = c(peau))) } else {save1 = cbind(save1,data.frame("Peau" = c("")))}
+            if (exists("poils")) {save1 = cbind(save1,data.frame("poils" = c(poils))) } else {save1 = cbind(save1,data.frame("poils" = c("")))}
+            if (exists("sang")) {save1 = cbind(save1,data.frame("sang" = c(sang))) } else {save1 = cbind(save1,data.frame("sang" = c("")))}
+            if (exists("feces")) {save1 = cbind(save1,data.frame("feces" = c(feces))) } else {save1 = cbind(save1,data.frame("feces" = c("")))}
+            if (exists("tiques")) {save1 = cbind(save1,data.frame("tiques" = c(tiques))) } else {save1 = cbind(save1,data.frame("tiques" = c("")))}
+            if (exists("vagin")) {save1 = cbind(save1,data.frame("vaginal" = c(vagin))) } else {save1 = cbind(save1,data.frame("vaginal" = c("")))}
+            if (exists("nez")) {save1 = cbind(save1,data.frame("Nasal" = c(nez))) } else {save1 = cbind(save1,data.frame("Nasal" = c("")))}
+            if (!is.null(input$remarques_ani)) {save1 = cbind(save1,data.frame("remarque" = c(input$remarques_ani)))} else {save1 = cbind(save1,data.frame("remarque" = c("")))}
             save1 = cbind(save1,data.frame("Collier" = c(collier_tech_test)))
             save1 = cbind(save1,data.frame("accelero" = c(collier_acc)))
             save1 = cbind(save1,data.frame("proximite" = c(collier_prox)))
@@ -1726,7 +1681,7 @@ observe({
             save1 = cbind(save1,data.frame("suivi_GPS oui si>60jours" = c("")))
             save1 = cbind(save1,data.frame("jrs_suivi" = c("")))
             save1 = cbind(save1,data.frame("capteur Activite" = c(collier_act)))
-            save1 = cbind(save1,data.frame("probleme collier" = c(input$remarque_collier)))
+            if (!is.null(input$remarque_collier)) {save1 = cbind(save1,data.frame("probleme collier" = c(input$remarque_collier)))} else {save1 = cbind(save1,data.frame("probleme collier" = c("")))}
             save1 = cbind(save1,data.frame("site vie" = c("")))
             save1 = cbind(save1,data.frame("secteur" = c("")))
             save1 = cbind(save1,data.frame("Mort" = c("")))
@@ -1771,7 +1726,7 @@ observe({
             save1 = cbind(save1,data.frame("filet" = c("")))
             save1 = cbind(save1,data.frame("sabot sur place" = c("")))
             save1 = cbind(save1,data.frame("transport+attente" = c("")))
-            save1 = cbind(save1,data.frame("marquage" = c(time_marquage)))
+            save1 = cbind(save1,data.frame("marquage" = c(duree_marquage)))
             save1 = cbind(save1,data.frame("total" = c("")))
             save1 = cbind(save1,data.frame("capture" = c("")))
             save1 = cbind(save1,data.frame("sabot" = c("")))
@@ -1779,10 +1734,9 @@ observe({
             save1 = cbind(save1,data.frame("transport" = c("")))
             save1 = cbind(save1,data.frame("table" = c(input$time_caract)))
             save1 = cbind(save1,data.frame("lache" = c("")))
-            save1 = cbind(save1,data.frame("remarque_lacher" = c("")))
+            save1 = cbind(save1,data.frame("remarque_generale" = c("")))
             if (is.null(input$cribague)) { save1 = cbind(save1,data.frame("bague" = (c(""))))} else {save1 = cbind(save1,data.frame("bague" = c(input$cribague)) )}
             if (is.null(input$criautre)) { save1 = cbind(save1,data.frame("autre" = (c(""))))} else {save1 = cbind(save1,data.frame("autre" = c(input$criautre)))}
-
             save1 = cbind(save1,data.frame("stop" = c("")))
             save1 = cbind(save1,data.frame("habitat lacher" = c("")))
             save1 = cbind(save1,data.frame("habite perte vue" = c("")))
@@ -1794,7 +1748,7 @@ observe({
             
           }
 
-          write.table(x = save1, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append=T, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), sep=";", na="", row.names = F)
+          write.table(save1, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), sep=";", na="", row.names = F)
         
         }}
       
@@ -1803,13 +1757,11 @@ observe({
       modalCallback_check2 = function  (value) {
         if (value == TRUE) {
 
-          fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), 
-                                   sep=";", header = T)
-          
-          colnames(fichier_lu)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
-          
-            
-          remarque_tot = paste0(input$remarques_capt, input$remarque_collier, input$remarques_table, input$remarques_lacher, collapse = "~")
+          fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), header =TRUE, sep = ";", na.strings = "")
+
+         colnames(fichier_lu)<- noms_colonnes
+     
+         remarque_tot = paste0(input$remarques_capt, input$remarque_collier, input$remarques_table, input$remarques_lacher, sep = "~")
           
           if ((input$time2)!=""){
             remise_sabot = 1}
@@ -1819,669 +1771,74 @@ observe({
             select_line = which(fichier_lu[1]==(input$nAnimal),arr.ind=TRUE)[1] }
           if (input$nAnimal2 != "") {
             select_line = which(fichier_lu[1]==(input$nAnimal2),arr.ind=TRUE)[1] }
-
-          ####column to fill
-          col_concerned<- c("titube (1/0)","couche (1/0)", "course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","lache","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer_lacher","hre_lacher_2")
-          ####reactive values names
-          reactive_values <- c("titube" ,"couche","vitesse","tombe","gratte_collier","cabriole_saut","allure","cri","time","nbre_stops","habitat","habitat_perte","visibilite","nbre_personnes","Notation_euro","time2")
-          ####loop to fill each column with corresponding reactive_value
           
+          ####column to fill
+          col_concerned<- c("titube (1/0)","couche (1/0)", "course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer_lacher")
+          ####reactive values names
+          reactive_values <- c("titube" ,"couche","vitesse","tombe","gratte_collier","cabriole_saut","allure","cri","nbre_stops","habitat","habitat_perte","visibilite","nbre_personnes","Notation_euro")
+          ####loop to fill each column with corresponding reactive_value
+
           for (i in 1: length(col_concerned)){
-            validate (need(input[[reactive_values[i]]], label = "pas de valeur pour le trait"),need(select_line, label = "pas d''individu selectionné"))
-            if (is.null(col_concerned[i])) {fichier_lu[select_line, col_concerned[i]]<- c("")} else {fichier_lu[select_line,col_concerned[i]]<- input[[reactive_values[i]]]}
-          }
-          #####add fill the last column automatically  
+           #print(paste0("",reactive_values[i]," est ", length(as.character(input[[reactive_values[i]]],""))))
+            if (length(as.character(input[[reactive_values[i]]])) != 0) {
+            fichier_lu[select_line,col_concerned[i]]<- input[[reactive_values[i]]]
+            } else {
+            fichier_lu[select_line, col_concerned[i]]<- c("")}}
+        
+          #####add fill the last column automatically 
+    
+          fichier_lu[select_line,"lache"]<- input$time
+          fichier_lu[select_line,"hre_lacher_2"]<- input$time2
           fichier_lu[select_line,"remise sabot"]<- remise_sabot
-          fichier_lu[select_line,"remarque_lacher"]<- remarque_tot
-           
+          fichier_lu[select_line,"remarque_generale"]<- remarque_tot
+          
+          if (fichier_lu[select_line,"Sexe"] == FALSE) {fichier_lu[select_line,"Sexe"] == "F"}
+          #print(fichier_lu)
           write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
-  # ##################           BASE DE DONNEES                            ####
-  #         
-  #         date_mod = input$date_caract
-  #         date_mod = format(date_mod, "%d/%m/%Y")
-  #         date_mod = as.character(date_mod)
-  #         annee = strsplit(date_mod, "/")[[1]][3]
-  #         jour = strsplit(date_mod, "/")[[1]][1]
-  #         mois = strsplit(date_mod, "/")[[1]][2]
-  # 
-  #         diarrhee = paste("diarrhee/",input$diarrhee, sep="")
-  #         bledia = paste(input$liste_blessures, diarrhee, sep = "~")
-  # 
-  #         if (input$nAnimal != "") {
-  #           if (startsWith(input$nAnimal, "F")){
-  #             faon =  TRUE }
-  #           else {faon= FALSE} }
-  # 
-  #         if (input$nAnimal2 != "") {
-  #           if (startsWith(input$nAnimal2, "F")){
-  #             faon =  TRUE }
-  #           else {faon= FALSE} }
-  # 
-  #         if (input$age == '<1' || input$age == '0.5' ) {
-  #           cat_age_all = "jeune" }
-  #         else if (input$age=='1.5' || input$age=='2' || input$age=='1') {
-  #           cat_age_all = "yearling"}
-  #         else if (input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"}
-  #         else {cat_age_all="" }
-  # 
-  #         if (input$nAnimal2!="") {
-  #           cap_pertinent = dbGetQuery(con,paste0("select cap_annee_suivi from public.t_capture_cap, public.t_animal_ani where cap_ani_id=ani_id and ani_etiq = '",input$nAnimal2,"' order by cap_annee_suivi DESC"))
-  #           cap_pertinent <- as.character(cap_pertinent[1,1])
-  #           if (annee == cap_pertinent) {cap_pertinent = FALSE} else {cap_pertinent = TRUE} }
-  # 
-  #         gettime= as.character(Sys.time())
-  #         gettime=strsplit(gettime, " ")[[1]]
-  #         gettime=gettime[2]
-  # 
-  #         if (as.integer(mois)>=10) {
-  #           annee_suivie = as.integer(annee) + 1  }
-  #         if (as.integer(mois)<10) {annee_suivie = annee}
-  # 
-  #         if (!is.null(input$criautre) && !is.null(input$cribague)) {
-  #           if (input$criautre!='0' || (input$cribague=='1-2' || input$cribague=='>2'))
-  #           {cri_total = 1}
-  #           else {cri_total = 0}
-  #         }
-  #         else {cri_total=""}
-  # 
-  #         remarque_tot = paste0(input$remarques_capt, input$remarque_collier, input$remarques_table, input$remarques_lacher, collapse = "~")
-  #         
-  #         id_lgg = dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'longueur bois gauche' ")
-  #         id_lgd = dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'longueur bois droit' ")
-  #         id_etat_bois =  dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'etat des bois' ")
-  #         id_lactation =  dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'lactation' ")
-  # 
-  #         value_etatbois = dbGetQuery(con, paste0("SELECT etb_id from lu_tables.tr_etat_bois_etb where etb_description = '",input$etatBois,"' "))[1,1]
-  # 
-  #         cat_tempA = ""
-  #         cat_tempE = ""
-  # 
-  #         ligne_selection = input$tablecollier_rows_selected
-  # 
-  #         for (i in 1:nrow(temperature)) {
-  #           if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
-  #             cat_tempA = paste0(cat_tempA, temperature$Temperature_r[i], collapse = "~")
-  #           }
-  #           else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
-  #             cat_tempA = paste0(cat_tempA, temperature$Temperature_b[i], collapse  = "~")
-  #           }
-  #           if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
-  #             cat_tempE = paste0(cat_tempE, temperature$Temperature_r[i], collapse = "~")
-  #           }
-  #           else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
-  #             cat_tempE = paste0(cat_tempE, temperature$Temperature_b[i], collapse = "~")
-  #           }
-  #         }
-  # 
-  #         deb_zone_etude = substring(input$zone_etude, 1, 1)
-  #         var_id_glu =  dbGetQuery(con, paste0("SELECT var_id FROM para_phy.tr_variable_measured_var where var_name_long ='glucose_blood'"))[1,1]
-  #         var_id_dia =  dbGetQuery(con, paste0("SELECT var_id FROM para_phy.tr_variable_measured_var where var_name_long ='diarrhée'"))[1,1]
-  #         var_id_tique =  dbGetQuery(con, paste0("SELECT var_id FROM para_phy.tr_variable_measured_var where var_name_long ='ticks_count'"))[1,1]
-  # 
-  #         exp_id = dbGetQuery(con, paste0("SELECT exp_id FROM para_phy.tr_experimenter_exp where exp_name ='Verheyden, Helene/Thomas Roedl'"))[1,1]
-  #         cnt_id = dbGetQuery(con, paste0("SELECT cnt_id FROM para_phy.tr_analysis_counting_cnt where cnt_analysis_type ='counted around the head and between the rear leggs'"))[1,1]
-  #         pat_id = dbGetQuery(con, paste0("SELECT pat_id FROM para_phy.tr_pathogen_pat where pat_name ='Ixodida'"))[1,1]
-  # 
-  # 
-  # 
-  #         #### Nouvel animal ####
-  #         print(input$estNouvelAnimal)
-  #         if (input$estNouvelAnimal == 'oui') {
-  # 
-  #           if (faon == F) {
-  #             cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           if (faon == T) {
-  #             cap_bague = paste0("F", "_", input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           send_new1 =  sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani)
-  # 
-  #           send_new1 = gsub("'NA'","NULL", send_new1)
-  #           send_new1 = gsub("''","NULL", send_new1)
-  #           print(send_new1)
-  #           dbSendQuery(con,send_new1)
-  # 
-  #           find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
-  #           find_ani_id <- find_ani_id[1,1]
-  #           find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
-  #           find_site_id <- find_site_id[1,1]
-  # 
-  #           send_new2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                               find_ani_id, find_site_id, cap_bague, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                               bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g)
-  # 
-  #           send_new2 = gsub("'NA'","NULL", send_new2)
-  #           send_new2 = gsub("''","NULL", send_new2)
-  # 
-  #           dbSendQuery(con,send_new2)
-  # 
-  #           find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
-  # 
-  #           dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID))
-  # 
-  #           send_new3 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id)
-  #                           values ('",input$nAnimal,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
-  #                                   '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
-  #                                   '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
-  # 
-  #           send_new3 = gsub("'NA'","NULL", send_new3)
-  #           send_new3 = gsub("''","NULL", send_new3)
-  # 
-  #           dbSendQuery(con, send_new3)
-  # 
-  #           if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
-  #             send_new4 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')")
-  #             dbSendQuery(con, send_new4)}
-  # 
-  #           if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
-  #             send_new5 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')")
-  #             dbSendQuery(con, send_new5) }
-  # 
-  #           if (input$etatBois != "" && input$sexe == 'M') {
-  #             send_new6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')")
-  #             dbSendQuery(con, send_new6) }
-  # 
-  #           if (input$lactation != "" && input$sexe == 'F') {
-  #             send_new7 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')")
-  #             dbSendQuery(con, send_new7) }
-  # 
-  #           for (i in 1:nrow(blessure)) {
-  #             if (nrow(blessure) !=0) {
-  #             liste_trait = blessure[i,3]
-  #             liste_trait =  strsplit(as.character(liste_trait), split = "_")
-  #             for (j in 1:length(liste_trait[[1]])) {
-  #               ble_loc = blessure[i,1]
-  #               ble_grav = blessure[i,2]
-  #               ble_trait = liste_trait[[1]][j]
-  #               id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
-  #               id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
-  #               id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
-  #               send_new8 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
-  #               dbSendQuery(con, send_new8)
-  #             }
-  #           } }
-  # 
-  #           for (i in 1:nrow(prelevement)) {
-  #             if (nrow(prelevement) !=0) {
-  #               prel_type = prelevement[i,1]
-  #               prel_loc = prelevement[i,2]
-  #               prel_cont = prelevement[i,3]
-  #               prel_solv = prelevement[i,4]
-  #               prel_nb = prelevement[i,5]
-  #               prel_remarque = prelevement[i,6]
-  #               id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
-  #               id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
-  #               id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
-  #               id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
-  #               send_new9 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
-  #               dbSendQuery(con, send_new9)
-  #             }}
-  # 
-  #           for (i in 1:nrow(temperature)) {
-  #             if (nrow(temperature) !=0) {
-  #               if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
-  #                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
-  #                 send_new10 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
-  #                 dbSendQuery(con, send_new10)
-  #               }}}
-  # 
-  #           for (i in 1:nrow(temperature)) {
-  #             if (nrow(temperature) !=0) {
-  #               if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
-  #                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
-  #                 send_new11 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
-  #                 dbSendQuery(con, send_new11)
-  #               }}}
-  # 
-  #           for (i in 1:nrow(temperature)) {
-  #             if (nrow(temperature) !=0) {
-  #               if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
-  #                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
-  #                 send_new12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
-  #                 dbSendQuery(con, send_new12)
-  #               }}}
-  # 
-  #           for (i in 1:nrow(temperature)) {
-  #             if (nrow(temperature) !=0) {
-  #               if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
-  #                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
-  #                 send_new13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
-  #                 dbSendQuery(con, send_new13)
-  #               }}}
-  # 
-  # 
-  #           if (!is.null(ligne_selection)) {
-  #             find_eqt_id = dbGetQuery(con, paste0("select eqt_id from public.t_equipement_eqt where eqt_id_usuel = '",query()[ligne_selection,4],"'"))[1,1]
-  #             find_pb_collier = dbGetQuery(con, paste0("select eqc_remarque from public.t_equipement_conf_eqc where eqc_eqt_id = '",find_eqt_id,"'"))[1,1]
-  # 
-  #             send_new14 = paste0("INSERT INTO public.tj_equipement_animal_eqt_ani_eqa (eqa_ani_id, eqa_eqt_id, eqa_date_debut, eqa_date_fin_arrondi, eqa_probleme, eqa_annee_suivi) VALUES
-  #                                      ('",find_ani_id,"', '",find_eqt_id,"', '",as.character(input$date_caract),"', FALSE ,'",find_pb_collier,"','",annee_suivie,"')")
-  #             send_new14 = gsub("'NA'","NULL", send_new14)
-  #             send_new14 = gsub("''","NULL", send_new14)
-  #             dbSendQuery(con, send_new14) }
-  # 
-  #           cat_labo = paste0(deb_zone_etude, "_", annee, mois, jour,"_", input$nAnimal)
-  #           cat_phyhuman_glu = paste0(input$nAnimal, "_", cat_labo, "_", as.character(input$date_caract), "_", 'glucose_blood')
-  #           cat_phyhuman_dia = paste0(input$nAnimal, "_", cat_labo, "_", as.character(input$date_caract), "_", 'diarrhée')
-  # 
-  #           if (!is.na(input$tglucose)) {
-  #             send_new15 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
-  #                                      ('",cat_phyhuman_glu,"', '",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_glu,"', '",exp_id,"', '",input$tglucose,"')")
-  #             send_new15 = gsub("'NA'","NULL", send_new15)
-  #             send_new15 = gsub("''","NULL", send_new15)
-  #             dbSendQuery(con, send_new15) }
-  # 
-  #           if (input$diarrhee != "") {
-  #             send_new16 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
-  #                                      ('",cat_phyhuman_dia,"', '",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_dia,"', '",exp_id,"', '",input$diarrhee,"')")
-  #             send_new16 = gsub("'NA'","NULL", send_new16)
-  #             send_new16 = gsub("''","NULL", send_new16)
-  #             dbSendQuery(con, send_new16) }
-  # 
-  #           if (input$tiques != "") {
-  #             send_new17 = paste0("INSERT INTO para_phy.t_parasitology_para ( para_ani_id, para_laboriginid, para_daysampling, para_exp_id, para_var_id, para_pat_id, para_res, para_cnt_id) VALUES
-  #                                      ('",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",exp_id,"', '",var_id_tique,"', '",pat_id,"', '",input$tiques,"', '",cnt_id,"')")
-  #             send_new17 = gsub("'NA'","NULL", send_new17)
-  #             send_new17 = gsub("''","NULL", send_new17)
-  #             dbSendQuery(con, send_new17) }
-  # 
-  #         }
-  # 
-  # 
-  # 
-  #         #### Ancien animal mais sans identifiant  ####
-  # 
-  #         else if (input$estNouvelAnimal == 'non' && input$identifie == 'non') {
-  # 
-  #           if (faon == F) {
-  #             cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           if (faon == T) {
-  #             cap_bague = paste0("F", "_", input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           send_old_lost1 = sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani)
-  # 
-  #           send_old_lost1 = gsub("'NA'","NULL", send_old_lost1)
-  #           send_old_lost1 = gsub("''","NULL", send_old_lost1)
-  # 
-  #           dbSendQuery(con,send_old_lost1)
-  # 
-  #           find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
-  #           find_ani_id <- find_ani_id[1,1]
-  #           find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
-  #           find_site_id <- find_site_id[1,1]
-  # 
-  #           if (!is.null(ligne_selection)) { cap_pertinent2 = TRUE} else { cap_pertinent2 = FALSE}
-  # 
-  #           send_old_lost2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,cap_poids, cap_circou, cap_lpa, cap_etat_sante,cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                                    find_ani_id, find_site_id, cap_bague, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                                    bledia,gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g)
-  # 
-  #           send_old_lost2 = gsub("'NA'","NULL", send_old_lost2)
-  #           send_old_lost2 = gsub("''","NULL", send_old_lost2)
-  # 
-  #           dbSendQuery(con,send_old_lost2)
-  # 
-  #           send_old_lost3 = sprintf("INSERT INTO public.t_correspondance_animal_cor(cor_ancien, cor_valide) values ('%s','%s')", input$nAnimal, input$nAnimal)
-  # 
-  #           send_old_lost3 = gsub("'NA'","NULL", send_old_lost3)
-  #           send_old_lost3 = gsub("''","NULL", send_old_lost3)
-  # 
-  #           dbSendQuery(con,send_old_lost3)
-  # 
-  #           find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
-  # 
-  #           dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID))
-  # 
-  #           send_old_lost4 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id)
-  #                           values ('",input$nAnimal,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
-  #                          '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
-  #                          '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
-  # 
-  #           send_old_lost4 = gsub("'NA'","NULL", send_old_lost4)
-  #           send_old_lost4 = gsub("''","NULL", send_old_lost4)
-  # 
-  #           dbSendQuery(con, send_old_lost4)
-  # 
-  #           if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
-  #             send_old_lost5 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')")
-  #             dbSendQuery(con, send_old_lost5)}
-  # 
-  #           if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
-  #             send_old_lost6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')")
-  #             dbSendQuery(con, send_old_lost6) }
-  # 
-  #           if (input$etatBois != "" && input$sexe == 'M') {
-  #             send_old_lost7 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')")
-  #             dbSendQuery(con, send_old_lost7) }
-  # 
-  #           if (input$lactation != "" && input$sexe == 'F') {
-  #             send_old_lost8 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')")
-  #             dbSendQuery(con, send_old_lost8) }
-  # 
-  #           for (i in 1:nrow(blessure)) {
-  #             if (nrow(blessure) !=0) {
-  #             liste_trait = blessure[i,3]
-  #             liste_trait =  strsplit(as.character(liste_trait), split = "_")
-  #             for (j in 1:length(liste_trait[[1]])) {
-  #               ble_loc = blessure[i,1]
-  #               ble_grav = blessure[i,2]
-  #               ble_trait = liste_trait[[1]][j]
-  #               id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
-  #               id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
-  #               id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
-  #               send_old_lost9 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
-  #               dbSendQuery(con, send_old_lost9)
-  #             }
-  #           }}
-  # 
-  #           for (i in 1:nrow(prelevement)) {
-  #             if (nrow(prelevement) !=0) {
-  #               prel_type = prelevement[i,1]
-  #               prel_loc = prelevement[i,2]
-  #               prel_cont = prelevement[i,3]
-  #               prel_solv = prelevement[i,4]
-  #               prel_nb = prelevement[i,5]
-  #               prel_remarque = prelevement[i,6]
-  #               id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
-  #               id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
-  #               id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
-  #               id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
-  #               send_old_lost10 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
-  #               dbSendQuery(con, send_old_lost10)
-  #           }}
-  # 
-  #         for (i in 1:nrow(temperature)) {
-  #           if (nrow(temperature) !=0) {
-  #             if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
-  #               which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
-  #               send_old_lost11 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
-  #               dbSendQuery(con, send_old_lost11)
-  #             }}}
-  # 
-  #         for (i in 1:nrow(temperature)) {
-  #           if (nrow(temperature) !=0) {
-  #             if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
-  #               which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
-  #               send_old_lost12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
-  #               dbSendQuery(con, send_old_lost12)
-  #             }}}
-  # 
-  #         for (i in 1:nrow(temperature)) {
-  #           if (nrow(temperature) !=0) {
-  #             if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
-  #               which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
-  #               send_old_lost13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
-  #               dbSendQuery(con, send_old_lost13)
-  #             }}}
-  # 
-  #         for (i in 1:nrow(temperature)) {
-  #           if (nrow(temperature) !=0) {
-  #             if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
-  #               which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
-  #               send_old_lost14 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
-  #               dbSendQuery(con, send_old_lost14)
-  #             }}}
-  # 
-  # 
-  #         if (!is.null(ligne_selection)) {
-  #           find_eqt_id = dbGetQuery(con, paste0("select eqt_id from public.t_equipement_eqt where eqt_id_usuel = '",query()[ligne_selection,4],"'"))[1,1]
-  #           find_pb_collier = dbGetQuery(con, paste0("select eqc_remarque from public.t_equipement_conf_eqc where eqc_eqt_id = '",find_eqt_id,"'"))[1,1]
-  # 
-  #           send_old_lost15 = paste0("INSERT INTO public.tj_equipement_animal_eqt_ani_eqa (eqa_ani_id, eqa_eqt_id, eqa_date_debut, eqa_date_fin_arrondi, eqa_probleme, eqa_annee_suivi) VALUES
-  #                           ('",find_ani_id,"', '",find_eqt_id,"', '",as.character(input$date_caract),"', FALSE ,'",find_pb_collier,"','",annee_suivie,"')")
-  #           send_old_lost15 = gsub("'NA'","NULL", send_old_lost15)
-  #           send_old_lost15 = gsub("''","NULL", send_old_lost15)
-  #           dbSendQuery(con, send_old_lost15) }
-  # 
-  #         cat_labo = paste0(deb_zone_etude, "_", annee, mois, jour,"_", input$nAnimal)
-  #         cat_phyhuman_glu = paste0(input$nAnimal, "_", cat_labo, "_", as.character(input$date_caract), "_", 'glucose_blood')
-  #         cat_phyhuman_dia = paste0(input$nAnimal, "_", cat_labo, "_", as.character(input$date_caract), "_", 'diarrhée')
-  # 
-  #         if (!is.na(input$tglucose)) {
-  #           send_old_lost16 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
-  #                           ('",cat_phyhuman_glu,"', '",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_glu,"', '",exp_id,"', '",input$tglucose,"')")
-  #           send_old_lost16 = gsub("'NA'","NULL", send_old_lost16)
-  #           send_old_lost16 = gsub("''","NULL", send_old_lost16)
-  #           dbSendQuery(con, send_old_lost16) }
-  # 
-  #         if (input$diarrhee != "") {
-  #           send_old_lost17 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
-  #                           ('",cat_phyhuman_dia,"', '",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_dia,"', '",exp_id,"', '",input$diarrhee,"')")
-  #           send_old_lost17 = gsub("'NA'","NULL", send_old_lost17)
-  #           send_old_lost17 = gsub("''","NULL", send_old_lost17)
-  #           dbSendQuery(con, send_old_lost17) }
-  # 
-  #         if (input$tiques != "") {
-  #           send_old_lost18 = paste0("INSERT INTO para_phy.t_parasitology_para ( para_ani_id, para_laboriginid, para_daysampling, para_exp_id, para_var_id, para_pat_id, para_res, para_cnt_id) VALUES
-  #                           ('",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",exp_id,"', '",var_id_tique,"', '",pat_id,"', '",input$tiques,"', '",cnt_id,"')")
-  #           send_old_lost18 = gsub("'NA'","NULL", send_old_lost18)
-  #           send_old_lost18 = gsub("''","NULL", send_old_lost18)
-  #           dbSendQuery(con, send_old_lost18) }
-  # 
-  #         }
-  # 
-  #         #### Ancien animal identifié ####
-  # 
-  #         else if (input$estNouvelAnimal == 'non' && input$identifie == 'oui') {
-  # 
-  #           if (input$newTagD == T  && (faon == F )) {
-  #             cap_bague2 = paste0(input$idTagOrD3, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           if (input$newTagD == T  && (faon == T )) {
-  #             cap_bague2 = paste0("F", "_", input$idTagOrD3, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           if ((input$newTagG == T) && (faon == F )) {
-  #             cap_bague2 = paste0(input$idTagOrG3, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           if ((input$newTagG == T) && (faon == T )) {
-  #             cap_bague2 = paste0("F", "_", input$idTagOrG3, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           if (input$newTagD == F && input$newTagG == F) {
-  #             cap_bague2 = paste0(input$nAnimal2, "_", str_sub(annee_suivie, -2)) }
-  # 
-  #           find_ani_id2 = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal2,"'"))
-  #           find_ani_id2 <- find_ani_id2[1,1]
-  #           find_site_id2 = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '", input$idSite2,"'"))
-  #           find_site_id2 <- find_site_id2[1,1]
-  # 
-  #           if (input$newTagG == F && input$newTagD == F) {
-  # 
-  #             send1 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,  cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                             find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                             bledia,input$time, cap_pertinent, input$numSabot, input$idTagOrD2, input$idTagOrG2, input$metal_tag_d2, input$metal_tag_g2)
-  # 
-  #             send1 = gsub("'NA'","NULL", send1)
-  #             send1 = gsub("''","NULL", send1)
-  # 
-  #             dbSendQuery(con,send1) }
-  # 
-  # 
-  #           else if (input$newTagG == T && input$newTagD == F) {
-  # 
-  #             send2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                             find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                             bledia,input$time, cap_pertinent, input$numSabot, input$idTagOrD2, input$idTagOrG3, input$metal_tag_d2, input$metal_tag_g3)
-  # 
-  #             send2 = gsub("'NA'","NULL", send2)
-  #             send2 = gsub("''","NULL", send2)
-  # 
-  #             dbSendQuery(con,send2) }
-  # 
-  # 
-  #           else if (input$newTagG == F && input$newTagD == T) {
-  # 
-  #             send3 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                             find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                             bledia,input$time, cap_pertinent, input$numSabot, input$idTagOrD3, input$idTagOrG2, input$metal_tag_d3, input$metal_tag_g2)
-  # 
-  #             send3 = gsub("'NA'","NULL", send3)
-  #             send3 = gsub("''","NULL", send3)
-  # 
-  #             dbSendQuery(con,send3) }
-  # 
-  # 
-  #           else if (input$newTagG == T && input$newTagD == T) {
-  # 
-  #             send4 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-  #                             find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
-  #                             bledia , input$time, cap_pertinent, input$numSabot, input$idTagOrD3, input$idTagOrG3, input$metal_tag_d3, input$metal_tag_g3)
-  # 
-  #             send4 = gsub("'NA'","NULL", send4)
-  #             send4 = gsub("''","NULL", send4)
-  # 
-  #             dbSendQuery(con, send4)
-  #             }
-  # 
-  #           find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
-  # 
-  #            if (input$newRFIDbox == T && input$idRFID_new != "") {
-  #             dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID_new)) }
-  # 
-  #           send5 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_tble_temp_animal, cpt_tble_temp_exterieur, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id)
-  #                           values ('",input$nAnimal2,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"','",cat_tempA,"','",cat_tempE,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
-  #                           '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
-  #                           '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
-  # 
-  #           print(cat_tempA)
-  #           print(cat_tempE)
-  # 
-  #           send5 = gsub("'NA'","NULL", send5)
-  #           send5 = gsub("''","NULL", send5)
-  # 
-  #           dbSendQuery(con, send5)
-  # 
-  #           if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
-  #             send6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')")
-  #             dbSendQuery(con, send6)
-  #             }
-  # 
-  #           if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
-  #             send7 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')")
-  #             dbSendQuery(con, send7)
-  #             }
-  # 
-  #           if (input$etatBois != "" && input$sexe == 'M') {
-  #             send8 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')")
-  #             dbSendQuery(con, send8)
-  #             }
-  # 
-  #           if (input$lactation != "" && input$sexe == 'F') {
-  #             send9 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')")
-  #             dbSendQuery(con, send9)
-  #           }
-  # 
-  #          for (i in 1:nrow(blessure)) {
-  #            if (nrow(blessure) !=0) {
-  #              liste_trait = blessure[i,3]
-  #              liste_trait =  strsplit(as.character(liste_trait), split = "_")
-  #              for (j in 1:length(liste_trait[[1]])) {
-  #                ble_loc = blessure[i,1]
-  #                ble_grav = blessure[i,2]
-  #                ble_trait = liste_trait[[1]][j]
-  #                id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
-  #                id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
-  #                id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
-  #                send10 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
-  #                dbSendQuery(con, send10)
-  #              }
-  #            }
-  #          }
-  # 
-  #          for (i in 1:nrow(prelevement)) {
-  #            if (nrow(prelevement) !=0) {
-  #              prel_type = prelevement[i,1]
-  #              prel_loc = prelevement[i,2]
-  #              prel_cont = prelevement[i,3]
-  #              prel_solv = prelevement[i,4]
-  #              prel_nb = prelevement[i,5]
-  #              prel_remarque = prelevement[i,6]
-  #              id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
-  #              id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
-  #              id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
-  #              id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
-  #              send11 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
-  #              dbSendQuery(con, send11)
-  #            }}
-  # 
-  #           for (i in 1:nrow(temperature)) {
-  #             if (nrow(temperature) !=0) {
-  #               if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
-  #                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
-  #                 send12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
-  #                 dbSendQuery(con, send12)
-  #              }}}
-  # 
-  #           for (i in 1:nrow(temperature)) {
-  #             if (nrow(temperature) !=0) {
-  #               if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
-  #                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
-  #                 send13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
-  #                 dbSendQuery(con, send13)
-  #               }}}
-  # 
-  #           for (i in 1:nrow(temperature)) {
-  #             if (nrow(temperature) !=0) {
-  #               if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
-  #                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
-  #                 send14 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
-  #                 dbSendQuery(con, send14)
-  #               }}}
-  # 
-  #           for (i in 1:nrow(temperature)) {
-  #             if (nrow(temperature) !=0) {
-  #               if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
-  #                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
-  #                 send15 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
-  #                 dbSendQuery(con, send15)
-  #               }}}
-  # 
-  #           if (!is.null(ligne_selection)) {
-  #             find_eqt_id = dbGetQuery(con, paste0("select eqt_id from public.t_equipement_eqt where eqt_id_usuel = '",query()[ligne_selection,4],"'"))[1,1]
-  #             find_pb_collier = dbGetQuery(con, paste0("select eqc_remarque from public.t_equipement_conf_eqc where eqc_eqt_id = '",find_eqt_id,"'"))[1,1]
-  # 
-  #             send16 = paste0("INSERT INTO public.tj_equipement_animal_eqt_ani_eqa (eqa_ani_id, eqa_eqt_id, eqa_date_debut, eqa_date_fin_arrondi, eqa_probleme, eqa_annee_suivi) VALUES
-  #                       ('",find_ani_id2,"', '",find_eqt_id,"', '",as.character(input$date_caract),"', FALSE ,'",find_pb_collier,"','",annee_suivie,"')")
-  #             send16 = gsub("'NA'","NULL", send16)
-  #             send16 = gsub("''","NULL", send16)
-  #             dbSendQuery(con, send16)
-  #             }
-  # 
-  #           cat_labo = paste0(deb_zone_etude, "_", annee, mois, jour,"_", input$nAnimal2)
-  #           cat_phyhuman_glu = paste0(input$nAnimal2, "_", cat_labo, "_", as.character(input$date_caract), "_", 'glucose_blood')
-  #           cat_phyhuman_dia = paste0(input$nAnimal2, "_", cat_labo, "_", as.character(input$date_caract), "_", 'diarrhée')
-  # 
-  #           if (!is.na(input$tglucose)) {
-  #             send17 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
-  #                       ('",cat_phyhuman_glu,"', '",find_ani_id2,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_glu,"', '",exp_id,"', '",input$tglucose,"')")
-  #             send17 = gsub("'NA'","NULL", send17)
-  #             send17 = gsub("''","NULL", send17)
-  #             dbSendQuery(con, send17)
-  #             }
-  # 
-  #           if (input$diarrhee != "") {
-  #             send18 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
-  #                             ('",cat_phyhuman_dia,"', '",find_ani_id2,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_dia,"', '",exp_id,"', '",input$diarrhee,"')")
-  #             send18 = gsub("'NA'","NULL", send18)
-  #             send18 = gsub("''","NULL", send18)
-  #             dbSendQuery(con, send18)
-  #             }
-  # 
-  #           if (input$tiques != "") {
-  #             send19 = paste0("INSERT INTO para_phy.t_parasitology_para ( para_ani_id, para_laboriginid, para_daysampling, para_exp_id, para_var_id, para_pat_id, para_res, para_cnt_id) VALUES
-  #                             ('",find_ani_id2,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",exp_id,"', '",var_id_tique,"', '",pat_id,"', '",input$tiques,"', '",cnt_id,"')")
-  #             send19 = gsub("'NA'","NULL", send19)
-  #             send19 = gsub("''","NULL", send19)
-  #             dbSendQuery(con, send19)
-  #             }
-  # 
-  # 
-  #         }
+          
+          #######preparation des champs pour la saisie d''un nouvel individu
+          text_input<-c("time_caract", "time_table","time","time2","idTagOrD", "idTagOrG","lBoisDroit","lBoisGauche", "liste_blessures","nAnimal", "nom_capteur_txt", "Observateur","parasites", "remarque_ani","remarque_collier","Remarques","remarques_ble","remarques_capt","remarques_lacher","remarques_prel","remarques_table", "rfid_erase")
+          numeric_input<-c("tglucose","cirCou","lPattArriere", "pSabotPlein","pSabotVide", "nbre_stops")
+          awe_radio_input<-c("sexe")
+          radio_input<-c("lutte", "halete", "titube" ,"couche","tombe","gratte_collier","cabriole_saut","cri")
+          check_input<-c("metal_tag_d","metal_tag_d2","metal_tag_g","metal_tag_g2","newRFIDbox","newTagD","newTagG", "suivi_temp")
+          select_input<-c("visibilite", "habitat", "habitat_perte","tiques","diarrhee","age","idRFID", "idRFID2", "idTagOrD2","idTagOrG2","lactation","nAnimal2","Nbre_pers_experimentes","nbre_personnes","Notation_euro", "Notation_euro_table","numSabot","numSabot_capture")
+    
+          updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
+          updateRadioButtons(session,"identifie", selected = "non")
+          updateSelectInput(session,"idSite2", selected = input$idSite2)
+          updateSelectInput(session,"idSite", selected = input$idSite)
+          updateRadioButtons(session,"cribague", choices = choix[["cribague"]], selected = FALSE)
+          updateRadioButtons(session,"criautre", choices = choix[["criautre"]], selected = FALSE)
+          updateRadioButtons(session,"vitesse", choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = FALSE)
+          updateRadioButtons(session,"allure", choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]], selected = FALSE)
 
-           shinyjs::js$refresh()
+          
+          for (i in 1:length(text_input)){
+            updateTextInput(session, text_input[i], value = NA, placeholder = "Entrez un texte :")}
+          for (i in 1:length(numeric_input)){
+            updateNumericInput(session, numeric_input[i], value = NA)}
+          for (i in 1:length(radio_input)){
+            updateRadioButtons(session, radio_input[i], choiceNames = choix[["names_oui_non"]],choiceValues =choix[["values_oui_non"]], selected = FALSE)}
+          for (i in 1:length(check_input)){
+            updateCheckboxInput(session, check_input[i], value = FALSE)}
+          for (i in 1:length(select_input)){
+            updateSelectizeInput(session, select_input[i], choices = choix[[select_input[i]]], selected = NULL)}
+          for (i in 1:length(awe_radio_input)){
+            updateRadioButtons(session, awe_radio_input[i],  choices = choix[[awe_radio_input[i]]], selected = NA)}
           
           
+          # updateSelectizeInput(session, "idRFID", choices = choix[["idRFID"]], selected = NULL)
+          # updateSelectizeInput(session, "numSabot", choices = choix[["numSabot"]], selected = NULL)
+          # prelevement <<- prelevement[-as.numeric(input$tableprelevement_rows_selected),]
+          # output$tableprelevement = DT::renderDT(prelevement,server = F)
+          # blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
+          # output$tableblessure = DT::renderDT(blessure,server = F) 
+          # 
+          # proxy <- dataTableProxy("tablecollier")
+          # reactive(proxy %>% selectRows(NULL)) 
+            
         }}
       
   ##################           CSV CHECKLIST 3                          #####     
@@ -2493,93 +1850,776 @@ observe({
 
           fichier_lu2 <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), 
                                    sep=";", header = T)
-          print(fichier_lu2)
-          colnames(fichier_lu2)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
+  
+          colnames(fichier_lu2)<- noms_colonnes
 
+          if (input$nAnimal != "") {
+            select_line = which(fichier_lu2[1]==(input$nAnimal),arr.ind=TRUE)[1] }
+          if (input$nAnimal2 != "") {
+            select_line = which(fichier_lu2[1]==(input$nAnimal2),arr.ind=TRUE)[1] }
+          
           if (!is.null(input$time2)){
+            #difftime(gettime_time2_posix
             duree_totale <- sub(" hours","",sub("Time difference of ","",difftime(strptime(input$time2, "%Y-%m-%d %H:%M:%S"), strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))))}
           else {duree_totale <- sub(" hours","",sub("Time difference of ","",difftime(strptime(input$time, "%Y-%m-%d %H:%M:%S"), strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))))}
                 
-          duree_totale<- times(as.numeric(duree_totale) / (24 * 60))
+          duree_totale<- times(as.numeric(duree_totale) / (24 * 3600))
+
+          surveillance<- sub(" hours","",sub("Time difference of ","",difftime(strptime(input$cpt_heure_fin_surv, "%Y-%m-%d %H:%M:%S"),strptime(input$cpt_heure_mise_sabot, "%Y-%m-%d %H:%M:%S"))))
+          surveillance<- times(as.numeric(surveillance) / (24 * 3600))
           
-          save3 = data.frame()
+          ####column to fill
+          col_concerned<- c("num_sabot","nom capteur", "nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)"
+                            ,"lutte","haletement (1/0)","cri (1/0)","filet","capture","acepromazine (1=0,3cc)"
+                            ,"sabot","acepro","couche (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv")
+          ####reactive values names
+          reactive_values <- c("numSabot_capture" ,"nom_capteur_txt","Nbre_pers_experimentes","cpt_filet_vitesse","cpt_filet_allure"
+                            ,"cpt_filet_lutte","cpt_filet_halete","cpt_filet_cri","cpt_temps_filet","cpt_heure_debut_filet","cpt_dose_acepromazine"
+                            ,"cpt_heure_mise_sabot","cpt_heure_mise_sabot","cpt_sabot_couche","cpt_sabot_agitation","cpt_sabot_retournement","cpt_heure_fin_surv")
+          ####loop to fill each column with corresponding reactive_value
           
-          save3 = data.frame("num_sabot" = c(input$numSabot_capture))
-          save3 = cbind(save3,data.frame("nom capteur" = c(input$nom_capteur_txt)))
-          save3 = cbind(save3,data.frame("nombre d'experimentes (n)" = c(input$Nbre_pers_experimentes)))
-          if (is.null(input$cpt_filet_vitesse)) { save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(input$cpt_filet_vitesse))))}
-          if (is.null(input$cpt_filet_allure)) { save3 = cbind(save3,data.frame("arrivee filet panique (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet panique (1/0)" = (c(input$cpt_filet_allure))))}
-          if (is.null(input$cpt_filet_lutte)) { save3 = cbind(save3,data.frame("lutte" = (c(""))))} else {save3 = cbind(save3,data.frame("lutte" = (c(input$cpt_filet_lutte))))}
-          if (is.null(input$cpt_filet_halete)) { save3 = cbind(save3,data.frame("haletement (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("haletement (1/0)" = (c(input$cpt_filet_halete))))}
-          if (is.null(input$cpt_filet_cri)) { save3 = cbind(save3,data.frame("cri (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("cri (1/0)" = (c(input$cpt_filet_cri))))}
-          save3 = cbind(save3,data.frame("filet" = c(input$cpt_temps_filet,stringsAsFactors = FALSE)))
-          save3 = cbind(save3,data.frame("capture" = c(input$cpt_heure_debut_filet,stringsAsFactors = FALSE)))
+            for (i in 1: length(col_concerned)){
+            print(paste0("",reactive_values[i]," est ", length(as.character(input[[reactive_values[i]]],""))))
+            if (length(as.character(input[[reactive_values[i]]])) != 0) {
+              fichier_lu[select_line,col_concerned[i]]<- input[[reactive_values[i]]]
+            } else {
+              fichier_lu[select_line, col_concerned[i]]<- c("")}}
           
-          save3 = cbind(save3,data.frame("acepromazine (1=0,3cc)" = c(input$cpt_dose_acepromazine),stringsAsFactors = FALSE))
-          save3 = cbind(save3,data.frame("total" = c(duree_totale)))
-          save3 = cbind(save3,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
-          save3 = cbind(save3,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
-          if (is.null(input$cpt_sabot_couche)) { save3 = cbind(save3,data.frame("couche (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("couche (1/0)" = (c(input$cpt_sabot_couche))))}
-          if (is.null(input$cpt_sabot_agitation)) { save3 = cbind(save3,data.frame("agitation (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("agitation (1/0)" = (c(input$cpt_sabot_agitation))))}
-          if (is.null(input$cpt_sabot_retournement)) { save3 = cbind(save3,data.frame("retournement (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("retournement (1/0)" = (c(input$cpt_sabot_retournement))))}
-          save3 = cbind(save3,data.frame("surveillance (mn)" = c(as.integer(input$cpt_heure_fin_surv) - as.integer(input$cpt_heure_mise_sabot))))
-          save3 = cbind(save3,data.frame("hre fin surv" = c(input$cpt_heure_fin_surv,stringsAsFactors = FALSE)))
-        
-          fichier_lu2$num_sabot[select_line] <- paste(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"num_sabot"])
-          fichier_lu2$nom.capteur[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"nom.capteur"])
-          fichier_lu2$nombre.d.experimentes..n.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"nombre.d.experimentes..n."])
-          fichier_lu2$arrivee.filet.course..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"arrivee.filet.course..1.0."])
-          fichier_lu2$arrivee.filet.panique..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"arrivee.filet.panique..1.0."])
-          fichier_lu2$lutte[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"lutte"])
-          fichier_lu2$haletement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"haletement..1.0."])
-          fichier_lu2$cri..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"cri..1.0."])
-          fichier_lu2$filet[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"filet"])
-          fichier_lu2$capture[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"capture"])
+          #####add fill the last column automatically  
+          fichier_lu2[select_line,"total"]<- duree_totale
+          fichier_lu2[select_line,"surveillance (mn)"]<- surveillance
           
-          fichier_lu2$acepromazine..1.0.3cc.[select_line] <- paste(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"acepromazine..1.0.3cc."])
-          fichier_lu2$total[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"total"])
-          fichier_lu2$sabot[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"sabot"])
-          fichier_lu2$acepro[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"acepro"])
-          fichier_lu2$couche..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"couche..1.0."])
-          fichier_lu2$agitation..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"agitation..1.0."])
-          fichier_lu2$retournement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"retournement..1.0."])
-          fichier_lu2$surveillance..mn.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"surveillance..mn."])
-          fichier_lu2$hre.fin.surv[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"hre.fin.surv"])
-          
+          if (fichier_lu[select_line,"Sexe"] == FALSE) {fichier_lu[select_line,"Sexe"] == "F"}
           write.table(fichier_lu2, file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
-          cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_num_sabot = '",input$numSabot_capture,"' and cap_date = '",as.character(input$date_capture),"' " ))
+          shinyjs::js$refresh("all")
+          #shinyjs::reset("all")       
           
-          gettime= as.character(input$cpt_heure_debut_filet)
-          gettime=strsplit(gettime, " ")[[1]]
-          gettime=gettime[2]
-          gettime2= as.character(input$cpt_temps_filet)
-          gettime2=strsplit(gettime2, " ")[[1]]
-          gettime2=gettime2[2]
-          gettime3= as.character(input$cpt_heure_mise_sabot)
-          gettime3=strsplit(gettime3, " ")[[1]]
-          gettime3=gettime3[2]
-          gettime4= as.character(input$cpt_heure_fin_surv)
-          gettime4=strsplit(gettime4, " ")[[1]]
-          gettime4=gettime4[2]
-
-         last_send = sprintf("UPDATE cmpt.t_capture_cpt SET cpt_nom_capteur = '%s', cpt_nbre_pers_experimentes = '%s',
-                                        cpt_heure_debut_filet = '%s',
-                                        cpt_temps_filet = '%s', cpt_arrivee_filet_course = '%s',
-                                        cpt_arrivee_filet_panique = '%s', cpt_filet_lutte = '%s',
-                                        cpt_filet_haletement = '%s', cpt_filet_cri = '%s', cpt_heure_mise_sabot = '%s' , cpt_dose_acepromazine = '%s',
-                                        cpt_sabot_retournement = '%s',cpt_sabot_couche = '%s', cpt_sabot_agitation = '%s',cpt_hre_fin_surv = '%s', cpt_remarque = '%s'
-                                        WHERE cpt_date = '%s' and cpt_cap_id = '%s'",input$nom_capteur_txt, input$Nbre_pers_experimentes, input$cpt_heure_debut_filet, input$cpt_temps_filet, input$cpt_filet_vitesse,
-                                        input$cpt_filet_allure, input$cpt_filet_lutte, input$cpt_filet_halete,input$cpt_filet_cri, input$cpt_heure_mise_sabot, input$cpt_dose_acepromazine ,input$cpt_sabot_retournement,input$cpt_sabot_couche,
-                                        input$cpt_sabot_agitation,input$cpt_heure_fin_surv, input$Remarques, as.character(input$date_capture), cap_id)
+          # save3 = data.frame()
+          # 
+          # save3 = data.frame("num_sabot" = c(input$numSabot_capture))
+          # save3 = cbind(save3,data.frame("nom capteur" = c(input$nom_capteur_txt)))
+          # save3 = cbind(save3,data.frame("nombre d'experimentes (n)" = c(input$Nbre_pers_experimentes)))
+          # if (is.null(input$cpt_filet_vitesse)) { save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(input$cpt_filet_vitesse))))}
+          # if (is.null(input$cpt_filet_allure)) { save3 = cbind(save3,data.frame("arrivee filet panique (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet panique (1/0)" = (c(input$cpt_filet_allure))))}
+          # if (is.null(input$cpt_filet_lutte)) { save3 = cbind(save3,data.frame("lutte" = (c(""))))} else {save3 = cbind(save3,data.frame("lutte" = (c(input$cpt_filet_lutte))))}
+          # if (is.null(input$cpt_filet_halete)) { save3 = cbind(save3,data.frame("haletement (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("haletement (1/0)" = (c(input$cpt_filet_halete))))}
+          # if (is.null(input$cpt_filet_cri)) { save3 = cbind(save3,data.frame("cri (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("cri (1/0)" = (c(input$cpt_filet_cri))))}
+          # save3 = cbind(save3,data.frame("filet" = c(input$cpt_temps_filet,stringsAsFactors = FALSE)))
+          # save3 = cbind(save3,data.frame("capture" = c(input$cpt_heure_debut_filet,stringsAsFactors = FALSE)))
+          # 
+          # save3 = cbind(save3,data.frame("acepromazine (1=0,3cc)" = c(input$cpt_dose_acepromazine),stringsAsFactors = FALSE))
+          # save3 = cbind(save3,data.frame("total" = c(duree_totale)))
+          # save3 = cbind(save3,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
+          # save3 = cbind(save3,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
+          # if (is.null(input$cpt_sabot_couche)) { save3 = cbind(save3,data.frame("couche (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("couche (1/0)" = (c(input$cpt_sabot_couche))))}
+          # if (is.null(input$cpt_sabot_agitation)) { save3 = cbind(save3,data.frame("agitation (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("agitation (1/0)" = (c(input$cpt_sabot_agitation))))}
+          # if (is.null(input$cpt_sabot_retournement)) { save3 = cbind(save3,data.frame("retournement (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("retournement (1/0)" = (c(input$cpt_sabot_retournement))))}
+          # save3 = cbind(save3,data.frame("surveillance (mn)" = c(as.integer(input$cpt_heure_fin_surv) - as.integer(input$cpt_heure_mise_sabot))))
+          # save3 = cbind(save3,data.frame("hre fin surv" = c(input$cpt_heure_fin_surv,stringsAsFactors = FALSE)))
+          # 
+          # fichier_lu2$num_sabot[select_line] <- paste(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"num_sabot"])
+          # fichier_lu2$nom.capteur[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"nom.capteur"])
+          # fichier_lu2$nombre.d.experimentes..n.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"nombre.d.experimentes..n."])
+          # fichier_lu2$arrivee.filet.course..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"arrivee.filet.course..1.0."])
+          # fichier_lu2$arrivee.filet.panique..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"arrivee.filet.panique..1.0."])
+          # fichier_lu2$lutte[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"lutte"])
+          # fichier_lu2$haletement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"haletement..1.0."])
+          # fichier_lu2$cri..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"cri..1.0."])
+          # fichier_lu2$filet[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"filet"])
+          # fichier_lu2$capture[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"capture"])
+          # 
+          # fichier_lu2$acepromazine..1.0.3cc.[select_line] <- paste(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"acepromazine..1.0.3cc."])
+          # fichier_lu2$total[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"total"])
+          # fichier_lu2$sabot[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"sabot"])
+          # fichier_lu2$acepro[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"acepro"])
+          # fichier_lu2$couche..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"couche..1.0."])
+          # fichier_lu2$agitation..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"agitation..1.0."])
+          # fichier_lu2$retournement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"retournement..1.0."])
+          # fichier_lu2$surveillance..mn.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"surveillance..mn."])
+          # fichier_lu2$hre.fin.surv[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"hre.fin.surv"])
           
-         last_send = gsub("'NA'","NULL", last_send)
-         last_send = gsub("''","NULL", last_send)
-         # dbSendQuery(con, last_send)
+          # write.table(fichier_lu2, file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep = ";", na = "", append = F, row.names = F)
+          # 
+         #  cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_num_sabot = '",input$numSabot_capture,"' and cap_date = '",as.character(input$date_capture),"' " ))
+         #  
+         #  gettime= as.character(input$cpt_heure_debut_filet)
+         #  gettime=strsplit(gettime, " ")[[1]]
+         #  gettime=gettime[2]
+         #  gettime2= as.character(input$cpt_temps_filet)
+         #  gettime2=strsplit(gettime2, " ")[[1]]
+         #  gettime2=gettime2[2]
+         #  gettime3= as.character(input$cpt_heure_mise_sabot)
+         #  gettime3=strsplit(gettime3, " ")[[1]]
+         #  gettime3=gettime3[2]
+         #  gettime4= as.character(input$cpt_heure_fin_surv)
+         #  gettime4=strsplit(gettime4, " ")[[1]]
+         #  gettime4=gettime4[2]
+         # 
+         # last_send = sprintf("UPDATE cmpt.t_capture_cpt SET cpt_nom_capteur = '%s', cpt_nbre_pers_experimentes = '%s',
+         #                                cpt_heure_debut_filet = '%s',
+         #                                cpt_temps_filet = '%s', cpt_arrivee_filet_course = '%s',
+         #                                cpt_arrivee_filet_panique = '%s', cpt_filet_lutte = '%s',
+         #                                cpt_filet_haletement = '%s', cpt_filet_cri = '%s', cpt_heure_mise_sabot = '%s' , cpt_dose_acepromazine = '%s',
+         #                                cpt_sabot_retournement = '%s',cpt_sabot_couche = '%s', cpt_sabot_agitation = '%s',cpt_hre_fin_surv = '%s', cpt_remarque = '%s'
+         #                                WHERE cpt_date = '%s' and cpt_cap_id = '%s'",input$nom_capteur_txt, input$Nbre_pers_experimentes, input$cpt_heure_debut_filet, input$cpt_temps_filet, input$cpt_filet_vitesse,
+         #                                input$cpt_filet_allure, input$cpt_filet_lutte, input$cpt_filet_halete,input$cpt_filet_cri, input$cpt_heure_mise_sabot, input$cpt_dose_acepromazine ,input$cpt_sabot_retournement,input$cpt_sabot_couche,
+         #                                input$cpt_sabot_agitation,input$cpt_heure_fin_surv, input$Remarques, as.character(input$date_capture), cap_id)
+         #  
+         # last_send = gsub("'NA'","NULL", last_send)
+         # last_send = gsub("''","NULL", last_send)
+         # # dbSendQuery(con, last_send)
 
-         shinyjs::js$refresh()
+         #shinyjs::js$refresh()
           
         }}
       
   
 }
+# ##################           BASE DE DONNEES                            ####
+#         
+#         date_mod = input$date_caract
+#         date_mod = format(date_mod, "%d/%m/%Y")
+#         date_mod = as.character(date_mod)
+#         annee = strsplit(date_mod, "/")[[1]][3]
+#         jour = strsplit(date_mod, "/")[[1]][1]
+#         mois = strsplit(date_mod, "/")[[1]][2]
+# 
+#         diarrhee = paste("diarrhee/",input$diarrhee, sep="")
+#         bledia = paste(input$liste_blessures, diarrhee, sep = "~")
+# 
+#         if (input$nAnimal != "") {
+#           if (startsWith(input$nAnimal, "F")){
+#             faon =  TRUE }
+#           else {faon= FALSE} }
+# 
+#         if (input$nAnimal2 != "") {
+#           if (startsWith(input$nAnimal2, "F")){
+#             faon =  TRUE }
+#           else {faon= FALSE} }
+# 
+#         if (input$age == '<1' || input$age == '0.5' ) {
+#           cat_age_all = "jeune" }
+#         else if (input$age=='1.5' || input$age=='2' || input$age=='1') {
+#           cat_age_all = "yearling"}
+#         else if (input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"}
+#         else {cat_age_all="" }
+# 
+#         if (input$nAnimal2!="") {
+#           cap_pertinent = dbGetQuery(con,paste0("select cap_annee_suivi from public.t_capture_cap, public.t_animal_ani where cap_ani_id=ani_id and ani_etiq = '",input$nAnimal2,"' order by cap_annee_suivi DESC"))
+#           cap_pertinent <- as.character(cap_pertinent[1,1])
+#           if (annee == cap_pertinent) {cap_pertinent = FALSE} else {cap_pertinent = TRUE} }
+# 
+#         gettime= as.character(Sys.time())
+#         gettime=strsplit(gettime, " ")[[1]]
+#         gettime=gettime[2]
+# 
+#         if (as.integer(mois)>=10) {
+#           annee_suivie = as.integer(annee) + 1  }
+#         if (as.integer(mois)<10) {annee_suivie = annee}
+# 
+#         if (!is.null(input$criautre) && !is.null(input$cribague)) {
+#           if (input$criautre!='0' || (input$cribague=='1-2' || input$cribague=='>2'))
+#           {cri_total = 1}
+#           else {cri_total = 0}
+#         }
+#         else {cri_total=""}
+# 
+#         remarque_tot = paste0(input$remarques_capt, input$remarque_collier, input$remarques_table, input$remarques_lacher, collapse = "~")
+#         
+#         id_lgg = dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'longueur bois gauche' ")
+#         id_lgd = dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'longueur bois droit' ")
+#         id_etat_bois =  dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'etat des bois' ")
+#         id_lactation =  dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'lactation' ")
+# 
+#         value_etatbois = dbGetQuery(con, paste0("SELECT etb_id from lu_tables.tr_etat_bois_etb where etb_description = '",input$etatBois,"' "))[1,1]
+# 
+#         cat_tempA = ""
+#         cat_tempE = ""
+# 
+#         ligne_selection = input$tablecollier_rows_selected
+# 
+#         for (i in 1:nrow(temperature)) {
+#           if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+#             cat_tempA = paste0(cat_tempA, temperature$Temperature_r[i], collapse = "~")
+#           }
+#           else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+#             cat_tempA = paste0(cat_tempA, temperature$Temperature_b[i], collapse  = "~")
+#           }
+#           if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+#             cat_tempE = paste0(cat_tempE, temperature$Temperature_r[i], collapse = "~")
+#           }
+#           else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+#             cat_tempE = paste0(cat_tempE, temperature$Temperature_b[i], collapse = "~")
+#           }
+#         }
+# 
+#         deb_zone_etude = substring(input$zone_etude, 1, 1)
+#         var_id_glu =  dbGetQuery(con, paste0("SELECT var_id FROM para_phy.tr_variable_measured_var where var_name_long ='glucose_blood'"))[1,1]
+#         var_id_dia =  dbGetQuery(con, paste0("SELECT var_id FROM para_phy.tr_variable_measured_var where var_name_long ='diarrhée'"))[1,1]
+#         var_id_tique =  dbGetQuery(con, paste0("SELECT var_id FROM para_phy.tr_variable_measured_var where var_name_long ='ticks_count'"))[1,1]
+# 
+#         exp_id = dbGetQuery(con, paste0("SELECT exp_id FROM para_phy.tr_experimenter_exp where exp_name ='Verheyden, Helene/Thomas Roedl'"))[1,1]
+#         cnt_id = dbGetQuery(con, paste0("SELECT cnt_id FROM para_phy.tr_analysis_counting_cnt where cnt_analysis_type ='counted around the head and between the rear leggs'"))[1,1]
+#         pat_id = dbGetQuery(con, paste0("SELECT pat_id FROM para_phy.tr_pathogen_pat where pat_name ='Ixodida'"))[1,1]
+# 
+# 
+# 
+#         #### Nouvel animal ####
+#         print(input$estNouvelAnimal)
+#         if (input$estNouvelAnimal == 'oui') {
+# 
+#           if (faon == F) {
+#             cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
+# 
+#           if (faon == T) {
+#             cap_bague = paste0("F", "_", input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
+# 
+#           send_new1 =  sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani)
+# 
+#           send_new1 = gsub("'NA'","NULL", send_new1)
+#           send_new1 = gsub("''","NULL", send_new1)
+#           print(send_new1)
+#           dbSendQuery(con,send_new1)
+# 
+#           find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
+#           find_ani_id <- find_ani_id[1,1]
+#           find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
+#           find_site_id <- find_site_id[1,1]
+# 
+#           send_new2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+#                               find_ani_id, find_site_id, cap_bague, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+#                               bledia ,gettime, TRUE, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g)
+# 
+#           send_new2 = gsub("'NA'","NULL", send_new2)
+#           send_new2 = gsub("''","NULL", send_new2)
+# 
+#           dbSendQuery(con,send_new2)
+# 
+#           find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
+# 
+#           dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID))
+# 
+#           send_new3 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id)
+#                           values ('",input$nAnimal,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
+#                                   '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
+#                                   '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
+# 
+#           send_new3 = gsub("'NA'","NULL", send_new3)
+#           send_new3 = gsub("''","NULL", send_new3)
+# 
+#           dbSendQuery(con, send_new3)
+# 
+#           if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
+#             send_new4 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')")
+#             dbSendQuery(con, send_new4)}
+# 
+#           if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
+#             send_new5 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')")
+#             dbSendQuery(con, send_new5) }
+# 
+#           if (input$etatBois != "" && input$sexe == 'M') {
+#             send_new6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')")
+#             dbSendQuery(con, send_new6) }
+# 
+#           if (input$lactation != "" && input$sexe == 'F') {
+#             send_new7 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')")
+#             dbSendQuery(con, send_new7) }
+# 
+#           for (i in 1:nrow(blessure)) {
+#             if (nrow(blessure) !=0) {
+#             liste_trait = blessure[i,3]
+#             liste_trait =  strsplit(as.character(liste_trait), split = "_")
+#             for (j in 1:length(liste_trait[[1]])) {
+#               ble_loc = blessure[i,1]
+#               ble_grav = blessure[i,2]
+#               ble_trait = liste_trait[[1]][j]
+#               id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
+#               id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
+#               id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
+#               send_new8 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
+#               dbSendQuery(con, send_new8)
+#             }
+#           } }
+# 
+#           for (i in 1:nrow(prelevement)) {
+#             if (nrow(prelevement) !=0) {
+#               prel_type = prelevement[i,1]
+#               prel_loc = prelevement[i,2]
+#               prel_cont = prelevement[i,3]
+#               prel_solv = prelevement[i,4]
+#               prel_nb = prelevement[i,5]
+#               prel_remarque = prelevement[i,6]
+#               id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
+#               id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
+#               id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
+#               id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
+#               send_new9 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
+#               dbSendQuery(con, send_new9)
+#             }}
+# 
+#           for (i in 1:nrow(temperature)) {
+#             if (nrow(temperature) !=0) {
+#               if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+#                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+#                 send_new10 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+#                 dbSendQuery(con, send_new10)
+#               }}}
+# 
+#           for (i in 1:nrow(temperature)) {
+#             if (nrow(temperature) !=0) {
+#               if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+#                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+#                 send_new11 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+#                 dbSendQuery(con, send_new11)
+#               }}}
+# 
+#           for (i in 1:nrow(temperature)) {
+#             if (nrow(temperature) !=0) {
+#               if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+#                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+#                 send_new12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+#                 dbSendQuery(con, send_new12)
+#               }}}
+# 
+#           for (i in 1:nrow(temperature)) {
+#             if (nrow(temperature) !=0) {
+#               if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+#                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+#                 send_new13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+#                 dbSendQuery(con, send_new13)
+#               }}}
+# 
+# 
+#           if (!is.null(ligne_selection)) {
+# find_eqt_id = dbGetQuery(con, paste0("select eqt_id from public.t_equipement_eqt where eqt_id_usuel = '",query()[ligne_selection,4],"'"))[1,1]
+# find_pb_collier = dbGetQuery(con, paste0("select eqc_remarque from public.t_equipement_conf_eqc where eqc_eqt_id = '",find_eqt_id,"'"))[1,1]
+# 
+#             send_new14 = paste0("INSERT INTO public.tj_equipement_animal_eqt_ani_eqa (eqa_ani_id, eqa_eqt_id, eqa_date_debut, eqa_date_fin_arrondi, eqa_probleme, eqa_annee_suivi) VALUES
+#                                      ('",find_ani_id,"', '",find_eqt_id,"', '",as.character(input$date_caract),"', FALSE ,'",find_pb_collier,"','",annee_suivie,"')")
+#             send_new14 = gsub("'NA'","NULL", send_new14)
+#             send_new14 = gsub("''","NULL", send_new14)
+#             dbSendQuery(con, send_new14) }
+# 
+#           cat_labo = paste0(deb_zone_etude, "_", annee, mois, jour,"_", input$nAnimal)
+#           cat_phyhuman_glu = paste0(input$nAnimal, "_", cat_labo, "_", as.character(input$date_caract), "_", 'glucose_blood')
+#           cat_phyhuman_dia = paste0(input$nAnimal, "_", cat_labo, "_", as.character(input$date_caract), "_", 'diarrhée')
+# 
+#           if (!is.na(input$tglucose)) {
+#             send_new15 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
+#                                      ('",cat_phyhuman_glu,"', '",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_glu,"', '",exp_id,"', '",input$tglucose,"')")
+#             send_new15 = gsub("'NA'","NULL", send_new15)
+#             send_new15 = gsub("''","NULL", send_new15)
+#             dbSendQuery(con, send_new15) }
+# 
+#           if (input$diarrhee != "") {
+#             send_new16 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
+#                                      ('",cat_phyhuman_dia,"', '",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_dia,"', '",exp_id,"', '",input$diarrhee,"')")
+#             send_new16 = gsub("'NA'","NULL", send_new16)
+#             send_new16 = gsub("''","NULL", send_new16)
+#             dbSendQuery(con, send_new16) }
+# 
+#           if (input$tiques != "") {
+#             send_new17 = paste0("INSERT INTO para_phy.t_parasitology_para ( para_ani_id, para_laboriginid, para_daysampling, para_exp_id, para_var_id, para_pat_id, para_res, para_cnt_id) VALUES
+#                                      ('",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",exp_id,"', '",var_id_tique,"', '",pat_id,"', '",input$tiques,"', '",cnt_id,"')")
+#             send_new17 = gsub("'NA'","NULL", send_new17)
+#             send_new17 = gsub("''","NULL", send_new17)
+#             dbSendQuery(con, send_new17) }
+# 
+#         }
+# 
+# 
+# 
+#         #### Ancien animal mais sans identifiant  ####
+# 
+#         else if (input$estNouvelAnimal == 'non' && input$identifie == 'non') {
+# 
+#           if (faon == F) {
+#             cap_bague = paste0(input$idtagOrD, "_", str_sub(annee_suivie, -2)) }
+# 
+#           if (faon == T) {
+#             cap_bague = paste0("F", "_", input$idTagOrD, "_", str_sub(annee_suivie, -2)) }
+# 
+#           send_old_lost1 = sprintf("INSERT INTO public.t_animal_ani( ani_etiq, ani_sexe, ani_remarque ) values ('%s', '%s', '%s')", input$nAnimal, input$sexe, input$remarque_ani)
+# 
+#           send_old_lost1 = gsub("'NA'","NULL", send_old_lost1)
+#           send_old_lost1 = gsub("''","NULL", send_old_lost1)
+# 
+#           dbSendQuery(con,send_old_lost1)
+# 
+#           find_ani_id = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal,"'"))
+#           find_ani_id <- find_ani_id[1,1]
+#           find_site_id = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '",input$idSite,"'"))
+#           find_site_id <- find_site_id[1,1]
+# 
+#           if (!is.null(ligne_selection)) { cap_pertinent2 = TRUE} else { cap_pertinent2 = FALSE}
+# 
+#           send_old_lost2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,cap_poids, cap_circou, cap_lpa, cap_etat_sante,cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+#                                    find_ani_id, find_site_id, cap_bague, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+#                                    bledia,gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g)
+# 
+#           send_old_lost2 = gsub("'NA'","NULL", send_old_lost2)
+#           send_old_lost2 = gsub("''","NULL", send_old_lost2)
+# 
+#           dbSendQuery(con,send_old_lost2)
+# 
+#           send_old_lost3 = sprintf("INSERT INTO public.t_correspondance_animal_cor(cor_ancien, cor_valide) values ('%s','%s')", input$nAnimal, input$nAnimal)
+# 
+#           send_old_lost3 = gsub("'NA'","NULL", send_old_lost3)
+#           send_old_lost3 = gsub("''","NULL", send_old_lost3)
+# 
+#           dbSendQuery(con,send_old_lost3)
+# 
+#           find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
+# 
+#           dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID))
+# 
+#           send_old_lost4 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id)
+#                           values ('",input$nAnimal,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
+#                          '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
+#                          '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
+# 
+#           send_old_lost4 = gsub("'NA'","NULL", send_old_lost4)
+#           send_old_lost4 = gsub("''","NULL", send_old_lost4)
+# 
+#           dbSendQuery(con, send_old_lost4)
+# 
+#           if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
+#             send_old_lost5 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')")
+#             dbSendQuery(con, send_old_lost5)}
+# 
+#           if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
+#             send_old_lost6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')")
+#             dbSendQuery(con, send_old_lost6) }
+# 
+#           if (input$etatBois != "" && input$sexe == 'M') {
+#             send_old_lost7 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')")
+#             dbSendQuery(con, send_old_lost7) }
+# 
+#           if (input$lactation != "" && input$sexe == 'F') {
+#             send_old_lost8 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')")
+#             dbSendQuery(con, send_old_lost8) }
+# 
+#           for (i in 1:nrow(blessure)) {
+#             if (nrow(blessure) !=0) {
+#             liste_trait = blessure[i,3]
+#             liste_trait =  strsplit(as.character(liste_trait), split = "_")
+#             for (j in 1:length(liste_trait[[1]])) {
+#               ble_loc = blessure[i,1]
+#               ble_grav = blessure[i,2]
+#               ble_trait = liste_trait[[1]][j]
+#               id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
+#               id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
+#               id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
+#               send_old_lost9 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
+#               dbSendQuery(con, send_old_lost9)
+#             }
+#           }}
+# 
+#           for (i in 1:nrow(prelevement)) {
+#             if (nrow(prelevement) !=0) {
+#               prel_type = prelevement[i,1]
+#               prel_loc = prelevement[i,2]
+#               prel_cont = prelevement[i,3]
+#               prel_solv = prelevement[i,4]
+#               prel_nb = prelevement[i,5]
+#               prel_remarque = prelevement[i,6]
+#               id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
+#               id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
+#               id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
+#               id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
+#               send_old_lost10 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
+#               dbSendQuery(con, send_old_lost10)
+#           }}
+# 
+#         for (i in 1:nrow(temperature)) {
+#           if (nrow(temperature) !=0) {
+#             if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+#               which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+#               send_old_lost11 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+#               dbSendQuery(con, send_old_lost11)
+#             }}}
+# 
+#         for (i in 1:nrow(temperature)) {
+#           if (nrow(temperature) !=0) {
+#             if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+#               which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+#               send_old_lost12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+#               dbSendQuery(con, send_old_lost12)
+#             }}}
+# 
+#         for (i in 1:nrow(temperature)) {
+#           if (nrow(temperature) !=0) {
+#             if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+#               which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+#               send_old_lost13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+#               dbSendQuery(con, send_old_lost13)
+#             }}}
+# 
+#         for (i in 1:nrow(temperature)) {
+#           if (nrow(temperature) !=0) {
+#             if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+#               which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+#               send_old_lost14 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+#               dbSendQuery(con, send_old_lost14)
+#             }}}
+# 
+# 
+#         if (!is.null(ligne_selection)) {
+# find_eqt_id = dbGetQuery(con, paste0("select eqt_id from public.t_equipement_eqt where eqt_id_usuel = '",query()[ligne_selection,4],"'"))[1,1]
+# find_pb_collier = dbGetQuery(con, paste0("select eqc_remarque from public.t_equipement_conf_eqc where eqc_eqt_id = '",find_eqt_id,"'"))[1,1]
+# 
+#           send_old_lost15 = paste0("INSERT INTO public.tj_equipement_animal_eqt_ani_eqa (eqa_ani_id, eqa_eqt_id, eqa_date_debut, eqa_date_fin_arrondi, eqa_probleme, eqa_annee_suivi) VALUES
+#                           ('",find_ani_id,"', '",find_eqt_id,"', '",as.character(input$date_caract),"', FALSE ,'",find_pb_collier,"','",annee_suivie,"')")
+#           send_old_lost15 = gsub("'NA'","NULL", send_old_lost15)
+#           send_old_lost15 = gsub("''","NULL", send_old_lost15)
+#           dbSendQuery(con, send_old_lost15) }
+# 
+#         cat_labo = paste0(deb_zone_etude, "_", annee, mois, jour,"_", input$nAnimal)
+#         cat_phyhuman_glu = paste0(input$nAnimal, "_", cat_labo, "_", as.character(input$date_caract), "_", 'glucose_blood')
+#         cat_phyhuman_dia = paste0(input$nAnimal, "_", cat_labo, "_", as.character(input$date_caract), "_", 'diarrhée')
+# 
+#         if (!is.na(input$tglucose)) {
+#           send_old_lost16 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
+#                           ('",cat_phyhuman_glu,"', '",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_glu,"', '",exp_id,"', '",input$tglucose,"')")
+#           send_old_lost16 = gsub("'NA'","NULL", send_old_lost16)
+#           send_old_lost16 = gsub("''","NULL", send_old_lost16)
+#           dbSendQuery(con, send_old_lost16) }
+# 
+#         if (input$diarrhee != "") {
+#           send_old_lost17 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
+#                           ('",cat_phyhuman_dia,"', '",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_dia,"', '",exp_id,"', '",input$diarrhee,"')")
+#           send_old_lost17 = gsub("'NA'","NULL", send_old_lost17)
+#           send_old_lost17 = gsub("''","NULL", send_old_lost17)
+#           dbSendQuery(con, send_old_lost17) }
+# 
+#         if (input$tiques != "") {
+#           send_old_lost18 = paste0("INSERT INTO para_phy.t_parasitology_para ( para_ani_id, para_laboriginid, para_daysampling, para_exp_id, para_var_id, para_pat_id, para_res, para_cnt_id) VALUES
+#                           ('",find_ani_id,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",exp_id,"', '",var_id_tique,"', '",pat_id,"', '",input$tiques,"', '",cnt_id,"')")
+#           send_old_lost18 = gsub("'NA'","NULL", send_old_lost18)
+#           send_old_lost18 = gsub("''","NULL", send_old_lost18)
+#           dbSendQuery(con, send_old_lost18) }
+# 
+#         }
+# 
+#         #### Ancien animal identifié ####
+# 
+#         else if (input$estNouvelAnimal == 'non' && input$identifie == 'oui') {
+# 
+#           if (input$newTagD == T  && (faon == F )) {
+#             cap_bague2 = paste0(input$idTagOrD3, "_", str_sub(annee_suivie, -2)) }
+# 
+#           if (input$newTagD == T  && (faon == T )) {
+#             cap_bague2 = paste0("F", "_", input$idTagOrD3, "_", str_sub(annee_suivie, -2)) }
+# 
+#           if ((input$newTagG == T) && (faon == F )) {
+#             cap_bague2 = paste0(input$idTagOrG3, "_", str_sub(annee_suivie, -2)) }
+# 
+#           if ((input$newTagG == T) && (faon == T )) {
+#             cap_bague2 = paste0("F", "_", input$idTagOrG3, "_", str_sub(annee_suivie, -2)) }
+# 
+#           if (input$newTagD == F && input$newTagG == F) {
+#             cap_bague2 = paste0(input$nAnimal2, "_", str_sub(annee_suivie, -2)) }
+# 
+#           find_ani_id2 = dbGetQuery(con, paste0("select ani_id from public.t_animal_ani where ani_etiq= '",input$nAnimal2,"'"))
+#           find_ani_id2 <- find_ani_id2[1,1]
+#           find_site_id2 = dbGetQuery(con, paste0("select sit_id from public.tr_site_capture_sit where sit_nom_court= '", input$idSite2,"'"))
+#           find_site_id2 <- find_site_id2[1,1]
+# 
+#           if (input$newTagG == F && input$newTagD == F) {
+# 
+#             send1 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,  cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+#                             find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+#                             bledia,input$time, cap_pertinent, input$numSabot, input$idTagOrD2, input$idTagOrG2, input$metal_tag_d2, input$metal_tag_g2)
+# 
+#             send1 = gsub("'NA'","NULL", send1)
+#             send1 = gsub("''","NULL", send1)
+# 
+#             dbSendQuery(con,send1) }
+# 
+# 
+#           else if (input$newTagG == T && input$newTagD == F) {
+# 
+#             send2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+#                             find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+#                             bledia,input$time, cap_pertinent, input$numSabot, input$idTagOrD2, input$idTagOrG3, input$metal_tag_d2, input$metal_tag_g3)
+# 
+#             send2 = gsub("'NA'","NULL", send2)
+#             send2 = gsub("''","NULL", send2)
+# 
+#             dbSendQuery(con,send2) }
+# 
+# 
+#           else if (input$newTagG == F && input$newTagD == T) {
+# 
+#             send3 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+#                             find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+#                             bledia,input$time, cap_pertinent, input$numSabot, input$idTagOrD3, input$idTagOrG2, input$metal_tag_d3, input$metal_tag_g2)
+# 
+#             send3 = gsub("'NA'","NULL", send3)
+#             send3 = gsub("''","NULL", send3)
+# 
+#             dbSendQuery(con,send3) }
+# 
+# 
+#           else if (input$newTagG == T && input$newTagD == T) {
+# 
+#             send4 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe, cap_poids, cap_circou, cap_lpa, cap_etat_sante, cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+#                             find_ani_id2, find_site_id2, cap_bague2, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, as.integer(input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
+#                             bledia , input$time, cap_pertinent, input$numSabot, input$idTagOrD3, input$idTagOrG3, input$metal_tag_d3, input$metal_tag_g3)
+# 
+#             send4 = gsub("'NA'","NULL", send4)
+#             send4 = gsub("''","NULL", send4)
+# 
+#             dbSendQuery(con, send4)
+#             }
+# 
+#           find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
+# 
+#            if (input$newRFIDbox == T && input$idRFID_new != "") {
+#             dbSendQuery(con, sprintf("UPDATE public.t_rfid_rfi SET rfi_cap_id = '%s' where rfi_tag_code = '%s'", find_cap_id, input$idRFID_new)) }
+# 
+#           send5 = paste0("INSERT INTO cmpt.t_capture_cpt (cpt_ani_etiq, cpt_date, cpt_annee_suivi, cpt_tble_lutte, cpt_tble_halete, cpt_tble_cri_synthese, cpt_tble_cri_bague, cpt_tble_cri_autre, cpt_tble_temp_animal, cpt_tble_temp_exterieur, cpt_table_eurodeer, cpt_lache_titube, cpt_lache_couche, cpt_lache_course, cpt_lache_tombe, cpt_lache_gratte_collier, cpt_lache_cabriole, cpt_lache_bolide, cpt_lache_aboiement_cri, cpt_lache_nbre_stop, cpt_lache_habitat_lache, cpt_lache_habitat_pertevue, cpt_lache_visibilite, cpt_lache_public, cpt_lache_eurodeer,cpt_heure_debut_table, cpt_heure_lache, cpt_heure_second_lache, cpt_remarque, cpt_cap_id)
+#                           values ('",input$nAnimal2,"', '",as.character(input$date_caract),"', '",annee_suivie,"', '",input$lutte,"', '",input$halete,"', '",cri_total,"', '",input$cribague,"', '",input$criautre,"','",cat_tempA,"','",cat_tempE,"', '",input$Notation_euro_table,"', '",input$titube,"', '",input$couche,"', '",input$vitesse,"',
+#                           '",input$tombe,"', '",input$gratte_collier,"', '",input$cabriole_saut,"', '",input$allure,"', '",input$cri,"', '",input$nbre_stops,"', '",input$habitat,"', '",input$habitat_perte,"', '",input$visibilite,"',
+#                           '",input$nbre_personnes,"', '",input$Notation_euro,"', '",input$time_caract,"', '",input$time,"', '",input$time2,"', '",remarque_tot,"', '",find_cap_id,"')")
+# 
+#           print(cat_tempA)
+#           print(cat_tempE)
+# 
+#           send5 = gsub("'NA'","NULL", send5)
+#           send5 = gsub("''","NULL", send5)
+# 
+#           dbSendQuery(con, send5)
+# 
+#           if (!is.na(input$lBoisGauche) && input$sexe == 'M') {
+#             send6 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgg,"', '",find_cap_id,"','",input$lBoisGauche,"')")
+#             dbSendQuery(con, send6)
+#             }
+# 
+#           if (!is.na(input$lBoisDroit) && input$sexe == 'M') {
+#             send7 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_lgd,"', '",find_cap_id,"','",input$lBoisDroit,"')")
+#             dbSendQuery(con, send7)
+#             }
+# 
+#           if (input$etatBois != "" && input$sexe == 'M') {
+#             send8 = paste0("INSERT INTO public.tj_mesureenum_capture_nca (nca_var_id, nca_cap_id, nca_valeur) VALUES ('",id_etat_bois,"', '",find_cap_id,"','",value_etatbois,"')")
+#             dbSendQuery(con, send8)
+#             }
+# 
+#           if (input$lactation != "" && input$sexe == 'F') {
+#             send9 = paste0("INSERT INTO public.tj_mesureealpha_capture_aca (aca_var_id, aca_cap_id, aca_valeur) VALUES ('",id_lactation,"', '",find_cap_id,"','",input$lactation,"')")
+#             dbSendQuery(con, send9)
+#           }
+# 
+#          for (i in 1:nrow(blessure)) {
+#            if (nrow(blessure) !=0) {
+#              liste_trait = blessure[i,3]
+#              liste_trait =  strsplit(as.character(liste_trait), split = "_")
+#              for (j in 1:length(liste_trait[[1]])) {
+#                ble_loc = blessure[i,1]
+#                ble_grav = blessure[i,2]
+#                ble_trait = liste_trait[[1]][j]
+#                id_ble_loc = dbGetQuery(con, paste0("SELECT bll_id from lu_tables.tr_blessure_localisation_bll where bll_localisation = '",ble_loc,"'"))
+#                id_ble_grav = dbGetQuery(con, paste0("SELECT blg_id from lu_tables.tr_blessure_gravite_blg where blg_gravite = '",ble_grav,"' and blg_bll_id = '",id_ble_loc,"'"))
+#                id_ble_trait = dbGetQuery(con, paste0("SELECT blt_id from lu_tables.tr_blessure_traitement_blt where blt_traitement = '",ble_trait,"'"))
+#                send10 = paste0("INSERT INTO public.t_blessure_capture_blc (blc_cap_id, blc_bll_id, blc_blg_id, blc_blt_id, blc_remarque) values ('",find_cap_id,"', '",id_ble_loc,"', '",id_ble_grav,"', '",id_ble_trait,"', '",input$remarques_ble,"')")
+#                dbSendQuery(con, send10)
+#              }
+#            }
+#          }
+# 
+#          for (i in 1:nrow(prelevement)) {
+#            if (nrow(prelevement) !=0) {
+#              prel_type = prelevement[i,1]
+#              prel_loc = prelevement[i,2]
+#              prel_cont = prelevement[i,3]
+#              prel_solv = prelevement[i,4]
+#              prel_nb = prelevement[i,5]
+#              prel_remarque = prelevement[i,6]
+#              id_prel_type = dbGetQuery(con, paste0("SELECT sat_id from lu_tables.tr_samples_types_sat where sat_type = '",prel_type,"'"))
+#              id_prel_loc = dbGetQuery(con, paste0("SELECT sal_id from lu_tables.tr_samples_localisation_sal where sal_localisation = '",prel_loc,"' AND sal_sat_id = '",id_prel_type,"'"))
+#              id_prel_cont = dbGetQuery(con, paste0("SELECT sac_id from lu_tables.tr_samples_contenant_sac where sac_conditionnement = '",prel_cont,"' AND sac_sat_id = '",id_prel_type,"'"))
+#              id_prel_solv = dbGetQuery(con, paste0("SELECT sas_id from lu_tables.tr_samples_solvant_sas where sas_solvant = '",prel_solv,"' AND sas_sac_id = '",id_prel_cont,"' "))
+#              send11 = paste0("INSERT INTO public.t_sample_capture_sca (sca_cap_id, sca_sat_id, sca_sal_id, sca_sac_id, sca_sas_id, sca_value, sca_remarque) values ('",find_cap_id,"', '",id_prel_type,"', '",id_prel_loc,"', '",id_prel_cont,"', '",id_prel_solv,"', '",prel_nb,"', '",prel_remarque,"')")
+#              dbSendQuery(con, send11)
+#            }}
+# 
+#           for (i in 1:nrow(temperature)) {
+#             if (nrow(temperature) !=0) {
+#               if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
+#                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+#                 send12 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+#                 dbSendQuery(con, send12)
+#              }}}
+# 
+#           for (i in 1:nrow(temperature)) {
+#             if (nrow(temperature) !=0) {
+#               if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
+#                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+#                 send13 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_r[i],"')")
+#                 dbSendQuery(con, send13)
+#               }}}
+# 
+#           for (i in 1:nrow(temperature)) {
+#             if (nrow(temperature) !=0) {
+#               if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
+#                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus' ")
+#                 send14 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+#                 dbSendQuery(con, send14)
+#               }}}
+# 
+#           for (i in 1:nrow(temperature)) {
+#             if (nrow(temperature) !=0) {
+#               if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
+#                 which_sonde = dbGetQuery(con, "SELECT tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'exterieur' ")
+#                 send15 = paste0("INSERT INTO public.t_temperatures_tem (tem_cap_id, tem_time_local_cest, tem_tel_id, tem_val) VALUES ('",find_cap_id,"', '",temperature$Date[i],"', '",which_sonde,"', '",temperature$Temperature_b[i],"')")
+#                 dbSendQuery(con, send15)
+#               }}}
+# 
+#           if (!is.null(ligne_selection)) {
+# find_eqt_id = dbGetQuery(con, paste0("select eqt_id from public.t_equipement_eqt where eqt_id_usuel = '",query()[ligne_selection,4],"'"))[1,1]
+# find_pb_collier = dbGetQuery(con, paste0("select eqc_remarque from public.t_equipement_conf_eqc where eqc_eqt_id = '",find_eqt_id,"'"))[1,1]
+# 
+#             send16 = paste0("INSERT INTO public.tj_equipement_animal_eqt_ani_eqa (eqa_ani_id, eqa_eqt_id, eqa_date_debut, eqa_date_fin_arrondi, eqa_probleme, eqa_annee_suivi) VALUES
+#                       ('",find_ani_id2,"', '",find_eqt_id,"', '",as.character(input$date_caract),"', FALSE ,'",find_pb_collier,"','",annee_suivie,"')")
+#             send16 = gsub("'NA'","NULL", send16)
+#             send16 = gsub("''","NULL", send16)
+#             dbSendQuery(con, send16)
+#             }
+# 
+#           cat_labo = paste0(deb_zone_etude, "_", annee, mois, jour,"_", input$nAnimal2)
+#           cat_phyhuman_glu = paste0(input$nAnimal2, "_", cat_labo, "_", as.character(input$date_caract), "_", 'glucose_blood')
+#           cat_phyhuman_dia = paste0(input$nAnimal2, "_", cat_labo, "_", as.character(input$date_caract), "_", 'diarrhée')
+# 
+#           if (!is.na(input$tglucose)) {
+#             send17 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
+#                       ('",cat_phyhuman_glu,"', '",find_ani_id2,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_glu,"', '",exp_id,"', '",input$tglucose,"')")
+#             send17 = gsub("'NA'","NULL", send17)
+#             send17 = gsub("''","NULL", send17)
+#             dbSendQuery(con, send17)
+#             }
+# 
+#           if (input$diarrhee != "") {
+#             send18 = paste0("INSERT INTO para_phy.t_physiology_phy (phy_human_id, phy_ani_id, phy_laboriginid, phy_daysampling, phy_var_id, phy_exp_id, phy_res) VALUES
+#                             ('",cat_phyhuman_dia,"', '",find_ani_id2,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",var_id_dia,"', '",exp_id,"', '",input$diarrhee,"')")
+#             send18 = gsub("'NA'","NULL", send18)
+#             send18 = gsub("''","NULL", send18)
+#             dbSendQuery(con, send18)
+#             }
+# 
+#           if (input$tiques != "") {
+#             send19 = paste0("INSERT INTO para_phy.t_parasitology_para ( para_ani_id, para_laboriginid, para_daysampling, para_exp_id, para_var_id, para_pat_id, para_res, para_cnt_id) VALUES
+#                             ('",find_ani_id2,"', '", cat_labo,"', '",as.character(input$date_caract),"', '",exp_id,"', '",var_id_tique,"', '",pat_id,"', '",input$tiques,"', '",cnt_id,"')")
+#             send19 = gsub("'NA'","NULL", send19)
+#             send19 = gsub("''","NULL", send19)
+#             dbSendQuery(con, send19)
+#             }
+# 
+# 
+#         }
+
+#shinyjs::js$refresh("all")
+#shinyjs::reset("all")
+
+
