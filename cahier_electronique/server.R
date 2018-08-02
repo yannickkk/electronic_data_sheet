@@ -1158,7 +1158,7 @@ return(liste_collier)})
   
   ##################           RUBRIQUE CAPTURE                         #################
   
-updateSelectizeInput(session, "numSabot_capture", choices = choix[["numSabot_capture"]])
+#updateSelectizeInput(session, "numSabot_capture", choices = choix[["numSabot_capture"]])
   
 ####affichage des dates disponibles
 observe({
@@ -1173,13 +1173,17 @@ observe({
 
 ####affichage des données de l'individu
 observe({
-             if ((input$date_capture)!="") { if(input$numSabot_capture!="") {
-               fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep=";", header = T)
-                 colnames(fichier_lu)<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer","remise sabot","hre_lacher_2")
+             if ((input$date_capture)!="") { 
+                  fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep=";", header=TRUE, stringsAsFactors=FALSE, colClasses = c("character"))
+                  colnames(fichier_lu)<- noms_colonnes
+                  updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]))
+               if(input$numSabot_capture!="") {
                  select_line <<- which(fichier_lu[,c("num_sabot")]==c(input$numSabot_capture),arr.ind=TRUE)[1]
                  ani <- fichier_lu[select_line, c("N°Animal")]
                  ani2<- ani
                  sexe<- fichier_lu[select_line, c("Sexe")]
+                 print(sexe)
+                 sabot<- fichier_lu[select_line, c("num_sabot")]
                  age<- fichier_lu[select_line, c("Age cahier")]
                  tagd<- fichier_lu[select_line, c("cap_tag_droit")]
                  tagg<- fichier_lu[select_line, c("cap_tag_gauche")]
@@ -1189,24 +1193,25 @@ observe({
                  anim<-dbGetQuery(con, "Select ani_etiq from t_animal_ani")
                  if (length(grep(ani2,as.character(anim[,1]))) != 0){
                    updateRadioButtons(session,"estNouvelAnimal", selected = "non")
-                   updateSelectizeInput(session, "idSite2",  selected = site2)
+                   updateSelectizeInput(session, "idSite2",  selected = site)
                    updateSelectizeInput(session, "nAnimal2",  selected = ani2)
                  }else {
-                   updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
-                   updateSelectizeInput(session, "idSite",  selected = site)
-                   updateSelectizeInput(session, "nAnimal",  selected = ani)}
-                 updateRadioButtons(session, "sexe", selected = sexe)
+                 updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
+                 updateSelectizeInput(session, "idSite",  selected = site)
+                 updateTextInput(session, "nAnimal",  value = ani)}
+                 updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]),  selected = sabot)
                  updateSelectizeInput(session, "age",  selected = age)
-                 updateSelectizeInput(session, "cap_tag_droit",  selected = tagd)
-                 updateSelectizeInput(session, "cap_tag_gauche",  selected = tagg)
+                 updateTextInput(session, "idTagOrG", value =  tagd)
+                 updateTextInput(session, "idTagOrD", value =  tagg)
                  output$poids_ani = renderText({poids})
                  updateTextInput(session,"remarque_ani", value = sante)
+                 updateAwesomeRadio(session, "sexe", choices =choix[["sexe"]], selected = sexe)
                 }}
                })
 
   ##################           RUBRIQUE SABOT                           #################
   
-  updateSelectizeInput(session, "cpt_dose_acepromazine", choices = dbGetQuery(con,"select distinct cpt_dose_acepromazine from cmpt.t_capture_cpt order by cpt_dose_acepromazine"))
+  updateSelectizeInput(session, "cpt_dose_acepromazine", choices = choix[["cpt_dose_acepromazine"]])
 
 #####calcul de l'heure en sabot 
 observe({
@@ -1243,8 +1248,8 @@ observe({
 
     checklist_capture = data.frame()
     
-    if ((input$numSabot_capture)=="")  {
-      checklist_capture = data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Numéro de sabot"))}
+    # if ((input$numSabot_capture)=="")  {
+    #   checklist_capture = data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Numéro de sabot"))}
     
     if ((input$date_capture)=="")  {
       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Date")))}
@@ -1510,7 +1515,7 @@ observe({
             save1 = cbind(save1,data.frame("mois" = c(mois)))
             save1 = cbind(save1,data.frame("annee" = c(annee)))
             save1 = cbind(save1,data.frame("annee  de suivi" = c(annee_suivie)))
-            if (!is.null(input$sexe)) {save1 = cbind(save1,data.frame("Sexe" = c(input$sexe))) }
+            if (!is.null(input$sexe)) {save1 = cbind(save1,data.frame("Sexe" = as.character(c(input$sexe)))) }
             if (is.null(input$sexe)) {save1 = cbind(save1,data.frame("Sexe" = c(""))) }            
             save1 = cbind(save1,data.frame("Age cahier" = c(input$age)))
             save1 = cbind(save1,data.frame("Age corrige" = c(input$age)))
@@ -1753,8 +1758,8 @@ observe({
             save1 = cbind(save1,data.frame("heure_lacher_2" = c("")))
             
           }
-
-          write.table(save1, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), sep=";", na="", row.names = F)
+         
+          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
         
         }}
       
@@ -1763,10 +1768,11 @@ observe({
       modalCallback_check2 = function  (value) {
         if (value == TRUE) {
 
-          fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), header =TRUE, sep = ";", na.strings = "")
+         fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na.strings = "", header=TRUE, stringsAsFactors=FALSE, colClasses = c("character"))
 
          colnames(fichier_lu)<- noms_colonnes
-     
+         
+         
          remarque_tot = paste0(input$remarques_capt, input$remarque_collier, input$remarques_table, input$remarques_lacher, sep = "~")
           
           if ((input$time2)!=""){
@@ -1798,7 +1804,7 @@ observe({
           fichier_lu[select_line,"remise sabot"]<- remise_sabot
           fichier_lu[select_line,"remarque_generale"]<- remarque_tot
           
-          if (fichier_lu[select_line,"Sexe"] == FALSE) {fichier_lu[select_line,"Sexe"] == "F"}
+          
           #print(fichier_lu)
           write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
@@ -1855,8 +1861,7 @@ observe({
         if (value == TRUE) {
           
 
-          fichier_lu2 <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), 
-                                   sep=";", header = T)
+          fichier_lu2 <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep=";", header=TRUE, stringsAsFactors=FALSE, colClasses = c("character"))
   
           colnames(fichier_lu2)<- noms_colonnes
 
@@ -1876,11 +1881,11 @@ observe({
           surveillance<- times(as.numeric(surveillance) / (24 * 3600))
           
           ####column to fill
-          col_concerned<- c("num_sabot","nom capteur", "nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)"
+          col_concerned<- c("nom capteur", "nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)"
                             ,"lutte","haletement (1/0)","cri (1/0)","filet","capture","acepromazine (1=0,3cc)"
                             ,"sabot","acepro","couche (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv")
           ####reactive values names
-          reactive_values <- c("numSabot_capture" ,"nom_capteur_txt","Nbre_pers_experimentes","cpt_filet_vitesse","cpt_filet_allure"
+          reactive_values <- c("nom_capteur_txt","Nbre_pers_experimentes","cpt_filet_vitesse","cpt_filet_allure"
                             ,"cpt_filet_lutte","cpt_filet_halete","cpt_filet_cri","cpt_temps_filet","cpt_heure_debut_filet","cpt_dose_acepromazine"
                             ,"cpt_heure_mise_sabot","cpt_heure_mise_sabot","cpt_sabot_couche","cpt_sabot_agitation","cpt_sabot_retournement","cpt_heure_fin_surv")
           ####loop to fill each column with corresponding reactive_value
@@ -1888,19 +1893,64 @@ observe({
             for (i in 1: length(col_concerned)){
             print(paste0("",reactive_values[i]," est ", length(as.character(input[[reactive_values[i]]],""))))
             if (length(as.character(input[[reactive_values[i]]])) != 0) {
-              fichier_lu[select_line,col_concerned[i]]<- input[[reactive_values[i]]]
+              fichier_lu2[select_line,col_concerned[i]]<- input[[reactive_values[i]]]
             } else {
-              fichier_lu[select_line, col_concerned[i]]<- c("")}}
+              fichier_lu2[select_line, col_concerned[i]]<- c("")}}
           
           #####add fill the last column automatically  
           fichier_lu2[select_line,"total"]<- duree_totale
           fichier_lu2[select_line,"surveillance (mn)"]<- surveillance
           
-          if (fichier_lu[select_line,"Sexe"] == FALSE) {fichier_lu[select_line,"Sexe"] == "F"}
           write.table(fichier_lu2, file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
-          shinyjs::js$refresh("all")
-          #shinyjs::reset("all")       
+          #######preparation des champs pour la saisie d''un nouvel individu
+          text_input<-c("remarques_capt", "nom_capteur_txt","Remarques","Observateur","time_caract", "time_table","time","time2","idTagOrD", "idTagOrG","lBoisDroit","lBoisGauche", "liste_blessures","nAnimal", "nom_capteur_txt", "Observateur","parasites", "remarque_ani","remarque_collier","Remarques","remarques_ble","remarques_capt","remarques_lacher","remarques_prel","remarques_table", "rfid_erase")
+          numeric_input<-c("cpt_temps_filet","tglucose","cirCou","lPattArriere", "pSabotPlein","pSabotVide", "nbre_stops")
+          awe_radio_input<-c("sexe")
+          radio_input<-c("cpt_filet_cri", "cpt_filet_halete", "cpt_sabot_agitation","cpt_sabot_couche", "cpt_sabot_retournement", "lutte", "halete", "titube" ,"couche","tombe","gratte_collier","cabriole_saut","cri")
+          check_input<-c("metal_tag_d","metal_tag_d2","metal_tag_g","metal_tag_g2","newRFIDbox","newTagD","newTagG", "suivi_temp")
+          select_input<-c("Nbre_pers_experimentes", "cpt_dose_acepromazine","visibilite", "habitat", "habitat_perte","tiques","diarrhee","age","idRFID", "idRFID2", "idTagOrD2","idTagOrG2","lactation","nAnimal2","Nbre_pers_experimentes","nbre_personnes","Notation_euro", "Notation_euro_table","numSabot","numSabot_capture")
+          
+          updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
+          updateRadioButtons(session,"identifie", selected = "non")
+          updateSelectInput(session,"idSite2", selected = input$idSite2)
+          updateSelectInput(session,"idSite", selected = input$idSite)
+          updateRadioButtons(session,"cribague", choices = choix[["cribague"]], selected = FALSE)
+          updateRadioButtons(session,"criautre", choices = choix[["criautre"]], selected = FALSE)
+          updateRadioButtons(session,"vitesse", choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = FALSE)
+          updateRadioButtons(session,"allure", choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]], selected = FALSE)
+          updateRadioButtons(session,"cpt_filet_vitesse", choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = FALSE)
+          updateRadioButtons(session,"cpt_filet_allure", choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]], selected = FALSE)
+          updateRadioButtons(session,"cpt_filet_lutte", choices =choix[["cpt_filet_lutte"]], selected = FALSE)
+          updateTimeInput(session, "cpt_heure_fin_surv", value = strptime("00:00",format = "%H:%M"))
+          updateTimeInput(session, "cpt_heure_debut_filet", value = strptime("00:00",format = "%H:%M"))
+          updateTimeInput(session, "cpt_heure_mise_sabot", value = strptime("00:00",format = "%H:%M"))
+          
+          for (i in 1:length(text_input)){
+            updateTextInput(session, text_input[i], value = NA, placeholder = "Entrez un texte :")}
+          for (i in 1:length(numeric_input)){
+            updateNumericInput(session, numeric_input[i], value = NA)}
+          for (i in 1:length(radio_input)){
+            updateRadioButtons(session, radio_input[i], choiceNames = choix[["names_oui_non"]],choiceValues =choix[["values_oui_non"]], selected = FALSE)}
+          for (i in 1:length(check_input)){
+            updateCheckboxInput(session, check_input[i], value = FALSE)}
+          for (i in 1:length(select_input)){
+            updateSelectizeInput(session, select_input[i], choices = choix[[select_input[i]]], selected = NULL)}
+          for (i in 1:length(awe_radio_input)){
+            updateRadioButtons(session, awe_radio_input[i],  choices = choix[[awe_radio_input[i]]], selected = NA)}
+          
+          ###effacement du tableau de prelevements
+          prelevement <<- prelevement[-as.numeric(input$tableprelevement_rows_selected),]
+          output$tableprelevement = DT::renderDT(prelevement,server = F)
+          ###effacement des blessures
+          blessure <- data.frame()
+          output$tableblessure = DT::renderDT(blessure,server = F) 
+          ####deselection du collier
+          proxy <- dataTableProxy("tablecollier",session, deferUntilFlush = FALSE)
+          reloadData(proxy, resetPaging = TRUE, clearSelection = c("all"))
+          ####remise a jour de la ligne texte de selection du collier
+          output$collier_choisi = renderText("")  
+          
           
           # save3 = data.frame()
           # 
