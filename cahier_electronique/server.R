@@ -7,7 +7,7 @@ source("connect.R")
 df_prelevement <- data.frame(dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"), 
                              dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
                              dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
-                             dbGetQuery(con,"select sas_solvant from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_solvant_sas where sat_id=sac_sat_id and sat_id=sal_sat_id and sas_sat_id=sat_id and sac_id=sas_sac_id order by sac_id"))
+                             dbGetQuery(con, "select sas_solvant from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_solvant_sas where sat_id=sac_sat_id and sat_id=sal_sat_id and sas_sat_id=sat_id and sac_id=sas_sac_id order by sac_id"))
 
 colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi", "prel_solv")
 
@@ -491,7 +491,7 @@ server <- function(input, output,session) {
     }
   })
   
-  observeEvent(input$ajoutBle, {
+  observeEvent(input$ajout_Bles, {
     if ((length(input$traitement))>1)
     {
       list_ble = ""
@@ -521,15 +521,14 @@ server <- function(input, output,session) {
     updateTextInput(session, "remarques_ble", value = "", placeholder = "Remarque")
   })
   
-  observeEvent(input$ajoutBle, {
+  observeEvent(input$ajout_Bles, {
     i=1
     liste_blessures =""
     while (i <= nrow(blessure)) {
       liste_blessures <- paste0(liste_blessures, blessure[i,]$Liste, "~")
       i=i+1
       updateTextInput(session, "liste_blessures", value = liste_blessures)
-      updateSelectizeInput(session,"solsol", options=list(selected=NULL))
-
+      #updateSelectizeInput(session,"solsol", options=list(selected=NULL))
       
     }
     
@@ -1792,14 +1791,14 @@ observe({
 
           for (i in 1: length(col_concerned)){
            #print(paste0("",reactive_values[i]," est ", length(as.character(input[[reactive_values[i]]],""))))
-            if (length(as.character(input[[reactive_values[i]]])) != 0) {
-            fichier_lu[select_line,col_concerned[i]]<- input[[reactive_values[i]]]
+            #if (length(as.character(input[[reactive_values[i]]])) != 0) 
+            if (!is.null(input[[reactive_values[i]]])) {
+            fichier_lu[select_line,col_concerned[i]]<- as.character(input[[reactive_values[i]]])
             } else {
             fichier_lu[select_line, col_concerned[i]]<- c("")}}
         
-          #####add fill the last column automatically 
-    
-          fichier_lu[select_line,"lache"]<- input$time
+          #####add fill the last column automatically
+          observeEvent(input$time != "", {fichier_lu[select_line,"lache"]<- input$time})
           fichier_lu[select_line,"hre_lacher_2"]<- input$time2
           fichier_lu[select_line,"remise sabot"]<- remise_sabot
           fichier_lu[select_line,"remarque_generale"]<- remarque_tot
@@ -1808,8 +1807,8 @@ observe({
           #print(fichier_lu)
           write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
-          
-          #######preparation des champs pour la saisie d''un nouvel individu
+
+          ##################           CSV CHECKLIST 2 refresh                #####
           text_input<-c("time_caract", "time_table","time","time2","idTagOrD", "idTagOrG","lBoisDroit","lBoisGauche", "liste_blessures","nAnimal", "nom_capteur_txt", "Observateur","parasites", "remarque_ani","remarque_collier","Remarques","remarques_ble","remarques_capt","remarques_lacher","remarques_prel","remarques_table", "rfid_erase")
           numeric_input<-c("tglucose","cirCou","lPattArriere", "pSabotPlein","pSabotVide", "nbre_stops")
           awe_radio_input<-c("sexe")
@@ -1844,7 +1843,8 @@ observe({
           prelevement <<- prelevement[-as.numeric(input$tableprelevement_rows_selected),]
           output$tableprelevement = DT::renderDT(prelevement,server = F)
           ###effacement des blessures
-          blessure <- data.frame()
+          blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
+          #blessure <- data.frame()
           output$tableblessure = DT::renderDT(blessure,server = F) 
           ####deselection du collier
           proxy <- dataTableProxy("tablecollier",session, deferUntilFlush = FALSE)
@@ -1891,7 +1891,7 @@ observe({
           ####loop to fill each column with corresponding reactive_value
           
             for (i in 1: length(col_concerned)){
-            print(paste0("",reactive_values[i]," est ", length(as.character(input[[reactive_values[i]]],""))))
+            #print(paste0("",reactive_values[i]," est ", length(as.character(input[[reactive_values[i]]],""))))
             if (length(as.character(input[[reactive_values[i]]])) != 0) {
               fichier_lu2[select_line,col_concerned[i]]<- input[[reactive_values[i]]]
             } else {
@@ -1903,7 +1903,7 @@ observe({
           
           write.table(fichier_lu2, file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep = ";", na = "", append = F, row.names = F)
           
-          #######preparation des champs pour la saisie d''un nouvel individu
+          ##################           CSV CHECKLIST 3 refresh                #####
           text_input<-c("remarques_capt", "nom_capteur_txt","Remarques","Observateur","time_caract", "time_table","time","time2","idTagOrD", "idTagOrG","lBoisDroit","lBoisGauche", "liste_blessures","nAnimal", "nom_capteur_txt", "Observateur","parasites", "remarque_ani","remarque_collier","Remarques","remarques_ble","remarques_capt","remarques_lacher","remarques_prel","remarques_table", "rfid_erase")
           numeric_input<-c("cpt_temps_filet","tglucose","cirCou","lPattArriere", "pSabotPlein","pSabotVide", "nbre_stops")
           awe_radio_input<-c("sexe")
@@ -1943,7 +1943,7 @@ observe({
           prelevement <<- prelevement[-as.numeric(input$tableprelevement_rows_selected),]
           output$tableprelevement = DT::renderDT(prelevement,server = F)
           ###effacement des blessures
-          blessure <- data.frame()
+          blessure <<- blessure[-as.numeric(input$tableblessure_rows_selected),]
           output$tableblessure = DT::renderDT(blessure,server = F) 
           ####deselection du collier
           proxy <- dataTableProxy("tablecollier",session, deferUntilFlush = FALSE)
@@ -1952,53 +1952,7 @@ observe({
           output$collier_choisi = renderText("")  
           
           
-          # save3 = data.frame()
-          # 
-          # save3 = data.frame("num_sabot" = c(input$numSabot_capture))
-          # save3 = cbind(save3,data.frame("nom capteur" = c(input$nom_capteur_txt)))
-          # save3 = cbind(save3,data.frame("nombre d'experimentes (n)" = c(input$Nbre_pers_experimentes)))
-          # if (is.null(input$cpt_filet_vitesse)) { save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet course (1/0)" = (c(input$cpt_filet_vitesse))))}
-          # if (is.null(input$cpt_filet_allure)) { save3 = cbind(save3,data.frame("arrivee filet panique (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("arrivee filet panique (1/0)" = (c(input$cpt_filet_allure))))}
-          # if (is.null(input$cpt_filet_lutte)) { save3 = cbind(save3,data.frame("lutte" = (c(""))))} else {save3 = cbind(save3,data.frame("lutte" = (c(input$cpt_filet_lutte))))}
-          # if (is.null(input$cpt_filet_halete)) { save3 = cbind(save3,data.frame("haletement (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("haletement (1/0)" = (c(input$cpt_filet_halete))))}
-          # if (is.null(input$cpt_filet_cri)) { save3 = cbind(save3,data.frame("cri (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("cri (1/0)" = (c(input$cpt_filet_cri))))}
-          # save3 = cbind(save3,data.frame("filet" = c(input$cpt_temps_filet,stringsAsFactors = FALSE)))
-          # save3 = cbind(save3,data.frame("capture" = c(input$cpt_heure_debut_filet,stringsAsFactors = FALSE)))
-          # 
-          # save3 = cbind(save3,data.frame("acepromazine (1=0,3cc)" = c(input$cpt_dose_acepromazine),stringsAsFactors = FALSE))
-          # save3 = cbind(save3,data.frame("total" = c(duree_totale)))
-          # save3 = cbind(save3,data.frame("sabot" = c(input$cpt_heure_mise_sabot)))
-          # save3 = cbind(save3,data.frame("acepro" = c(input$cpt_heure_mise_sabot)))
-          # if (is.null(input$cpt_sabot_couche)) { save3 = cbind(save3,data.frame("couche (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("couche (1/0)" = (c(input$cpt_sabot_couche))))}
-          # if (is.null(input$cpt_sabot_agitation)) { save3 = cbind(save3,data.frame("agitation (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("agitation (1/0)" = (c(input$cpt_sabot_agitation))))}
-          # if (is.null(input$cpt_sabot_retournement)) { save3 = cbind(save3,data.frame("retournement (1/0)" = (c(""))))} else {save3 = cbind(save3,data.frame("retournement (1/0)" = (c(input$cpt_sabot_retournement))))}
-          # save3 = cbind(save3,data.frame("surveillance (mn)" = c(as.integer(input$cpt_heure_fin_surv) - as.integer(input$cpt_heure_mise_sabot))))
-          # save3 = cbind(save3,data.frame("hre fin surv" = c(input$cpt_heure_fin_surv,stringsAsFactors = FALSE)))
-          # 
-          # fichier_lu2$num_sabot[select_line] <- paste(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"num_sabot"])
-          # fichier_lu2$nom.capteur[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"nom.capteur"])
-          # fichier_lu2$nombre.d.experimentes..n.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"nombre.d.experimentes..n."])
-          # fichier_lu2$arrivee.filet.course..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"arrivee.filet.course..1.0."])
-          # fichier_lu2$arrivee.filet.panique..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"arrivee.filet.panique..1.0."])
-          # fichier_lu2$lutte[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"lutte"])
-          # fichier_lu2$haletement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"haletement..1.0."])
-          # fichier_lu2$cri..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"cri..1.0."])
-          # fichier_lu2$filet[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"filet"])
-          # fichier_lu2$capture[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"capture"])
-          # 
-          # fichier_lu2$acepromazine..1.0.3cc.[select_line] <- paste(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"acepromazine..1.0.3cc."])
-          # fichier_lu2$total[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"total"])
-          # fichier_lu2$sabot[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"sabot"])
-          # fichier_lu2$acepro[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"acepro"])
-          # fichier_lu2$couche..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"couche..1.0."])
-          # fichier_lu2$agitation..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"agitation..1.0."])
-          # fichier_lu2$retournement..1.0.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"retournement..1.0."])
-          # fichier_lu2$surveillance..mn.[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"surveillance..mn."])
-          # fichier_lu2$hre.fin.surv[select_line] <- paste0(save3[match(fichier_lu2$num_sabot[select_line],save3$num_sabot),"hre.fin.surv"])
-          
-          # write.table(fichier_lu2, file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep = ";", na = "", append = F, row.names = F)
-          # 
-         #  cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_num_sabot = '",input$numSabot_capture,"' and cap_date = '",as.character(input$date_capture),"' " ))
+                  #  cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_num_sabot = '",input$numSabot_capture,"' and cap_date = '",as.character(input$date_capture),"' " ))
          #  
          #  gettime= as.character(input$cpt_heure_debut_filet)
          #  gettime=strsplit(gettime, " ")[[1]]
