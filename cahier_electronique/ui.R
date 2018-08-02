@@ -164,7 +164,7 @@ contentprelevement = fluidPage(
     column(2,uiOutput("control2")),
     column(2,uiOutput("control3")),
     column(2,uiOutput("control4")),
-    column(2, selectizeInput("nbre_echant", h4("Nombre"), choices =list(1,2,3,4,5) ,options=list(create=T), selected = NULL)),
+    column(2, selectizeInput("nbre_echant", h4("Nombre"), choices = choix[["nbre_echant"]],options=list(create=T), selected = NULL)),
     column(2, textInput("remarques_prel",h4("Remarques"), value="")),
     column(12,hr()),
     column(2,offset = 3, actionButton("ajout_prelev",("Ajouter prelevement"))),
@@ -269,23 +269,23 @@ contentlacher = fluidPage(
            actionButton("to_current_time2", "Afficher l'heure")),
     
     column(2,numericInput("nbre_stops",value="", h4("Nombre de stops"),min=0)),
-    column(2,selectizeInput("nbre_personnes", h4("Nbre de personnes"), choices = list("4-5","6-10","11-20", "21-50",">50"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(2,selectizeInput("nbre_personnes", h4("Nbre de personnes"), choices = choix[["nbre_personnes"]], options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     
     column(12,hr()),
     
-    column(1,radioButtons("vitesse",h4("Vitesse"),choiceNames = list("Pas","Course"),choiceValues = list(0,1), selected = F)),
-    column(1,radioButtons("allure",h4("Allure"),choiceNames = list("Reflechi","Bolide"),choiceValues = list(0,1), selected = F)),
-    column(1,radioButtons("cabriole_saut",h4("Cabriole"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
-    column(1,radioButtons("gratte_collier", h4("Gratte collier"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
-    column(1,radioButtons("tombe", h4("Tombe"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
-    column(1,radioButtons("cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = F)),
-    column(1,radioButtons("titube",h4("Titube"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = F)),
-    column(1,radioButtons("couche",h4("Couche"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = F)),
+    column(1,radioButtons("vitesse",h4("Vitesse"),choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = F)),
+    column(1,radioButtons("allure",h4("Allure"),choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]], selected = F)),
+    column(1,radioButtons("cabriole_saut",h4("Cabriole"), choiceNames = choix[["names_oui_non"]], choiceValues = choix[["values_oui_non"]], selected = F)),
+    column(1,radioButtons("gratte_collier", h4("Gratte collier"), choiceNames = choix[["names_oui_non"]], choiceValues = choix[["values_oui_non"]], selected = F)),
+    column(1,radioButtons("tombe", h4("Tombe"), choiceNames = choix[["names_oui_non"]], choiceValues = choix[["values_oui_non"]], selected = F)),
+    column(1,radioButtons("cri",h4("Cri"),choiceNames = choix[["names_oui_non"]],choiceValues = choix[["values_oui_non"]], selected = F)),
+    column(1,radioButtons("titube",h4("Titube"),choiceNames = choix[["names_oui_non"]],choiceValues = choix[["values_oui_non"]], selected = F)),
+    column(1,radioButtons("couche",h4("Couche"), choiceNames = choix[["names_oui_non"]], choiceValues = choix[["values_oui_non"]], selected = F)),
     
     column(12,hr()),
     
     column(2,selectizeInput("visibilite", h4("Visibilite fuite"), 
-                            choices = list("0-10","11-50","51-100",">100","Nuit"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+                            choices = choix[["visibilite"]], options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     
     column(2,selectizeInput("habitat", h4("Habitat lâcher"), 
                             choices = "", options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'),create = TRUE), selected = NULL)),
@@ -329,15 +329,15 @@ contentcapture = fluidPage(
     column(12,hr()),
     
     column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
-    column(3,selectizeInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = c(0:5),options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(3,selectizeInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = choix[["Nbre_pers_experimentes"]],options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
     column(2,textInput("remarques_capt",label=h4("Remarques",""))),
     column(12,hr()),
     
-    column(1,radioButtons("cpt_filet_vitesse",h4("Vitesse"),choiceNames = list("Pas","Course"),choiceValues = list(0,1), selected = character(0))),
-    column(1,radioButtons("cpt_filet_allure",h4("Allure"),choiceNames = list("Reflechi","Bolide"),choiceValues = list(0,1),selected = character(0))),
-    column(1,radioButtons("cpt_filet_lutte", h4("Lutte"), choices = list(0,1,2), selected = character(0))),
-    column(1,radioButtons("cpt_filet_halete",h4("Halete"), choiceNames = list("Oui","Non"), choiceValues = list(1,0), selected = character(0))),
-    column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected = character(0)))
+    column(1,radioButtons("cpt_filet_vitesse",h4("Vitesse"),choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = character(0))),
+    column(1,radioButtons("cpt_filet_allure",h4("Allure"),choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]],selected = character(0))),
+    column(1,radioButtons("cpt_filet_lutte", h4("Lutte"), choices = choix[["cpt_filet_lutte"]], selected = character(0))),
+    column(1,radioButtons("cpt_filet_halete",h4("Halete"), choiceNames = choix[["names_oui_non"]], choiceValues = choix[["values_oui_non"]], selected = character(0))),
+    column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = choix[["names_oui_non"]],choiceValues = choix[["values_oui_non"]], selected = character(0)))
     # column(12,hr()),
     
     #column(1),
