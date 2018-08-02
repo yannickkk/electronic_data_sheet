@@ -1,6 +1,6 @@
 ##################              USER INTERFACE                 ################# 
 
-#       Objet: Saisie des données de capture pour les chevreuils de Fabas
+#       Objet: Saisie des données de capture pour les chevreuils de Fabas et Gardouch
 #       Réalisation: projet tuteuré Master 1 Bioinformatique Université Paul Sabatier
 #       Réalisé par : Tristan BERLIN, Marie JEREMIE, Edi TIHIC encadrés par Yannick CHAVAL
 #       Date de réalisation : fev/juil 2018
@@ -147,7 +147,7 @@ contentblessures = fluidPage(
     column(3,selectizeInput("traitement", h4("Traitement"), choices = "", multiple = T)),
     column(3,textInput("remarques_ble",h4("Remarques"),value = "")),
     column(12,hr()),
-    column(2,offset = 1, actionButton("ajoutBle","Ajouter blessure")),
+    column(2,offset = 1, actionButton("ajout_Bles","Ajouter blessure")),
     column(2,actionButton("sup_Bles", "Supprimer blessure")),
     column(12,hr()),
     dataTableOutput("tableblessure"),
