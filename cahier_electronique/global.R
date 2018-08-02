@@ -13,6 +13,7 @@ library(V8)
 library(stringr)
 library(serial)
 library(audio)
+
 source("connect.R")
 
 noms_colonnes<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","autres parasites", "Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","remarque_table","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque_generale","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer_lacher","remise sabot","hre_lacher_2")
@@ -31,7 +32,7 @@ choix[["values_oui_non"]]<-c(1,0)
 choix[["nbre_personnes"]]<-list("4-5","6-10","11-20", "21-50",">50")
 choix[["Notation_euro"]]<-dbGetQuery(con,"select (ecl_comportement_lache) from lu_tables.tr_eurodeer_comp_lache_ecl")
 choix[["Notation_euro_table"]]<-dbGetQuery(con,"select (ect_comportement) from lu_tables.tr_eurodeer_comp_table_ect")
-choix[["numSabot_capture"]]<-dbGetQuery(con,paste0("select toto.sab_valeur from (select distinct sab_id, sab_valeur FROM lu_tables.tr_sabots_sab order by sab_id) as toto"))
+#choix[["numSabot_capture"]]<-dbGetQuery(con,paste0("select toto.sab_valeur from (select distinct sab_id, sab_valeur FROM lu_tables.tr_sabots_sab order by sab_id) as toto"))
 choix[["idRFID"]]<-dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")
 choix[["idSite"]]<-dbGetQuery(con,"select sit_nom_court from public.tr_site_capture_sit")
 choix[["nAnimal2"]]<-dbGetQuery(con,"select ani_etiq from public.t_animal_ani order by ani_id DESC")
@@ -49,12 +50,15 @@ choix[["age"]]<-c("0.5" = "<1", "1.5" = "1", "2.5" = "2", "3.5" = '3', "4.5-5.5"
 choix[["numSabot"]]<-dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab order by sab_id")
 choix[["position_temp1"]]<-dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel")
 choix[["position_temp2"]]<-dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel")
+choix[["cpt_dose_acepromazine"]]<- dbGetQuery(con,"select distinct cpt_dose_acepromazine from cmpt.t_capture_cpt order by cpt_dose_acepromazine")
 choix[["cribague"]]<-c("NA","0", "1-2", ">2")
 choix[["criautre"]]<-c("0", "1-2", ">2")
 choix[["vitesse"]]<-c("Pas","Course")
 choix[["allure"]]<-c("Reflechi","Bolide")
 choix[["values_vitesse"]]<-c(0,1)
 choix[["values_allure"]]<-c(0,1)
+choix[["cpt_filet_lutte"]]<-c(0,1,2)
+choix[["nbre_echant"]]<-c(1,2,3,4,5) 
 
 # dbSendQuery(con,"
 # DROP SCHEMA IF EXISTS historique cascade;
