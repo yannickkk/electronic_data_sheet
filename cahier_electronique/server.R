@@ -1,4 +1,6 @@
+source("global.R")
 source("connect.R")
+
 
 ##################                  SERVER                 ################# 
 
@@ -23,22 +25,30 @@ colnames(df_blessure)<-c("ble_local","ble_gravite")
 server <- function(input, output,session) {
   
   ##################              RUBRIQUE ANIMAL                       #################
-  
-  updateSelectizeInput(session, "idRFID", choices = choix[["idRFID"]], selected = NULL) 
-  updateSelectizeInput(session, "idSite", choices = choix[["idSite"]], selected = NULL)
-  updateSelectizeInput(session, "nAnimal2", choices =choix[["nAnimal2"]], selected = NULL)
+  ###stop server when browser is closed
+  session$onSessionEnded(stopApp)
+  # updateSelectizeInput(session, "idRFID", choices = choix[["idRFID"]], selected = NULL) 
+  # updateSelectizeInput(session, "idSite", choices = choix[["idSite"]], selected = NULL)
+  # updateSelectizeInput(session, "nAnimal2", choices =choix[["nAnimal2"]], selected = NULL)
   updateNumericInput(session, "cirCou", max = choix[["cirCou"]])
   updateNumericInput(session, "lPattArriere", max = choix[["lPattArriere"]])
   updateNumericInput(session, "lBoisGauche", max = choix[["lBoisGauche"]])
   updateNumericInput(session, "lBoisDroit", max = choix[["lBoisDroit"]])
-  updateSelectizeInput(session, "etatBois", choices = choix[["etatBois"]], selected = NULL)
-  #updateSelectizeInput(session, "idTagOrG2", choices = choix[["idTagOrG2"]], selected = NULL)
-  #updateSelectizeInput(session, "idTagOrD2", choices = choix[["idTagOrD2"]], selected = NULL)
-  #updateSelectizeInput(session, "idRFID2", choices = choix[["idRFID2"]], selected = NULL)
-  updateSelectizeInput(session, "idSite2", choices = choix[["idSite2"]], selected = NULL)
-  #updateSelectizeInput(session, "idRFID_new", choices = choix[["idRFID_new"]], selected = NULL) 
-  #updateSelectizeInput(session, "age", choices = choix[["age"]], selected = NULL) 
-  updateSelectizeInput(session, "numSabot", choices = choix[["numSabot"]], selected = NULL) 
+  # updateSelectizeInput(session, "etatBois", choices = choix[["etatBois"]], selected = NULL)
+  # #updateSelectizeInput(session, "idTagOrG2", choices = choix[["idTagOrG2"]], selected = NULL)
+  # #updateSelectizeInput(session, "idTagOrD2", choices = choix[["idTagOrD2"]], selected = NULL)
+  # #updateSelectizeInput(session, "idRFID2", choices = choix[["idRFID2"]], selected = NULL)
+  # updateSelectizeInput(session, "idSite2", choices = choix[["idSite2"]], selected = NULL)
+  # #updateSelectizeInput(session, "idRFID_new", choices = choix[["idRFID_new"]], selected = NULL) 
+  # #updateSelectizeInput(session, "age", choices = choix[["age"]], selected = NULL) 
+  # updateSelectizeInput(session, "numSabot", choices = choix[["numSabot"]], selected = NULL) 
+  
+  updateSelectizeInput(session, "idRFID", choices = choix[["idRFID"]], selected = NULL) 
+  updateSelectInput(session, "idSite", choices = choix[["idSite"]], selected = NULL)
+  updateSelectizeInput(session, "nAnimal2", choices =choix[["nAnimal2"]], selected = NULL)
+  updateSelectInput(session, "etatBois", choices = choix[["etatBois"]], selected = "velours")
+  updateSelectInput(session, "idSite2", choices = choix[["idSite2"]], selected = NULL)
+  updateSelectInput(session, "numSabot", choices = choix[["numSabot"]], selected = NULL) 
   
   #########          Sélection site/RFID/tag à partir du n°animal                   #########
   
@@ -251,16 +261,16 @@ server <- function(input, output,session) {
       }} })
   
   ### Sabot
-  
-  liste_sabot = dbGetQuery(con,"select distinct sab_valeur from lu_tables.tr_sabots_sab")
-  
-  output$sabotExiste <- renderUI({
-    if ((input$numSabot)!="") {
-      for (i in liste_sabot) {
-        if (!(input$numSabot %in% i))
-        {shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_num_sabot)} 
-      }}
-  })
+  ##########ces lignes sont a utiliser avec selectizeInput qui a ete remplace par selectInput pour un probleme d''ouverture intempestives du clavier sur la tablette
+  # liste_sabot = dbGetQuery(con,"select distinct sab_valeur from lu_tables.tr_sabots_sab")
+  # 
+  # output$sabotExiste <- renderUI({
+  #   if ((input$numSabot)!="") {
+  #     for (i in liste_sabot) {
+  #       if (!(input$numSabot %in% i))
+  #       {shinyalert("STOP!", "Est-ce un nouveau numero de sabot ?", type = "warning",confirmButtonText="Oui", showCancelButton=T,cancelButtonText="Non",html=TRUE, callbackR = modalCallback_num_sabot)} 
+  #     }}
+  # })
   
   modalCallback_num_sabot <- function(value) {
     if (value == FALSE) {
@@ -381,31 +391,31 @@ server <- function(input, output,session) {
     }
   })
   
-  liste_site <- dbGetQuery(con, "select distinct sit_nom_court from public.tr_site_capture_sit")
+  # liste_site <- dbGetQuery(con, "select distinct sit_nom_court from public.tr_site_capture_sit")
+  # 
+  # observeEvent(input$idSite, {
+  #   for (i in liste_site) {
+  #     if (!(input$idSite %in% i)) {
+  #       if (input$idSite != "")
+  #       {shinyalert("NOUVEAU SITE?", "Est-ce un nouveau site ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_site)} 
+  #     }}
+  # })
+  # 
+  # modalCallback_new_site <- function(value) {
+  #   if (value == TRUE) {
+  #     (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite))) }}
   
-  observeEvent(input$idSite, {
-    for (i in liste_site) {
-      if (!(input$idSite %in% i)) {
-        if (input$idSite != "")
-        {shinyalert("NOUVEAU SITE?", "Est-ce un nouveau site ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_site)} 
-      }}
-  })
-  
-  modalCallback_new_site <- function(value) {
-    if (value == TRUE) {
-      (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite))) }}
-  
-  observeEvent(input$idSite2, {
-    for (i in liste_site) {
-      if (!(input$idSite2 %in% i)) {
-        if (input$idSite2 != "")
-        {shinyalert("NOUVEAU SITE?", "Est-ce un nouveau site ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_site2)} 
-      }}
-  })
-  
-  modalCallback_new_site2 <- function(value) {
-    if (value == TRUE) {
-      (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite2))) }}
+  # observeEvent(input$idSite2, {
+  #   for (i in liste_site) {
+  #     if (!(input$idSite2 %in% i)) {
+  #       if (input$idSite2 != "")
+  #       {shinyalert("NOUVEAU SITE?", "Est-ce un nouveau site ?", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_new_site2)} 
+  #     }}
+  # })
+  # 
+  # modalCallback_new_site2 <- function(value) {
+  #   if (value == TRUE) {
+  #     (dbSendQuery(con,sprintf("INSERT INTO public.tr_site_capture_sit (sit_nom_court) VALUES ('%s')", input$idSite2))) }}
   
   #########          Alerte perte de poids                                          #########
   
@@ -426,20 +436,24 @@ server <- function(input, output,session) {
   output$conditionalInput1 <- renderUI({
     if(input$newTagG){
       textInput("idTagOrG3", h4("New Tag Gauche"),value="")}
-    else if (input$newTagG == F) {selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = dbGetQuery(con,"select distinct cap_tag_gauche from public.t_capture_cap"),options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
+    else if (input$newTagG == F) {#selectizeInput("idTagOrG2", h4("Tag Oreille Gauche"), choices = choix[["idTagOrG2"]], selectize = FALSE, selected = NULL)} 
+    selectizeInput("idTagOrG2", h4("Tag Or.Gauche"), choices = choix[["idTagOrG2"]],options=list(create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
   })
   
   output$conditionalInput2 <- renderUI({
     if(input$newTagD){
       textInput("idTagOrD3", h4("New Tag Droit"),value="")}
-    else if (input$newTagD == F) {selectizeInput("idTagOrD2", h4("Tag Oreille Droite"), choices = dbGetQuery(con,"select distinct cap_tag_droit from public.t_capture_cap"),options=list(placeholder='Choisir une valeur :',create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
+    else if (input$newTagD == F) {#selectInput("idTagOrD2", h4("Tag Oreille Droite"), choices = choix[["idTagOrD2"]], selectize = FALSE, selected = NULL)}
+    selectizeInput("idTagOrD2", h4("Tag Or.Droite"), choices = choix[["idTagOrD2"]],options=list(create=TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
   })
   
   output$conditionalInput3 <- renderUI({
     if(input$newRFIDbox){
-      selectizeInput("idRFID_new", h4("RFID_new"), choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null"), options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
-    else if (input$newRFIDbox == F) {selectizeInput("idRFID2", h4("RFID"), choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id"), 
-                         options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
+      selectizeInput("idRFID_new", h4("RFID_new"), choices = choix[["idRFID_new"]], options=list(onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
+      #selectInput("idRFID_new", h4("RFID_new"), choices = choix[["idRFID_new"]], selectize = FALSE, selected = NULL)}
+        else if (input$newRFIDbox == F) {selectInput("idRFID2", h4("RFID"), choices = choix[["idRFID2"]], selectize = FALSE, selected = NULL)}
+          # selectizeInput("idRFID2", h4("RFID"), choices = dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi, public.t_capture_cap, public.t_animal_ani where cap_id = rfi_cap_id and cap_ani_id = ani_id"), 
+          #                options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)}
     })
   
   output$conditionalInput4 <- renderUI({
@@ -464,6 +478,7 @@ server <- function(input, output,session) {
   observeEvent(input$rfid_read, {
     
     source(file = "read_RFID.R")
+print(time)
     # updateDateInput(session, "date_caract", value = date)
     # updateTextInput(session, "time_caract", value = time)
     updateSelectizeInput(session, "idRFID2", selected = rfid)
@@ -501,8 +516,11 @@ server <- function(input, output,session) {
       if (input$remarques_ble=="")
       {blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble), sep = "-")))}
       else { blessure <<- rbind(blessure,data.frame("Localisation" = c(input$locali), "Gravite" =c(input$grave), "Traitement" = c(list_ble), "Liste" = paste(c(input$locali),c(input$grave), c(list_ble),input$remarques_ble, sep = "-")))}
-      updateSelectizeInput(session,"locali", options=list(selected=NULL))
-      updateSelectizeInput(session,"traitement", options=list(selected=NULL))
+      # updateSelectizeInput(session,"locali", options=list(selected=NULL))
+      # updateSelectizeInput(session,"traitement", options=list(selected=NULL))
+       updateSelectInput(session,"locali", selected = NULL)
+       updateSelectInput(session,"traitement", selected = NULL)
+      
     }
     
     if ((length(input$traitement))==1)
@@ -515,10 +533,30 @@ server <- function(input, output,session) {
     output$tableblessure = DT::renderDT(blessure,server = F)
     #print(blessure[1][1])
     #print(blessure$Liste)
-    updateSelectizeInput(session,"grave", options=list(selected=NULL))
-    updateSelectizeInput(session,"locali", options=list(selected=NULL))
-    updateSelectizeInput(session,"traitement", options=list(selected=NULL))
-    updateTextInput(session, "remarques_ble", value = "", placeholder = "Remarque")
+    # updateSelectizeInput(session,"grave", options=list(selected=NULL))
+    # updateSelectizeInput(session,"locali", options=list(selected=NULL))
+    # updateSelectizeInput(session,"traitement", options=list(selected=NULL))
+     updateTextInput(session, "remarques_ble", value = "", placeholder = "Remarque")
+     output$casc_ble1 <- renderUI({
+       #selectizeInput("locali", h4("Localisation"), choices = df_blessure$ble_local,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+       selectInput("locali", h4("Localisation"), choices = c(choisir="", unique(df_blessure$ble_local)), selectize = FALSE, selected = NULL)
+     })
+     
+     output$casc_ble2 <- renderUI({
+       x <- input$locali
+       if (any(
+         is.null(x)
+       ))
+         return("Select")
+       choice2 <- df_blessure[df_blessure$ble_local == x,  "ble_gravite"]
+       #selectizeInput("grave", h4("gravité"), choices = choice2, options=list(create= TRUE))
+       selectInput("grave", h4("gravité"), choices = choice2, selectize = FALSE, selected = NULL)
+       
+     })
+     
+     #updateSelectizeInput(session,"traitement", choices = dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt "))
+     updateSelectInput(session,"traitement", choices = dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt "))
+     
   })
   
   observeEvent(input$ajout_Bles, {
@@ -537,8 +575,9 @@ server <- function(input, output,session) {
   ### Mise en forme des blessures en cascade :
   
   output$casc_ble1 <- renderUI({
-    selectizeInput("locali", h4("Localisation"), choices = df_blessure$ble_local,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
-  })
+    #selectizeInput("locali", h4("Localisation"), choices = df_blessure$ble_local,options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')), selected = NULL)
+    selectInput("locali", h4("Localisation"), choices = c(choisir="", unique(df_blessure$ble_local)), selectize = FALSE, selected = NULL)
+      })
   
   output$casc_ble2 <- renderUI({
     x <- input$locali
@@ -547,15 +586,18 @@ server <- function(input, output,session) {
     ))
       return("Select")
     choice2 <- df_blessure[df_blessure$ble_local == x,  "ble_gravite"]
-    selectizeInput("grave", h4("gravité"), choices = choice2, options=list(create= TRUE))
+    #selectizeInput("grave", h4("gravité"), choices = choice2, options=list(create= TRUE))
+    selectInput("grave", h4("gravité"), choices = choice2, selectize = FALSE, selected = NULL)
+    
   })
   
-  updateSelectizeInput(session,"traitement", choices = dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt "))
+  #updateSelectizeInput(session,"traitement", choices = dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt "))
+  updateSelectInput(session,"traitement", choices = dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt "))
   
   # observeEvent(input$traitement, {
   #   #print(input$traitement[2])
   # if (!is.na(input$traitement[2])) {
-  #   updateSelectizeInput(session,"traitement", choices = (dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")))
+  #   updateSelectInput(session,"traitement", choices = (dbGetQuery(con,"select blt_traitement from lu_tables.tr_blessure_traitement_blt")))
   #   }
   # })
   
@@ -594,10 +636,13 @@ server <- function(input, output,session) {
     
     prelevement <<- rbind(prelevement, data.frame("Type" = c(input$typetype), "Localisation" =c(input$localoca), "Contenant" = c(input$condi),"Solvant" = c(input$solsol),"Nombre d'echantillons" = c(input$nbre_echant),  "Remarques" = c(input$remarques_prel)))
     output$tableprelevement = DT::renderDT(prelevement,server = F)
-    updateSelectizeInput(session,"typetype", options=list(selected=NULL))
-    updateSelectizeInput(session,"solsol", options=list(selected=NULL))
+    #updateSelectizeInput(session,"typetype", options=list(selected=NULL))
+    #updateSelectizeInput(session,"solsol", options=list(selected=NULL))
+    updateSelectInput(session,"typetype",selected=NULL)
+    updateSelectInput(session,"solsol", selected=NULL)
     updateTextInput(session, "remarques_prel", value = "", placeholder = "Remarque")
-    updateSelectizeInput(session,"nbre_echant", choices =list( 1,2,3,4,5) ,options=list(create=T), selected = as.character(1))
+    #updateSelectizeInput(session,"nbre_echant", choices =list( 1,2,3,4,5) ,options=list(create=T), selected = as.character(1))
+    updateSelectInput(session,"nbre_echant", choices =list( 1,2,3,4,5), selected = as.character(1))
     
  })
   
@@ -606,8 +651,10 @@ server <- function(input, output,session) {
   output$table_prel <- renderTable({df_prelevement})
   
   output$control1 <- renderUI({
-    selectizeInput("typetype", h4("Type"), choices = df_prelevement$prel_type, options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')))
-  })
+   #selectizeInput("typetype", h4("Type"), choices = df_prelevement$prel_type, options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')))
+    selectInput("typetype", h4("Type"), choices = unique(df_prelevement$prel_type),selectize =FALSE, selected = NULL)
+    
+      })
   
   output$control2 <- renderUI({
     x <- input$typetype
@@ -616,22 +663,29 @@ server <- function(input, output,session) {
     ))
       return("Select")
     choice2 <- df_prelevement[df_prelevement$prel_type == x,  "prel_local"]
-    selectizeInput("localoca", h4("Localisation"), choices = (choice2), options=list(create= TRUE), selected=1)
-  })
+    #selectizeInput("localoca", h4("Localisation"), choices = (choice2), options=list(create= TRUE), selected=1)
+    selectInput("localoca", h4("Localisation"), choices = (choice2),selectize =FALSE, selected=1)
+      })
   
   observeEvent(input$typetype, {
     if (input$typetype == "sang") {
-      updateSelectizeInput(session,"localoca", selected="jugulaire")}
+      #updateSelectizeInput(session,"localoca", selected="jugulaire")}
+      updateSelectInput(session,"localoca", selected="jugulaire")}
     if (input$typetype == "feces") {
-      updateSelectizeInput(session,"localoca", selected="anus")}
+      #updateSelectizeInput(session,"localoca", selected="anus")}
+      updateSelectInput(session,"localoca", selected="anus")}
     if (input$typetype == "poils") {
-      updateSelectizeInput(session,"localoca", selected="coup")}
+      #updateSelectizeInput(session,"localoca", selected="coup")}
+      updateSelectInput(session,"localoca", selected="coup")}
     if (input$typetype == "mucus") {
-      updateSelectizeInput(session,"localoca", selected="vagin")}
+      #updateSelectizeInput(session,"localoca", selected="vagin")}
+      updateSelectInput(session,"localoca", selected="vagin")}
     if (input$typetype == "peau") {
-      updateSelectizeInput(session,"localoca", selected="oreille")}
+      #updateSelectizeInput(session,"localoca", selected="oreille")}
+    updateSelectInput(session,"localoca", selected="oreille")}
     if (input$typetype == "tiques") {
-      updateSelectizeInput(session,"localoca", selected="oreille")}
+      #updateSelectizeInput(session,"localoca", selected="oreille")}
+    updateSelectInput(session,"localoca", selected="oreille")}
   })
   
   output$control3 <- renderUI({
@@ -644,7 +698,9 @@ server <- function(input, output,session) {
       return("Select")
     
     choice3 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y, "prel_condi"]
-    selectizeInput("condi", h4("Conditionnement"), choices = choice3, options=list(create= TRUE))
+    #selectizeInput("condi", h4("Conditionnement"), choices = choice3, options=list(create= TRUE))
+    selectInput("condi", h4("Conditionnement"), choices = choice3, selectize =FALSE)
+    
   })
   
   output$control4 <- renderUI({
@@ -659,7 +715,8 @@ server <- function(input, output,session) {
       return("Select")
     
     choice4 <- df_prelevement[df_prelevement$prel_type == x & df_prelevement$prel_local == y & df_prelevement$prel_condi == z, "prel_solv"]
-    selectizeInput("solsol", h4("Solvant"), choices = choice4, list(create= TRUE))
+    #selectizeInput("solsol", h4("Solvant"), choices = choice4, list(create= TRUE))
+    selectInput("solsol", h4("Solvant"), choices = choice4, selectize =FALSE)
   })
   
   observeEvent(input$ajout_prelev, {
@@ -714,11 +771,17 @@ return(liste_collier)})
   
   ##################           RUBRIQUE TABLE                           #################
   
-  updateSelectizeInput(session, "Notation_euro_table", choices = choix[["Notation_euro_table"]])
-  updateSelectizeInput(session, "position_temp1", choices = choix[["position_temp1"]], 
-                       options=list(create= TRUE), selected = 'anus')
-  updateSelectizeInput(session, "position_temp2", choices = choix[["position_temp2"]], 
-                       options=list(create= TRUE), selected = 'exterieur')
+  # updateSelectizeInput(session, "Notation_euro_table", choices = choix[["Notation_euro_table"]])
+  # updateSelectizeInput(session, "position_temp1", choices = choix[["position_temp1"]], 
+  #                      options=list(create= TRUE), selected = 'anus')
+  # updateSelectizeInput(session, "position_temp2", choices = choix[["position_temp2"]], 
+  #                      options=list(create= TRUE), selected = 'exterieur')
+  updateSelectInput(session, "Notation_euro_table", choices = choix[["Notation_euro_table"]])
+  updateSelectInput(session, "position_temp1", choices = choix[["position_temp1"]], 
+                        selected = 'anus')
+  updateSelectInput(session, "position_temp2", choices = choix[["position_temp2"]], 
+                        selected = 'exterieur')
+  
   
   observeEvent(input$identifie, {
     if (input$identifie == "oui") {
@@ -810,17 +873,7 @@ return(liste_collier)})
   
   output$historique <- DT::renderDataTable({
   
-    outp <- dbGetQuery(con,paste0("select t.ani_etiq as ani, t.ani_sexe as s, t.cap_date as date, t.cap_poids as poids, t.cap_lpa as lpa, t.cap_age_classe as age, t.sit_nom_court as site,
-                                  t.teq_nom_court as teq, t.eqa_date_debut as debut, t.eqa_date_fin as fin, t.cap_annee_suivi as an, round(t.temps_suivi/30.43) as mois, count(t.cpos_id) as locs, t.eqt_id_usuel as equip, t.mar_libelle as marque, t.mod_libelle as modele, t.sen_association as                        capteurs
-                                  from (SELECT cpos_id, ani_etiq, ani_sexe, cap_date, cap_poids, cap_lpa, cap_age_classe, sit_nom_court,
-                                  teq_nom_court, cap_annee_suivi, eqa_date_debut, eqa_date_fin, eqa_date_fin - eqa_date_debut as temps_suivi, eqt_id_usuel, mar_libelle, mod_libelle, sen_association
-                                  FROM historique.t_aniposi_gpsgsm) as t where ani_etiq = '",input$nAnimal2,"'
-                                  group by ani_etiq, cap_annee_suivi, cap_date, ani_sexe, cap_age_classe,
-                                  cap_poids, cap_lpa, sit_nom_court, teq_nom_court, eqt_id_usuel,
-                                  sen_association, mar_libelle, mod_libelle, eqa_date_debut, t.temps_suivi,
-                                  eqa_date_fin order by cap_annee_suivi"))
-    
-    
+    outp <- dbGetQuery(con,paste0("select * from historique.t_historique where ani = '",input$nAnimal2,"'"))
     ret <- DT::datatable(outp)
     return(ret)
   })
@@ -1155,177 +1208,177 @@ return(liste_collier)})
     })
   })
   
-  ##################           RUBRIQUE CAPTURE                         #################
-  
-#updateSelectizeInput(session, "numSabot_capture", choices = choix[["numSabot_capture"]])
-  
-####affichage des dates disponibles
-observe({
-     if ((input$date_capture)=="") {
-     fi<-grep(".csv",list.files(), value =TRUE)
-     fi<-sub("captures_","",fi)
-     fi<-sub(".csv","",fi)
-     fi<<-gsub("_","-",fi)
-     updateSelectizeInput(session, "date_capture", choices = fi)
-     }
-     })
-
-####affichage des données de l'individu
-observe({
-             if ((input$date_capture)!="") { 
-                  fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep=";", header=TRUE, stringsAsFactors=FALSE, colClasses = c("character"))
-                  colnames(fichier_lu)<- noms_colonnes
-                  updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]))
-               if(input$numSabot_capture!="") {
-                 select_line <<- which(fichier_lu[,c("num_sabot")]==c(input$numSabot_capture),arr.ind=TRUE)[1]
-                 ani <- fichier_lu[select_line, c("N°Animal")]
-                 ani2<- ani
-                 sexe<- fichier_lu[select_line, c("Sexe")]
-                 print(sexe)
-                 sabot<- fichier_lu[select_line, c("num_sabot")]
-                 age<- fichier_lu[select_line, c("Age cahier")]
-                 tagd<- fichier_lu[select_line, c("cap_tag_droit")]
-                 tagg<- fichier_lu[select_line, c("cap_tag_gauche")]
-                 poids<-fichier_lu[select_line, c("Poids")]
-                 sante<-fichier_lu[select_line, c("etat_sante")]
-                 site<-fichier_lu[select_line, c("Site Capture")]
-                 anim<-dbGetQuery(con, "Select ani_etiq from t_animal_ani")
-                 if (length(grep(ani2,as.character(anim[,1]))) != 0){
-                   updateRadioButtons(session,"estNouvelAnimal", selected = "non")
-                   updateSelectizeInput(session, "idSite2",  selected = site)
-                   updateSelectizeInput(session, "nAnimal2",  selected = ani2)
-                 }else {
-                 updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
-                 updateSelectizeInput(session, "idSite",  selected = site)
-                 updateTextInput(session, "nAnimal",  value = ani)}
-                 updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]),  selected = sabot)
-                 updateSelectizeInput(session, "age",  selected = age)
-                 updateTextInput(session, "idTagOrG", value =  tagd)
-                 updateTextInput(session, "idTagOrD", value =  tagg)
-                 output$poids_ani = renderText({poids})
-                 updateTextInput(session,"remarque_ani", value = sante)
-                 updateAwesomeRadio(session, "sexe", choices =choix[["sexe"]], selected = sexe)
-                }}
-               })
-
-  ##################           RUBRIQUE SABOT                           #################
-  
-  updateSelectizeInput(session, "cpt_dose_acepromazine", choices = choix[["cpt_dose_acepromazine"]])
-
-#####calcul de l'heure en sabot 
-observe({
-  if (!is.na(strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))) { if (!is.na(input$cpt_temps_filet)) {
-   heure_sab<- strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S") + input$cpt_temps_filet*60
-   updateTimeInput(session, "cpt_heure_mise_sabot", value = heure_sab)
-  }}
-}) 
-  
-  ##################           RUBRIQUE CHECKLIST 3                     #################
-  
-  checklist_capture = data.frame()
-  row.names(checklist_capture) = NULL
-  output$tablechecklist_capture = DT::renderDT(expr = checklist_capture,server = F)
-  
-  checklist_sabot = data.frame()
-  row.names(checklist_sabot) = NULL
-  output$tablechecklist_sabot = DT::renderDT(expr = checklist_sabot,server = F)
-  
-  output$checklist_capture <- renderUI( {
-    
-    if (length(unlist(strsplit(as.character(input$cpt_heure_debut_filet), " "))) == 2){
-    gettime=as.character(input$cpt_heure_debut_filet)
-    gettime=strsplit(gettime, " ")[[1]]
-    gettime<<-sub(":00$","", gettime[2])} else {gettime <- "00:00"}
-    if (length(strsplit(as.character(input$cpt_heure_mise_sabot), " ")[[1]]) == 2){
-    gettime3=as.character(input$cpt_heure_mise_sabot)
-    gettime3=strsplit(gettime3, " ")[[1]]
-    gettime3<<-sub(":00$","", gettime3[2])}else{gettime3 <- "00:00"}
-    if (length(strsplit(as.character(input$cpt_heure_fin_surv), " ")[[1]]) == 2){
-    gettime4=as.character(input$cpt_heure_fin_surv)
-    gettime4=strsplit(gettime4, " ")[[1]]
-    gettime4<<-sub(":00$","", gettime4[2])} else {gettime4 <- "00:00"}
-
-    checklist_capture = data.frame()
-    
-    # if ((input$numSabot_capture)=="")  {
-    #   checklist_capture = data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Numéro de sabot"))}
-    
-    if ((input$date_capture)=="")  {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Date")))}
-    
-    if ((gettime)== "00:00")  {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Heure début filet")))}
-    
-    if (is.na(input$cpt_temps_filet))  {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Temps passé au filet")))}
-    
-    if ((input$nom_capteur_txt)=="") {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Capteurs")))}
-
-    if ((input$Nbre_pers_experimentes)=="") {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de personnes expérimentées")))}
-
-    if (is.null(input$cpt_filet_vitesse)) {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Vitesse filet")))}
-
-    if (is.null(input$cpt_filet_allure)) {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Allure filet")))}
-
-    if (is.null(input$cpt_filet_lutte)) {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Lutte filet")))}
-
-    if (is.null(input$cpt_filet_halete)) {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Halete")))}
-
-    if (is.null(input$cpt_filet_cri)) {
-      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Cri")))}
-    
-    if (nrow(checklist_capture)==0) {
-      checklist_capture =  rbind(checklist_capture,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
-    
-    output$tablechecklist_capture = DT::renderDT(checklist_capture,server = F)
-    
-    checklist_sabot = data.frame()
-    
-    if ((gettime3)=="00:00") {
-      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure mise en sabot")))}
-
-    if ((gettime4)=="00:00") {
-      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure fin de surveillance")))}
-
-    if ((input$cpt_dose_acepromazine)=="") {
-      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Dose azepromazine")))}
-
-    if (is.null(input$cpt_sabot_retournement)) {
-      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Retournement ?")))}
-
-    if (is.null(input$cpt_sabot_couche)) {
-      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Couché ?")))}
-
-    if (is.null(input$cpt_sabot_agitation)) {
-      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Agité ?")))}
-
-    if ((input$Observateur)=="") {
-      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Observateur")))}
-    
-    if (nrow(checklist_sabot)==0) {
-      checklist_sabot =  rbind(checklist_sabot,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
-    
-    output$tablechecklist_sabot = DT::renderDT(checklist_sabot,server = F)
- 
-    
-    ### Bilan
-    
-    observeEvent(input$valid_checklist3, ignoreInit = T, {
-      if  ((checklist_capture[1,1]!="PAS DE DONNEES MANQUANTES") || (checklist_sabot[1,1]!="PAS DE DONNEES MANQUANTES")) 
-      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE, callbackR = modalCallback_check3)}
-      else      
-      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check3)}
-      
-    })
-    
-  })
-  
+#   ##################           RUBRIQUE CAPTURE                         #################
+#   
+# #updateSelectizeInput(session, "numSabot_capture", choices = choix[["numSabot_capture"]])
+#   
+# ####affichage des dates disponibles
+# observe({
+#      if ((input$date_capture)=="") {
+#      fi<-grep(".csv",list.files(), value =TRUE)
+#      fi<-sub("captures_","",fi)
+#      fi<-sub(".csv","",fi)
+#      fi<<-gsub("_","-",fi)
+#      updateSelectizeInput(session, "date_capture", choices = fi)
+#      }
+#      })
+# 
+# ####affichage des données de l'individu
+# observe({
+#              if ((input$date_capture)!="") { 
+#                   fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep=";", header=TRUE, stringsAsFactors=FALSE, colClasses = c("character"))
+#                   colnames(fichier_lu)<- noms_colonnes
+#                   updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]))
+#                if(input$numSabot_capture!="") {
+#                  select_line <<- which(fichier_lu[,c("num_sabot")]==c(input$numSabot_capture),arr.ind=TRUE)[1]
+#                  ani <- fichier_lu[select_line, c("N°Animal")]
+#                  ani2<- ani
+#                  sexe<- fichier_lu[select_line, c("Sexe")]
+#                  print(sexe)
+#                  sabot<- fichier_lu[select_line, c("num_sabot")]
+#                  age<- fichier_lu[select_line, c("Age cahier")]
+#                  tagd<- fichier_lu[select_line, c("cap_tag_droit")]
+#                  tagg<- fichier_lu[select_line, c("cap_tag_gauche")]
+#                  poids<-fichier_lu[select_line, c("Poids")]
+#                  sante<-fichier_lu[select_line, c("etat_sante")]
+#                  site<-fichier_lu[select_line, c("Site Capture")]
+#                  anim<-dbGetQuery(con, "Select ani_etiq from t_animal_ani")
+#                  if (length(grep(ani2,as.character(anim[,1]))) != 0){
+#                    updateRadioButtons(session,"estNouvelAnimal", selected = "non")
+#                    updateSelectizeInput(session, "idSite2",  selected = site)
+#                    updateSelectizeInput(session, "nAnimal2",  selected = ani2)
+#                  }else {
+#                  updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
+#                  updateSelectizeInput(session, "idSite",  selected = site)
+#                  updateTextInput(session, "nAnimal",  value = ani)}
+#                  updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]),  selected = sabot)
+#                  updateSelectizeInput(session, "age",  selected = age)
+#                  updateTextInput(session, "idTagOrG", value =  tagd)
+#                  updateTextInput(session, "idTagOrD", value =  tagg)
+#                  output$poids_ani = renderText({poids})
+#                  updateTextInput(session,"remarque_ani", value = sante)
+#                  updateAwesomeRadio(session, "sexe", choices =choix[["sexe"]], selected = sexe)
+#                 }}
+#                })
+# 
+#   ##################           RUBRIQUE SABOT                           #################
+#   
+#   updateSelectizeInput(session, "cpt_dose_acepromazine", choices = choix[["cpt_dose_acepromazine"]])
+# 
+# #####calcul de l'heure en sabot 
+# observe({
+#   if (!is.na(strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))) { if (!is.na(input$cpt_temps_filet)) {
+#    heure_sab<- strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S") + input$cpt_temps_filet*60
+#    updateTimeInput(session, "cpt_heure_mise_sabot", value = heure_sab)
+#   }}
+# }) 
+#   
+#   ##################           RUBRIQUE CHECKLIST 3                     #################
+#   
+#   checklist_capture = data.frame()
+#   row.names(checklist_capture) = NULL
+#   output$tablechecklist_capture = DT::renderDT(expr = checklist_capture,server = F)
+#   
+#   checklist_sabot = data.frame()
+#   row.names(checklist_sabot) = NULL
+#   output$tablechecklist_sabot = DT::renderDT(expr = checklist_sabot,server = F)
+#   
+#   output$checklist_capture <- renderUI( {
+#     
+#     if (length(unlist(strsplit(as.character(input$cpt_heure_debut_filet), " "))) == 2){
+#     gettime=as.character(input$cpt_heure_debut_filet)
+#     gettime=strsplit(gettime, " ")[[1]]
+#     gettime<<-sub(":00$","", gettime[2])} else {gettime <- "00:00"}
+#     if (length(strsplit(as.character(input$cpt_heure_mise_sabot), " ")[[1]]) == 2){
+#     gettime3=as.character(input$cpt_heure_mise_sabot)
+#     gettime3=strsplit(gettime3, " ")[[1]]
+#     gettime3<<-sub(":00$","", gettime3[2])}else{gettime3 <- "00:00"}
+#     if (length(strsplit(as.character(input$cpt_heure_fin_surv), " ")[[1]]) == 2){
+#     gettime4=as.character(input$cpt_heure_fin_surv)
+#     gettime4=strsplit(gettime4, " ")[[1]]
+#     gettime4<<-sub(":00$","", gettime4[2])} else {gettime4 <- "00:00"}
+# 
+#     checklist_capture = data.frame()
+#     
+#     # if ((input$numSabot_capture)=="")  {
+#     #   checklist_capture = data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Numéro de sabot"))}
+#     
+#     if ((input$date_capture)=="")  {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Date")))}
+#     
+#     if ((gettime)== "00:00")  {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Heure début filet")))}
+#     
+#     if (is.na(input$cpt_temps_filet))  {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Temps passé au filet")))}
+#     
+#     if ((input$nom_capteur_txt)=="") {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Capteurs")))}
+# 
+#     if ((input$Nbre_pers_experimentes)=="") {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de personnes expérimentées")))}
+# 
+#     if (is.null(input$cpt_filet_vitesse)) {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Vitesse filet")))}
+# 
+#     if (is.null(input$cpt_filet_allure)) {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Allure filet")))}
+# 
+#     if (is.null(input$cpt_filet_lutte)) {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Lutte filet")))}
+# 
+#     if (is.null(input$cpt_filet_halete)) {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Halete")))}
+# 
+#     if (is.null(input$cpt_filet_cri)) {
+#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Cri")))}
+#     
+#     if (nrow(checklist_capture)==0) {
+#       checklist_capture =  rbind(checklist_capture,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
+#     
+#     output$tablechecklist_capture = DT::renderDT(checklist_capture,server = F)
+#     
+#     checklist_sabot = data.frame()
+#     
+#     if ((gettime3)=="00:00") {
+#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure mise en sabot")))}
+# 
+#     if ((gettime4)=="00:00") {
+#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure fin de surveillance")))}
+# 
+#     if ((input$cpt_dose_acepromazine)=="") {
+#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Dose azepromazine")))}
+# 
+#     if (is.null(input$cpt_sabot_retournement)) {
+#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Retournement ?")))}
+# 
+#     if (is.null(input$cpt_sabot_couche)) {
+#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Couché ?")))}
+# 
+#     if (is.null(input$cpt_sabot_agitation)) {
+#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Agité ?")))}
+# 
+#     if ((input$Observateur)=="") {
+#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Observateur")))}
+#     
+#     if (nrow(checklist_sabot)==0) {
+#       checklist_sabot =  rbind(checklist_sabot,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
+#     
+#     output$tablechecklist_sabot = DT::renderDT(checklist_sabot,server = F)
+#  
+#     
+#     ### Bilan
+#     
+#     observeEvent(input$valid_checklist3, ignoreInit = T, {
+#       if  ((checklist_capture[1,1]!="PAS DE DONNEES MANQUANTES") || (checklist_sabot[1,1]!="PAS DE DONNEES MANQUANTES")) 
+#       {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE, callbackR = modalCallback_check3)}
+#       else      
+#       {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check3)}
+#       
+#     })
+#     
+#   })
+#   
   
   ##################           CSV CHECKLIST 1                          #####     
   
@@ -1374,12 +1427,16 @@ observe({
           collier_col_b = query()[ligne_selection,"eqc_couleur_boitier"]
           cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c))
           
-          if (input$nAnimal2!="") {
+          if (input$nAnimal2 != "") {
+            print(input$nAnimal2)
+            print(!is.null(input$nAnimal2))
           nbre_capt = dbGetQuery(con,paste0("SELECT count(cap_id) FROM public.t_capture_cap, public.t_animal_ani where ani_id = cap_ani_id and ani_etiq= '",input$nAnimal2,"' group by ani_etiq order by ani_etiq"))
           nbre_capt <- nbre_capt[1,1] + 1
           
           cap_pertinent = dbGetQuery(con,paste0("select cap_annee_suivi from public.t_capture_cap, public.t_animal_ani where cap_ani_id=ani_id and ani_etiq = '",input$nAnimal2,"' order by cap_annee_suivi DESC"))
           cap_pertinent <- cap_pertinent[1,1]
+          print(annee)
+          print(cap_pertinent)
           if (annee == cap_pertinent) {cap_pertinent = FALSE} else {cap_pertinent = TRUE} }
           
         for (i in (1:(length(liste_prelevement)))) {
@@ -1759,7 +1816,10 @@ observe({
           }
          
           write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
-        
+          setwd(tousb)
+          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          setwd(tosd)
+          
         }}
       
   ##################           CSV CHECKLIST 2                          #####     
@@ -1805,8 +1865,10 @@ observe({
           
           
           #print(fichier_lu)
-          write.table(fichier_lu, file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), sep = ";", na = "", append = F, row.names = F)
-          
+          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          setwd(tousb)
+          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          setwd(tosd)
 
           ##################           CSV CHECKLIST 2 refresh                #####
           text_input<-c("time_caract", "time_table","time","time2","idTagOrD", "idTagOrG","lBoisDroit","lBoisGauche", "liste_blessures","nAnimal", "nom_capteur_txt", "Observateur","parasites", "remarque_ani","remarque_collier","Remarques","remarques_ble","remarques_capt","remarques_lacher","remarques_prel","remarques_table", "rfid_erase")
@@ -1835,7 +1897,7 @@ observe({
           for (i in 1:length(check_input)){
             updateCheckboxInput(session, check_input[i], value = FALSE)}
           for (i in 1:length(select_input)){
-            updateSelectizeInput(session, select_input[i], choices = choix[[select_input[i]]], selected = NULL)}
+            updateSelectInput(session, select_input[i], choices = choix[[select_input[i]]], selected = NULL)}
           for (i in 1:length(awe_radio_input)){
             updateRadioButtons(session, awe_radio_input[i],  choices = choix[[awe_radio_input[i]]], selected = NA)}
           
@@ -1901,7 +1963,10 @@ observe({
           fichier_lu2[select_line,"total"]<- duree_totale
           fichier_lu2[select_line,"surveillance (mn)"]<- surveillance
           
-          write.table(fichier_lu2, file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep = ";", na = "", append = F, row.names = F)
+          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          setwd(tousb)
+          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          setwd(tosd)
           
           ##################           CSV CHECKLIST 3 refresh                #####
           text_input<-c("remarques_capt", "nom_capteur_txt","Remarques","Observateur","time_caract", "time_table","time","time2","idTagOrD", "idTagOrG","lBoisDroit","lBoisGauche", "liste_blessures","nAnimal", "nom_capteur_txt", "Observateur","parasites", "remarque_ani","remarque_collier","Remarques","remarques_ble","remarques_capt","remarques_lacher","remarques_prel","remarques_table", "rfid_erase")
@@ -1935,7 +2000,7 @@ observe({
           for (i in 1:length(check_input)){
             updateCheckboxInput(session, check_input[i], value = FALSE)}
           for (i in 1:length(select_input)){
-            updateSelectizeInput(session, select_input[i], choices = choix[[select_input[i]]], selected = NULL)}
+            updateSelectInput(session, select_input[i], choices = choix[[select_input[i]]], selected = NULL)}
           for (i in 1:length(awe_radio_input)){
             updateRadioButtons(session, awe_radio_input[i],  choices = choix[[awe_radio_input[i]]], selected = NA)}
           
@@ -1984,7 +2049,7 @@ observe({
          #shinyjs::js$refresh()
           
         }}
-      
+    
   
 }
 # ##################           BASE DE DONNEES                            ####
