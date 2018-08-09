@@ -825,28 +825,36 @@ return(liste_collier)})
       if (input$suivi_temp == T) {
       tempr <- t(read.delim("/sys/devices/w1_bus_master1/28-0417503f2cff/w1_slave"))[,1]
       tempr <- as.numeric(substr(tempr,as.numeric(regexpr("t=",tempr)[1])+2,as.numeric(nchar(tempr))))/1000
+      if (rv$i == 1) {temprinit<<-as.integer(tempr)}
       tempb <- t(read.delim("/sys/devices/w1_bus_master1/28-031724cb00ff/w1_slave"))[,1]
       tempb <- as.numeric(substr(tempb,as.numeric(regexpr("t=",tempb)[1])+2,as.numeric(nchar(tempb))))/1000
+      if (rv$i == 1) {tempbinit<<-as.integer(tempb)}
+      
       table_temp <<- data.frame(rv$i, tempr, tempb)
       plot_temp <<- rbind(plot_temp, table_temp)
       par(mar = c(5,5,2,5))
-      if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "anus")) {
-        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-20,rv$i), ylim=c(20,45), col="red", pch = 2 ) 
-        temperature <<- rbind(temperature,data.frame("Date" = c(Sys.time()), "Temperature_r" =c(tempr), "Temperature_b" =c(tempb)))}
 
-      else if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'rouge' && input$position_temp2 == "exterieur")) {
-        plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "Temps (sec)", ylab="Sonde rouge (°C)",  type = "b", xlim=c(rv$i-20,rv$i), ylim=c(0,25), col="red", pch = 2 ) 
-        temperature <<- rbind(temperature,data.frame("Date" = c(Sys.time()), "Temperature_r" =c(tempr), "Temperature_b" =c(tempb)))}
+      if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == "rouge" && input$position_temp2 == "anus")) {limy= c(35,45)}
+      if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == "rouge" && input$position_temp2 == "exterieur")) {limy= c(tempbinit-10,tempbinit+10)}
+      plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "",ylab = "",axes =FALSE,  type = "b", xlim=c(rv$i-20,rv$i), ylim= limy, col="red", pch = 2 , yaxt = "n", col.lab="red") 
+      axis(side = 2, col ="red", col.ticks = "red", col.axis="red")
+      mtext(side = 2, line = 3, 'Sonde rouge (°C)', col = "red")
+      box()
       
       par(new = T)
-      if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "anus")) {
-        with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-20,rv$i), ylim=c(20,45), axes = F, xlab=NA, ylab=NA )) }
-      else if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == 'blanche' && input$position_temp2 == "exterieur")) {
-        with(plot_temp, plot(x = plot_temp$rv.i, y = plot_temp$tempb, col="blue", type = "b", pch = 1,xlim=c(rv$i-20,rv$i), ylim=c(0,25), axes = F, xlab=NA, ylab=NA )) }
-
-      axis(side = 4)
-      mtext(side = 4, line = 3, 'Sonde blanche (°C)')
-      legend(x = "left", y = "left", legend = c("Sonde rouge", "Sonde Blanche"), col = c("red","blue"), pch = c(2,1), lty = c(1,1))
+      
+      if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == "blanche" && input$position_temp2 == "anus")) {limy2= c(35,45)}
+      if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == "blanche" && input$position_temp2 == "exterieur")) {limy2= c(tempbinit-10,tempbinit+10)}
+      plot(x = plot_temp$rv.i, y = plot_temp$tempb,xlab = "",ylab = "",axes =FALSE, col="blue", type = "b", pch = 1,xlim=c(rv$i-20,rv$i), ylim= limy2)
+      axis(side = 4, col ="blue", col.ticks ="blue", col.axis="blue")
+      mtext(side = 4, line = 3, 'Sonde blanche (°C)', col = "blue")
+      
+      axis(side = 1,pretty(range(seq(rv$i-20,rv$i,1)),20))
+      mtext(side = 1, line = 3, 'Temps (sec)', col = "black")     
+      
+      legend(x = "topleft", y = "left", legend = c("Sonde rouge", "Sonde Blanche"), col = c("red","blue"), pch = c(2,1), lty = c(1,1))
+ 
+      temperature <<- rbind(temperature,data.frame("Date" = c(Sys.time()), "Temperature_r" =c(tempr), "Temperature_b" =c(tempb)))
       } }
   })
   
