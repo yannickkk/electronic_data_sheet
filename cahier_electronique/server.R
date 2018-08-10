@@ -811,72 +811,86 @@ return(liste_collier)})
       else {cri_synthese = TRUE }
     } })
   
-  
+ ############ monitoring de la température
+  ########### display data temp
   temperature = data.frame()
   row.names(temperature) = NULL
   output$tabletemperature = DT::renderDT(expr = temperature,server = F)
 
-  rv <- reactiveValues(i = 0)
-  maxIter <- 1800
+   rv <- reactiveValues(i = 0)
+   maxIter <- 1800
+   
   plot_temp <<- data.frame()
   
-  output$plot <- renderPlot( {
+  output$plot <- renderPlot({
     if(rv$i > 0) {
-      if (input$suivi_temp == T) {
+      #if (input$suivi_temp == T) {
       tempr <- t(read.delim("/sys/devices/w1_bus_master1/28-0417503f2cff/w1_slave"))[,1]
       tempr <- as.numeric(substr(tempr,as.numeric(regexpr("t=",tempr)[1])+2,as.numeric(nchar(tempr))))/1000
       if (rv$i == 1) {temprinit<<-as.integer(tempr)}
       tempb <- t(read.delim("/sys/devices/w1_bus_master1/28-031724cb00ff/w1_slave"))[,1]
       tempb <- as.numeric(substr(tempb,as.numeric(regexpr("t=",tempb)[1])+2,as.numeric(nchar(tempb))))/1000
       if (rv$i == 1) {tempbinit<<-as.integer(tempb)}
-      
+
       table_temp <<- data.frame(rv$i, tempr, tempb)
       plot_temp <<- rbind(plot_temp, table_temp)
-      par(mar = c(5,5,2,5))
+      par(mar = c(6,5,2,5))
 
       if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == "rouge" && input$position_temp2 == "anus")) {limy= c(35,45)}
       if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == "rouge" && input$position_temp2 == "exterieur")) {limy= c(tempbinit-10,tempbinit+10)}
-      plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "",ylab = "",axes =FALSE,  type = "b", xlim=c(rv$i-20,rv$i), ylim= limy, col="red", pch = 2 , yaxt = "n", col.lab="red") 
+      plot(x = plot_temp$rv.i, y = plot_temp$tempr,xlab = "",ylab = "",axes =FALSE,  type = "b", xlim=c(rv$i-20,rv$i), ylim= limy, col="red", pch = 2 , yaxt = "n", col.lab="red")
       axis(side = 2, col ="red", col.ticks = "red", col.axis="red")
       mtext(side = 2, line = 3, 'Sonde rouge (°C)', col = "red")
       box()
-      
+
       par(new = T)
-      
+
       if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "anus") || (input$sonde_temp2 == "blanche" && input$position_temp2 == "anus")) {limy2= c(35,45)}
       if ((input$sonde_temp1 == "blanche" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == "blanche" && input$position_temp2 == "exterieur")) {limy2= c(tempbinit-10,tempbinit+10)}
       plot(x = plot_temp$rv.i, y = plot_temp$tempb,xlab = "",ylab = "",axes =FALSE, col="blue", type = "b", pch = 1,xlim=c(rv$i-20,rv$i), ylim= limy2)
       axis(side = 4, col ="blue", col.ticks ="blue", col.axis="blue")
       mtext(side = 4, line = 3, 'Sonde blanche (°C)', col = "blue")
-      
-      axis(side = 1,pretty(range(seq(rv$i-20,rv$i,1)),20))
-      mtext(side = 1, line = 3, 'Temps (sec)', col = "black")     
-      
+
+      axis(side = 1,at = pretty(range(seq(rv$i-20,rv$i,1)),20), labels = sapply(str_split(seq.POSIXt(Sys.time()-20,Sys.time(),1)," "),"[[",2), las = 2)
+      mtext(side = 1, line = 4.7, 'Temps (sec)', col = "black")
+
       legend(x = "topleft", y = "left", legend = c("Sonde rouge", "Sonde Blanche"), col = c("red","blue"), pch = c(2,1), lty = c(1,1))
- 
+
       temperature <<- rbind(temperature,data.frame("Date" = c(Sys.time()), "Temperature_r" =c(tempr), "Temperature_b" =c(tempb)))
-      } }
+
+      if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "anus") || (input$sonde_temp2 == "rouge" && input$position_temp2 == "anus"))
+      {
+        if (!exists("temp_ani")) {temp_ani<<-paste0(Sys.time(),"_",tempr)} else {temp_ani<<-paste(temp_ani,paste0(Sys.time(),"_",tempr),sep="~")}
+        if (!exists("temp_ext")) {temp_ext<<-paste0(Sys.time(),"_",tempb)} else {temp_ext<<-paste(temp_ext,paste0(Sys.time(),"_",tempb),sep="~")}
+      }
+      if ((input$sonde_temp1 == "rouge" && input$position_temp1 == "exterieur") || (input$sonde_temp2 == "rouge" && input$position_temp2 == "exterieur"))
+      {
+        if (!exists("temp_ani")) {temp_ani<<-paste0(Sys.time(),"_",tempb)} else {temp_ani<<-paste(temp_ani,paste0(Sys.time(),"_",tempb),sep="~")}
+        if (!exists("temp_ext")) {temp_ext<<-paste0(Sys.time(),"_",tempr)} else {temp_ext<<-paste(temp_ext,paste0(Sys.time(),"_",tempr),sep="~")}
+      }
+
+      }#}
+
   })
-  
+
   observeEvent(input$suivi_temp, {
-    doublons <- which(duplicated(temperature)) 
-    temperature <- temperature[-doublons,] 
-    
+
     if (input$suivi_temp == T) {
-      
+
       observe({
         isolate({
           rv$i = nrow(plot_temp) + 1
         })
-   
+
         if (isolate(rv$i) < maxIter){
           print(rv$i)
           invalidateLater(1000, session)
         }
       })
-    } 
-})
+    }
+  })
   
+
   ##################           RUBRIQUE HISTORIQUE                      #################
   
   output$historique <- DT::renderDataTable({
@@ -1436,15 +1450,11 @@ return(liste_collier)})
           cat_col = paste(toupper(collier_tech),": collier ", toupper(collier_col_b)," boitier ", toupper(collier_col_c))
           
           if (input$nAnimal2 != "") {
-            print(input$nAnimal2)
-            print(!is.null(input$nAnimal2))
           nbre_capt = dbGetQuery(con,paste0("SELECT count(cap_id) FROM public.t_capture_cap, public.t_animal_ani where ani_id = cap_ani_id and ani_etiq= '",input$nAnimal2,"' group by ani_etiq order by ani_etiq"))
           nbre_capt <- nbre_capt[1,1] + 1
           
           cap_pertinent = dbGetQuery(con,paste0("select cap_annee_suivi from public.t_capture_cap, public.t_animal_ani where cap_ani_id=ani_id and ani_etiq = '",input$nAnimal2,"' order by cap_annee_suivi DESC"))
           cap_pertinent <- cap_pertinent[1,1]
-          print(annee)
-          print(cap_pertinent)
           if (annee == cap_pertinent) {cap_pertinent = FALSE} else {cap_pertinent = TRUE} }
           
         for (i in (1:(length(liste_prelevement)))) {
@@ -1558,7 +1568,7 @@ return(liste_collier)})
             cap_bague2 = paste0(input$nAnimal2, "_", str_sub(annee_suivie, -2)) }
           
           #loc_sonde =  as.integer(dbGetQuery(con, "select tel_id from lu_tables.tr_temperatures_localisation_tel where tel_localisation = 'anus'")[1,1])
-          
+            
           if (exists("gettime_table_posix")) {
             if (exists("gettime_caract_posix")) {
             duree_marquage <- times(as.numeric(difftime(gettime_table_posix, gettime_caract_posix)) / (24*3600))}
@@ -1650,8 +1660,8 @@ return(liste_collier)})
             if (is.null(input$lutte)) { save1 = cbind(save1,data.frame("lutte (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("lutte (1/0)" = (c(input$lutte))))}
             if (is.null(input$halete)) { save1 = cbind(save1,data.frame("halete (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("halete (1/0)" = (c(input$halete))))}
             save1 = cbind(save1,data.frame("cri" = c(cri_total)))
-            save1 = cbind(save1,data.frame("T°C 1" = c("")))
-            save1 = cbind(save1,data.frame("T°C 2" = c("")))
+            save1 = cbind(save1,data.frame("T°C 1" = c(temp_ani)))
+            save1 = cbind(save1,data.frame("T°C 2" = c(temp_ext)))
             save1 = cbind(save1,data.frame("Cœur 1" = c("")))
             save1 = cbind(save1,data.frame("Cœur 2" = c("")))
             save1 = cbind(save1,data.frame("remarque_table" = c(input$remarques_table)))
