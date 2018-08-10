@@ -61,6 +61,11 @@ choix[["values_vitesse"]]<-c(0,1)
 choix[["values_allure"]]<-c(0,1)
 choix[["cpt_filet_lutte"]]<-c(0,1,2)
 choix[["nbre_echant"]]<-c(1,2,3,4,5)
+choix[["typetype"]]<-c(choisir = "",dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id")[,1])
+choix[["localoca"]]<-c(choisir = "",dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id")[,1])
+choix[["condi"]]<-c(choisir = "", dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id")[,1])
+choix[["solsol"]]<-c(choisir = "",dbGetQuery(con, "select sas_solvant from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_solvant_sas where sat_id=sac_sat_id and sat_id=sal_sat_id and sas_sat_id=sat_id and sac_id=sas_sac_id order by sac_id")[,1])
+ 
 
 #decomment for rapberry pi
 # tousb<-"/media/pi/USB2/captures_chevreuils"
