@@ -6,10 +6,10 @@ source("connect.R")
 
 ## Dataframe pour les prélevements :
 
-df_prelevement <- data.frame(dbGetQuery(con, "select sat_type from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"), 
-                             dbGetQuery(con, "select sal_localisation from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
-                             dbGetQuery(con, "select sac_conditionnement from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal where sat_id=sac_sat_id and sat_id=sal_sat_id  order by sac_id"),
-                             dbGetQuery(con, "select sas_solvant from lu_tables.tr_samples_types_sat, lu_tables.tr_samples_contenant_sac, lu_tables.tr_samples_localisation_sal, lu_tables.tr_samples_solvant_sas where sat_id=sac_sat_id and sat_id=sal_sat_id and sas_sat_id=sat_id and sac_id=sas_sac_id order by sac_id"))
+df_prelevement <- data.frame(choix[["typetype"]],
+                             choix[["localoca"]],
+                             choix[["condi"]],
+                             choix[["solsol"]])
 
 colnames(df_prelevement)<-c("prel_type","prel_local","prel_condi", "prel_solv")
 
@@ -652,8 +652,7 @@ print(time)
   
   output$control1 <- renderUI({
    #selectizeInput("typetype", h4("Type"), choices = df_prelevement$prel_type, options=list(placeholder='Choisir une valeur :',create= TRUE, onInitialize = I('function() { this.setValue(""); }')))
-    selectInput("typetype", h4("Type"), choices = unique(df_prelevement$prel_type),selectize =FALSE, selected = NULL)
-    
+    selectInput("typetype", h4("Type"), choices = unique(df_prelevement$prel_type),selectize =FALSE)
       })
   
   output$control2 <- renderUI({
@@ -664,7 +663,7 @@ print(time)
       return("Select")
     choice2 <- df_prelevement[df_prelevement$prel_type == x,  "prel_local"]
     #selectizeInput("localoca", h4("Localisation"), choices = (choice2), options=list(create= TRUE), selected=1)
-    selectInput("localoca", h4("Localisation"), choices = (choice2),selectize =FALSE, selected=1)
+    selectInput("localoca", h4("Localisation"), choices = (choice2),selectize =FALSE)
       })
   
   observeEvent(input$typetype, {
@@ -812,7 +811,6 @@ return(liste_collier)})
     } })
   
  ############ monitoring de la température
-  ########### display data temp
   temperature = data.frame()
   row.names(temperature) = NULL
   output$tabletemperature = DT::renderDT(expr = temperature,server = F)
@@ -824,7 +822,7 @@ return(liste_collier)})
   
   output$plot <- renderPlot({
     if(rv$i > 0) {
-      #if (input$suivi_temp == T) {
+      if (input$suivi_temp == T) {
       tempr <- t(read.delim("/sys/devices/w1_bus_master1/28-0417503f2cff/w1_slave"))[,1]
       tempr <- as.numeric(substr(tempr,as.numeric(regexpr("t=",tempr)[1])+2,as.numeric(nchar(tempr))))/1000
       if (rv$i == 1) {temprinit<<-as.integer(tempr)}
@@ -868,27 +866,37 @@ return(liste_collier)})
         if (!exists("temp_ani")) {temp_ani<<-paste0(Sys.time(),"_",tempb)} else {temp_ani<<-paste(temp_ani,paste0(Sys.time(),"_",tempb),sep="~")}
         if (!exists("temp_ext")) {temp_ext<<-paste0(Sys.time(),"_",tempr)} else {temp_ext<<-paste(temp_ext,paste0(Sys.time(),"_",tempr),sep="~")}
       }
-
-      }#}
+      print(temp_ani)
+      print(temp_ext)
+      }}
 
   })
+  
+observe(
+    if (input$suivi_temp == T) {#observe({
+      isolate({ rv$i = nrow(plot_temp) + 1})#})
+      print(rv$i)
+      print(sys.frames())
+      invalidateLater(1000, session)
+      }#, env = new.env(parent = globalenv())
+)
 
-  observeEvent(input$suivi_temp, {
-
-    if (input$suivi_temp == T) {
-
-      observe({
-        isolate({
-          rv$i = nrow(plot_temp) + 1
-        })
-
-        if (isolate(rv$i) < maxIter){
-          print(rv$i)
-          invalidateLater(1000, session)
-        }
-      })
-    }
-  })
+  # observeEvent(input$suivi_temp, {
+  # 
+  #   if (input$suivi_temp == T) {
+  # 
+  #     observe({
+  #       isolate({
+  #         rv$i = nrow(plot_temp) + 1
+  #       })
+  # 
+  #       if (isolate(rv$i) < maxIter){
+  #         print(rv$i)
+  #         invalidateLater(1000, session)
+  #       }
+  #     })
+  #   }
+  # })
   
 
   ##################           RUBRIQUE HISTORIQUE                      #################
@@ -901,7 +909,7 @@ return(liste_collier)})
   })
   
   ##################           RUBRIQUE CHECKLIST 1                     #################
-  #########           Animal                                           #########
+  #########          Animal                                                         #########
   
   checklist1 = data.frame()
   row.names(checklist1) = NULL
@@ -1104,19 +1112,19 @@ return(liste_collier)})
     # })
   })
   
-  #########           Table                                            ########                
+  #########          Table                                                          ########                
   
   checklist_table = data.frame()
   row.names(checklist_table) = NULL
   output$tablechecklist_table = DT::renderDT(expr = checklist_table,server = F)
   
-  #########           Prelevement                                      ########
+  #########          Prelevement                                                    ########
   
   checklist_prel = data.frame()
   row.names(checklist_prel) = NULL
   output$tablechecklist_prel = DT::renderDT(expr = checklist_prel,server = F)
   
-  #########           Collier                                          ########
+  #########          Collier                                                        ########
   
   checklist_collier = data.frame()
   row.names(checklist_collier) = NULL
@@ -1230,178 +1238,184 @@ return(liste_collier)})
     })
   })
   
-#   ##################           RUBRIQUE CAPTURE                         #################
-#   
-# #updateSelectizeInput(session, "numSabot_capture", choices = choix[["numSabot_capture"]])
-#   
-# ####affichage des dates disponibles
-# observe({
-#      if ((input$date_capture)=="") {
-#      fi<-grep(".csv",list.files(), value =TRUE)
-#      fi<-sub("captures_","",fi)
-#      fi<-sub(".csv","",fi)
-#      fi<<-gsub("_","-",fi)
-#      updateSelectizeInput(session, "date_capture", choices = fi)
-#      }
-#      })
-# 
-# ####affichage des données de l'individu
-# observe({
-#              if ((input$date_capture)!="") { 
-#                   fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep=";", header=TRUE, stringsAsFactors=FALSE, colClasses = c("character"))
-#                   colnames(fichier_lu)<- noms_colonnes
-#                   updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]))
-#                if(input$numSabot_capture!="") {
-#                  select_line <<- which(fichier_lu[,c("num_sabot")]==c(input$numSabot_capture),arr.ind=TRUE)[1]
-#                  ani <- fichier_lu[select_line, c("N°Animal")]
-#                  ani2<- ani
-#                  sexe<- fichier_lu[select_line, c("Sexe")]
-#                  print(sexe)
-#                  sabot<- fichier_lu[select_line, c("num_sabot")]
-#                  age<- fichier_lu[select_line, c("Age cahier")]
-#                  tagd<- fichier_lu[select_line, c("cap_tag_droit")]
-#                  tagg<- fichier_lu[select_line, c("cap_tag_gauche")]
-#                  poids<-fichier_lu[select_line, c("Poids")]
-#                  sante<-fichier_lu[select_line, c("etat_sante")]
-#                  site<-fichier_lu[select_line, c("Site Capture")]
-#                  anim<-dbGetQuery(con, "Select ani_etiq from t_animal_ani")
-#                  if (length(grep(ani2,as.character(anim[,1]))) != 0){
-#                    updateRadioButtons(session,"estNouvelAnimal", selected = "non")
-#                    updateSelectizeInput(session, "idSite2",  selected = site)
-#                    updateSelectizeInput(session, "nAnimal2",  selected = ani2)
-#                  }else {
-#                  updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
-#                  updateSelectizeInput(session, "idSite",  selected = site)
-#                  updateTextInput(session, "nAnimal",  value = ani)}
-#                  updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]),  selected = sabot)
-#                  updateSelectizeInput(session, "age",  selected = age)
-#                  updateTextInput(session, "idTagOrG", value =  tagd)
-#                  updateTextInput(session, "idTagOrD", value =  tagg)
-#                  output$poids_ani = renderText({poids})
-#                  updateTextInput(session,"remarque_ani", value = sante)
-#                  updateAwesomeRadio(session, "sexe", choices =choix[["sexe"]], selected = sexe)
-#                 }}
-#                })
-# 
-#   ##################           RUBRIQUE SABOT                           #################
-#   
-#   updateSelectizeInput(session, "cpt_dose_acepromazine", choices = choix[["cpt_dose_acepromazine"]])
-# 
-# #####calcul de l'heure en sabot 
-# observe({
-#   if (!is.na(strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))) { if (!is.na(input$cpt_temps_filet)) {
-#    heure_sab<- strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S") + input$cpt_temps_filet*60
-#    updateTimeInput(session, "cpt_heure_mise_sabot", value = heure_sab)
-#   }}
-# }) 
-#   
-#   ##################           RUBRIQUE CHECKLIST 3                     #################
-#   
-#   checklist_capture = data.frame()
-#   row.names(checklist_capture) = NULL
-#   output$tablechecklist_capture = DT::renderDT(expr = checklist_capture,server = F)
-#   
-#   checklist_sabot = data.frame()
-#   row.names(checklist_sabot) = NULL
-#   output$tablechecklist_sabot = DT::renderDT(expr = checklist_sabot,server = F)
-#   
-#   output$checklist_capture <- renderUI( {
-#     
-#     if (length(unlist(strsplit(as.character(input$cpt_heure_debut_filet), " "))) == 2){
-#     gettime=as.character(input$cpt_heure_debut_filet)
-#     gettime=strsplit(gettime, " ")[[1]]
-#     gettime<<-sub(":00$","", gettime[2])} else {gettime <- "00:00"}
-#     if (length(strsplit(as.character(input$cpt_heure_mise_sabot), " ")[[1]]) == 2){
-#     gettime3=as.character(input$cpt_heure_mise_sabot)
-#     gettime3=strsplit(gettime3, " ")[[1]]
-#     gettime3<<-sub(":00$","", gettime3[2])}else{gettime3 <- "00:00"}
-#     if (length(strsplit(as.character(input$cpt_heure_fin_surv), " ")[[1]]) == 2){
-#     gettime4=as.character(input$cpt_heure_fin_surv)
-#     gettime4=strsplit(gettime4, " ")[[1]]
-#     gettime4<<-sub(":00$","", gettime4[2])} else {gettime4 <- "00:00"}
-# 
-#     checklist_capture = data.frame()
-#     
-#     # if ((input$numSabot_capture)=="")  {
-#     #   checklist_capture = data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Numéro de sabot"))}
-#     
-#     if ((input$date_capture)=="")  {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Date")))}
-#     
-#     if ((gettime)== "00:00")  {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Heure début filet")))}
-#     
-#     if (is.na(input$cpt_temps_filet))  {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Temps passé au filet")))}
-#     
-#     if ((input$nom_capteur_txt)=="") {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Capteurs")))}
-# 
-#     if ((input$Nbre_pers_experimentes)=="") {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de personnes expérimentées")))}
-# 
-#     if (is.null(input$cpt_filet_vitesse)) {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Vitesse filet")))}
-# 
-#     if (is.null(input$cpt_filet_allure)) {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Allure filet")))}
-# 
-#     if (is.null(input$cpt_filet_lutte)) {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Lutte filet")))}
-# 
-#     if (is.null(input$cpt_filet_halete)) {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Halete")))}
-# 
-#     if (is.null(input$cpt_filet_cri)) {
-#       checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Cri")))}
-#     
-#     if (nrow(checklist_capture)==0) {
-#       checklist_capture =  rbind(checklist_capture,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
-#     
-#     output$tablechecklist_capture = DT::renderDT(checklist_capture,server = F)
-#     
-#     checklist_sabot = data.frame()
-#     
-#     if ((gettime3)=="00:00") {
-#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure mise en sabot")))}
-# 
-#     if ((gettime4)=="00:00") {
-#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure fin de surveillance")))}
-# 
-#     if ((input$cpt_dose_acepromazine)=="") {
-#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Dose azepromazine")))}
-# 
-#     if (is.null(input$cpt_sabot_retournement)) {
-#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Retournement ?")))}
-# 
-#     if (is.null(input$cpt_sabot_couche)) {
-#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Couché ?")))}
-# 
-#     if (is.null(input$cpt_sabot_agitation)) {
-#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Agité ?")))}
-# 
-#     if ((input$Observateur)=="") {
-#       checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Observateur")))}
-#     
-#     if (nrow(checklist_sabot)==0) {
-#       checklist_sabot =  rbind(checklist_sabot,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
-#     
-#     output$tablechecklist_sabot = DT::renderDT(checklist_sabot,server = F)
-#  
-#     
-#     ### Bilan
-#     
-#     observeEvent(input$valid_checklist3, ignoreInit = T, {
-#       if  ((checklist_capture[1,1]!="PAS DE DONNEES MANQUANTES") || (checklist_sabot[1,1]!="PAS DE DONNEES MANQUANTES")) 
-#       {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE, callbackR = modalCallback_check3)}
-#       else      
-#       {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check3)}
-#       
-#     })
-#     
-#   })
-#   
-  
+  ##################           RUBRIQUE CAPTURE                         #################
+
+############faire apparaitre les rubriques cachées
+ observe({
+  toggle(condition = input$appear, selector = "#tab li a[data-value=Capture]")
+   toggle(condition = input$appear, selector = "#tab li a[data-value=Sabot]")
+   toggle(condition = input$appear, selector = "#tab li a[data-value=Checklist3]")
+}) 
+#updateSelectizeInput(session, "numSabot_capture", choices = choix[["numSabot_capture"]])
+
+####affichage des dates disponibles
+observe({
+     if ((input$date_capture)=="") {
+     fi<-grep(".csv",list.files(), value =TRUE)
+     fi<-sub("captures_","",fi)
+     fi<-sub(".csv","",fi)
+     fi<<-gsub("_","-",fi)
+     updateSelectizeInput(session, "date_capture", choices = fi)
+     }
+     })
+
+####affichage des données de l'individu
+observe({
+             if ((input$date_capture)!="") {
+                  fichier_lu <- read.table(file = paste0("captures_",gsub("-","_",input$date_capture), ".csv"), sep=";", header=TRUE, stringsAsFactors=FALSE, colClasses = c("character"))
+                  colnames(fichier_lu)<- noms_colonnes
+                  updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]))
+               if(input$numSabot_capture!="") {
+                 select_line <<- which(fichier_lu[,c("num_sabot")]==c(input$numSabot_capture),arr.ind=TRUE)[1]
+                 ani <- fichier_lu[select_line, c("N°Animal")]
+                 ani2<- ani
+                 sexe<- fichier_lu[select_line, c("Sexe")]
+                 print(sexe)
+                 sabot<- fichier_lu[select_line, c("num_sabot")]
+                 age<- fichier_lu[select_line, c("Age cahier")]
+                 tagd<- fichier_lu[select_line, c("cap_tag_droit")]
+                 tagg<- fichier_lu[select_line, c("cap_tag_gauche")]
+                 poids<-fichier_lu[select_line, c("Poids")]
+                 sante<-fichier_lu[select_line, c("etat_sante")]
+                 site<-fichier_lu[select_line, c("Site Capture")]
+                 anim<-dbGetQuery(con, "Select ani_etiq from t_animal_ani")
+                 if (length(grep(ani2,as.character(anim[,1]))) != 0){
+                   updateRadioButtons(session,"estNouvelAnimal", selected = "non")
+                   updateSelectizeInput(session, "idSite2",  selected = site)
+                   updateSelectizeInput(session, "nAnimal2",  selected = ani2)
+                 }else {
+                 updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
+                 updateSelectizeInput(session, "idSite",  selected = site)
+                 updateTextInput(session, "nAnimal",  value = ani)}
+                 updateSelectizeInput(session, "numSabot_capture", choices = unique(fichier_lu[,c("num_sabot")]),  selected = sabot)
+                 updateSelectizeInput(session, "age",  selected = age)
+                 updateTextInput(session, "idTagOrG", value =  tagd)
+                 updateTextInput(session, "idTagOrD", value =  tagg)
+                 output$poids_ani = renderText({poids})
+                 updateTextInput(session,"remarque_ani", value = sante)
+                 updateAwesomeRadio(session, "sexe", choices =choix[["sexe"]], selected = sexe)
+                }}
+               })
+
+  ##################           RUBRIQUE SABOT                           #################
+
+  updateSelectizeInput(session, "cpt_dose_acepromazine", choices = choix[["cpt_dose_acepromazine"]])
+
+#####calcul de l'heure en sabot
+observe({
+  if (!is.na(strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S"))) { if (!is.na(input$cpt_temps_filet)) {
+   heure_sab<- strptime(input$cpt_heure_debut_filet, "%Y-%m-%d %H:%M:%S") + input$cpt_temps_filet*60
+   updateTimeInput(session, "cpt_heure_mise_sabot", value = heure_sab)
+  }}
+})
+
+  ##################           RUBRIQUE CHECKLIST 3                     #################
+
+  checklist_capture = data.frame()
+  row.names(checklist_capture) = NULL
+  output$tablechecklist_capture = DT::renderDT(expr = checklist_capture,server = F)
+
+  checklist_sabot = data.frame()
+  row.names(checklist_sabot) = NULL
+  output$tablechecklist_sabot = DT::renderDT(expr = checklist_sabot,server = F)
+
+  output$checklist_capture <- renderUI( {
+
+    if (length(unlist(strsplit(as.character(input$cpt_heure_debut_filet), " "))) == 2){
+    gettime=as.character(input$cpt_heure_debut_filet)
+    gettime=strsplit(gettime, " ")[[1]]
+    gettime<<-sub(":00$","", gettime[2])} else {gettime <- "00:00"}
+    if (length(strsplit(as.character(input$cpt_heure_mise_sabot), " ")[[1]]) == 2){
+    gettime3=as.character(input$cpt_heure_mise_sabot)
+    gettime3=strsplit(gettime3, " ")[[1]]
+    gettime3<<-sub(":00$","", gettime3[2])}else{gettime3 <- "00:00"}
+    if (length(strsplit(as.character(input$cpt_heure_fin_surv), " ")[[1]]) == 2){
+    gettime4=as.character(input$cpt_heure_fin_surv)
+    gettime4=strsplit(gettime4, " ")[[1]]
+    gettime4<<-sub(":00$","", gettime4[2])} else {gettime4 <- "00:00"}
+
+    checklist_capture = data.frame()
+
+    # if ((input$numSabot_capture)=="")  {
+    #   checklist_capture = data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Numéro de sabot"))}
+
+    if ((input$date_capture)=="")  {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Date")))}
+
+    if ((gettime)== "00:00")  {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Heure début filet")))}
+
+    if (is.na(input$cpt_temps_filet))  {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Temps passé au filet")))}
+
+    if ((input$nom_capteur_txt)=="") {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Capteurs")))}
+
+    if ((input$Nbre_pers_experimentes)=="") {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Nombre de personnes expérimentées")))}
+
+    if (is.null(input$cpt_filet_vitesse)) {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Vitesse filet")))}
+
+    if (is.null(input$cpt_filet_allure)) {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Allure filet")))}
+
+    if (is.null(input$cpt_filet_lutte)) {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Lutte filet")))}
+
+    if (is.null(input$cpt_filet_halete)) {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Halete")))}
+
+    if (is.null(input$cpt_filet_cri)) {
+      checklist_capture = rbind(checklist_capture,data.frame("DONNNES_CAPTURE_MANQUANTES" = c("Cri")))}
+
+    if (nrow(checklist_capture)==0) {
+      checklist_capture =  rbind(checklist_capture,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
+
+    output$tablechecklist_capture = DT::renderDT(checklist_capture,server = F)
+
+    checklist_sabot = data.frame()
+
+    if ((gettime3)=="00:00") {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure mise en sabot")))}
+
+    if ((gettime4)=="00:00") {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Heure fin de surveillance")))}
+
+    if ((input$cpt_dose_acepromazine)=="") {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Dose azepromazine")))}
+
+    if (is.null(input$cpt_sabot_retournement)) {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Retournement ?")))}
+
+    if (is.null(input$cpt_sabot_couche)) {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Couché ?")))}
+
+    if (is.null(input$cpt_sabot_agitation)) {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Agité ?")))}
+
+    if ((input$Observateur)=="") {
+      checklist_sabot = rbind(checklist_sabot,data.frame("DONNNES_SABOT_MANQUANTES" = c("Observateur")))}
+
+    if (nrow(checklist_sabot)==0) {
+      checklist_sabot =  rbind(checklist_sabot,data.frame("PARFAIT"= c("PAS DE DONNEES MANQUANTES")))}
+
+    output$tablechecklist_sabot = DT::renderDT(checklist_sabot,server = F)
+
+
+    ### Bilan
+
+    observeEvent(input$valid_checklist3, ignoreInit = T, {
+      if  ((checklist_capture[1,1]!="PAS DE DONNEES MANQUANTES") || (checklist_sabot[1,1]!="PAS DE DONNEES MANQUANTES"))
+      {shinyalert("ATTENTION!", "Toutes les mesures ou echantillons ne sont pas saisis", type = "warning",confirmButtonText="Valider quand meme", showCancelButton=T,cancelButtonText="Annuler l'ajout",html=TRUE, callbackR = modalCallback_check3)}
+      else
+      {shinyalert("PARFAIT!", "Toutes les mesures ont été saisies", type = "success",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE, callbackR = modalCallback_check3)}
+
+    })
+
+  })
+
+
   ##################           CSV CHECKLIST 1                          #####     
   
       modalCallback_check1 = function(value) {
@@ -1660,8 +1674,8 @@ return(liste_collier)})
             if (is.null(input$lutte)) { save1 = cbind(save1,data.frame("lutte (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("lutte (1/0)" = (c(input$lutte))))}
             if (is.null(input$halete)) { save1 = cbind(save1,data.frame("halete (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("halete (1/0)" = (c(input$halete))))}
             save1 = cbind(save1,data.frame("cri" = c(cri_total)))
-            save1 = cbind(save1,data.frame("T°C 1" = c(temp_ani)))
-            save1 = cbind(save1,data.frame("T°C 2" = c(temp_ext)))
+            if (exists("temp_ani")){save1 = cbind(save1,data.frame("T°C 1" = c(temp_ani)))} else {save1 = cbind(save1,data.frame("T°C 1" = c("")))}
+            if (exists("temp_ext")){save1 = cbind(save1,data.frame("T°C 2" = c(temp_ext)))} else {save1 = cbind(save1,data.frame("T°C 2" = c("")))}
             save1 = cbind(save1,data.frame("Cœur 1" = c("")))
             save1 = cbind(save1,data.frame("Cœur 2" = c("")))
             save1 = cbind(save1,data.frame("remarque_table" = c(input$remarques_table)))
@@ -1793,8 +1807,8 @@ return(liste_collier)})
             if (is.null(input$lutte)) { save1 = cbind(save1,data.frame("lutte (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("lutte (1/0)" = (c(input$lutte))))}
             if (is.null(input$halete)) { save1 = cbind(save1,data.frame("halete (1/0)" = (c(""))))} else {save1 = cbind(save1,data.frame("halete (1/0)" = (c(input$halete))))}
             save1 = cbind(save1,data.frame("cri" = c(cri_total)))
-            save1 = cbind(save1,data.frame("T°C 1" = c("")))
-            save1 = cbind(save1,data.frame("T°C 2" = c("")))
+            if (exists("temp_ani")){save1 = cbind(save1,data.frame("T°C 1" = c(temp_ani)))} else {save1 = cbind(save1,data.frame("T°C 1" = c("")))}
+            if (exists("temp_ext")){save1 = cbind(save1,data.frame("T°C 2" = c(temp_ext)))} else {save1 = cbind(save1,data.frame("T°C 2" = c("")))}
             save1 = cbind(save1,data.frame("Cœur 1" = c("")))
             save1 = cbind(save1,data.frame("Cœur 2" = c("")))
             save1 = cbind(save1,data.frame("remarque_table" = c(input$remarques_table)))
@@ -1883,9 +1897,9 @@ return(liste_collier)})
           
           
           #print(fichier_lu)
-          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          write.table(fichier_lu , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = FALSE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
           setwd(tousb)
-          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          write.table(fichier_lu , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = FALSE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
           setwd(tosd)
 
           ##################           CSV CHECKLIST 2 refresh                #####
@@ -1904,7 +1918,7 @@ return(liste_collier)})
           updateRadioButtons(session,"criautre", choices = choix[["criautre"]], selected = FALSE)
           updateRadioButtons(session,"vitesse", choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = FALSE)
           updateRadioButtons(session,"allure", choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]], selected = FALSE)
-
+          updateSelectInput(session,"typetype", choices = unique(df_prelevement$prel_type),selected = "")
           
           for (i in 1:length(text_input)){
             updateTextInput(session, text_input[i], value = NA, placeholder = "Entrez un texte :")}
@@ -1981,9 +1995,9 @@ return(liste_collier)})
           fichier_lu2[select_line,"total"]<- duree_totale
           fichier_lu2[select_line,"surveillance (mn)"]<- surveillance
           
-          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          write.table(fichier_lu2 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = FALSE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
           setwd(tousb)
-          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          write.table(fichier_lu2 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = FALSE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
           setwd(tosd)
           
           ##################           CSV CHECKLIST 3 refresh                #####
