@@ -473,7 +473,7 @@ checklist2 = tabPanel("checklist 2",contentcheck2)
 ui <- shinyUI(
   #theme=shinytheme("sandstone"),
   # Application title
-    tabsetPanel(id = "refresh_all",
+    tabsetPanel(id = "tab",
     tabPanel  ("Animal", caractanimal),
     tabPanel  ("Blessures", blessures),
     tabPanel  ("Prelevement", prelevement),
