@@ -34,7 +34,7 @@ contentcaractanimal = fluidPage(
                     #rfid_erase + div> div>.item {
                     color: blue !important;}      "))
     ),
-  
+
   fluidRow(
     uiOutput("sabotExiste"),
     uiOutput("out_sabot_plein"),
@@ -52,6 +52,8 @@ contentcaractanimal = fluidPage(
     column(2, numericInput(inputId = "pSabotPlein", value = "",label = h4("P.Sabot Plein"),min=0,max=65)),
     column(2, numericInput(inputId = "pSabotVide", value = "",label = h4("P.Sabot Vide"),min=0,max=50)),
     column(2, h4("Poids Animal"), textOutput("poids_ani")),
+    column(2, checkboxInput("appear", "faire apparaitre Capture-sabot", FALSE)),
+    
     #column(2, awesomeRadio("open_key",p("Saisie"),  choices = c("Oui","Non"),inline = TRUE,  selected = "Non")), 
     
     column(12),
@@ -200,7 +202,7 @@ contentcollier = fluidPage(
     #column(12,hr()),
     column(7, DT::dataTableOutput("tablecollier")),
     column(12,hr()),
-    column(3, h4("Le collier choisi est (tech, collier, boitier): "), verbatimTextOutput("collier_choisi") ,offset = 1),
+    column(5, h4("Le collier choisi est (tech, collier, boitier): "), verbatimTextOutput("collier_choisi") ,offset = 1),
     column(3, textInput("remarque_collier", label="Remarques") , offset = 1),
     column(2, actionButton("sup_col", "Désélectionner") , offset = 2),
     useShinyalert()
@@ -237,9 +239,9 @@ contenttable = fluidPage(
                 # selectizeInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),options=list(create= TRUE), selected = 'blanche'),
                 # selectizeInput( "position_temp2", h4("Positionnement 2"), choices = "")),
               selectInput( "sonde_temp1", h4("Sonde 1"), choices = list("rouge","blanche"),selectize =FALSE, selected = 'rouge'),
-              selectInput( "position_temp1", h4("Positionnement 1"), choices = ""),
+              selectInput( "position_temp1", h4("Positionnement 1"), choices = "",selectize =FALSE),
               selectInput( "sonde_temp2", h4("Sonde 2"), choices = list("rouge","blanche"),selectize =FALSE, selected = 'blanche'),
-              selectInput( "position_temp2", h4("Positionnement 2"), choices = "")),
+              selectInput( "position_temp2", h4("Positionnement 2"), choices = "",selectize =FALSE)),
 
               conditionalPanel(condition = "input.suivi_temp ==  TRUE" ,  plotOutput("plot"))
 
@@ -351,104 +353,104 @@ contentcheck2 = fluidPage(fluidRow(
 ))
 
 
-# ##################           Rubrique Capture              #################
-# 
-# contentcapture = fluidPage(
-#   
-#   #titlePanel("Comportement Capture"),
-#   fluidRow(
-# 
-#     column(2,selectizeInput("date_capture",label=h4("Date"),choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-#     column(3,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-#     #column(2,selectInput("date_capture",label=h4("Date"),choices = "",selectize =FALSE, selected = NULL)),
-#     #column(3,selectInput("numSabot_capture",label = h4("N° Sabot"), choices = "",selectize =FALSE, selected = NULL)),
-#     column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
-#            #actionButton("time_debut_filet", "Afficher l'heure")),
-#     column(2,numericInput("cpt_temps_filet", h4("Temps passe filet"), value = NA, min = 0, max = 60, step = 1)),
-#            #actionButton("time_filet", "Afficher l'heure")),
-#     column(12,hr()),
-#     
-#     column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
-#     #column(3,selectizeInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = choix[["Nbre_pers_experimentes"]],options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
-#     column(3,selectInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = choix[["Nbre_pers_experimentes"]],selectize =FALSE, selected = NULL)),
-#     column(2,textInput("remarques_capt",label=h4("Remarques",""))),
-#     column(12,hr()),
-#     
-#     column(1,radioButtons("cpt_filet_vitesse",h4("Vitesse"),choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = character(0))),
-#     column(1,radioButtons("cpt_filet_allure",h4("Allure"),choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]],selected = character(0))),
-#     column(1,radioButtons("cpt_filet_lutte", h4("Lutte"), choices = choix[["cpt_filet_lutte"]], selected = character(0))),
-#     column(1,radioButtons("cpt_filet_halete",h4("Halete"), choiceNames = choix[["names_oui_non"]], choiceValues = choix[["values_oui_non"]], selected = character(0))),
-#     column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = choix[["names_oui_non"]],choiceValues = choix[["values_oui_non"]], selected = character(0)))
-#     # column(12,hr()),
-#     
-#     #column(1),
-#     # column(4,useShinyalert(),
-#     #        actionButton("checklist_capture", "Checklist",icon('eye')))
-#     
-#     
-#   ))
-# 
-# 
-# ##################           Rubrique Sabot                #################
-# 
-# 
-# contentsabot = fluidPage(
-#   # titlePanel("Comportement sabot"), 
-#   fluidRow(
-#     
-#     #Heure de mise en sabot
-#     column(3, timeInput("cpt_heure_mise_sabot", h4("Heure de mise en sabot:"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
-#            #actionButton("time_sabot", "Afficher l'heure")),
-#     
-#     #Fin de surveillance
-#     column(3,timeInput("cpt_heure_fin_surv", h4("Fin de surveillance"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
-#            #actionButton("time_fin", "Afficher l'heure")),
-#     
-#     column(12,hr()),
-#     
-#     #Acepromazine
-#     #column(2,selectizeInput("cpt_dose_acepromazine",h4("Acepromazine"), choices = "",options = (list(create = TRUE,placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'))), selected = NULL)),
-#     column(2,selectInput("cpt_dose_acepromazine",h4("Acepromazine"), choices = "",selectize =FALSE, selected = NULL)),
-#     
-#     #Sur le dos
-#     column(1,radioButtons("cpt_sabot_retournement",h4("Sur le dos"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected =c("None selected" = ""))),
-#     
-#     #Couche
-#     column(1, radioButtons("cpt_sabot_couche",h4("Couche"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected =c("None selected" = ""))),
-#     
-#     #Agite
-#     column(1, radioButtons("cpt_sabot_agitation",h4("Agite"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected =c("None selected" = ""))),
-#     
-#     column(12,hr()),
-#     
-#     #Observateur
-#     column(3,textInput("Observateur",label=h4("Observateurs",""))),
-#     
-#     #Remarque
-#     column(3,textInput("Remarques",label=h4("Remarque","")))
-#     
-#     # column(12,hr()),
-#     
-#     # column(4,useShinyalert(),
-#     #        actionButton("checklist_sabot", "Checklist",icon('eye')))
-#     # 
-#   )
-# )
-# 
-# 
-# ##################           Rubrique Checklist 3          #################
-# 
-# contentcheck3 = fluidPage(fluidRow(
-#   uiOutput("checklist_capture"),
-#   column(4, h3("Checklist - Capture"), offset = 1),
-#   column(4, h3("Checklist - Sabot"), offset = 1),
-#   column(4,tabPanel("Checklist Capture", DT::dataTableOutput("tablechecklist_capture")), offset=1), 
-#   column(4,tabPanel("Checklist Sabot", DT::dataTableOutput("tablechecklist_sabot")), offset=1),
-#   column(12,hr()),
-#   column(12,useShinyalert(), actionButton("valid_checklist3","ENREGISTRER LES DONNEES", width='50%'), offset = 1),
-#   column(12,hr())
-# ))
-# 
+##################           Rubrique Capture              #################
+
+contentcapture = fluidPage(
+
+  #titlePanel("Comportement Capture"),
+  fluidRow(
+
+    column(2,selectizeInput("date_capture",label=h4("Date"),choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(3,selectizeInput("numSabot_capture",label = h4("N° Sabot"), choices = "",options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    #column(2,selectInput("date_capture",label=h4("Date"),choices = "",selectize =FALSE, selected = NULL)),
+    #column(3,selectInput("numSabot_capture",label = h4("N° Sabot"), choices = "",selectize =FALSE, selected = NULL)),
+    column(2,timeInput("cpt_heure_debut_filet",h4("Heure arrivee filet"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
+           #actionButton("time_debut_filet", "Afficher l'heure")),
+    column(2,numericInput("cpt_temps_filet", h4("Temps passe filet"), value = NA, min = 0, max = 60, step = 1)),
+           #actionButton("time_filet", "Afficher l'heure")),
+    column(12,hr()),
+
+    column(2,textInput("nom_capteur_txt",label=h4("Nom des capteurs",""))),
+    #column(3,selectizeInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = choix[["Nbre_pers_experimentes"]],options=list(placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }')), selected = NULL)),
+    column(3,selectInput("Nbre_pers_experimentes",h4("Nombre de capteurs experimentes"),choices = choix[["Nbre_pers_experimentes"]],selectize =FALSE, selected = NULL)),
+    column(2,textInput("remarques_capt",label=h4("Remarques",""))),
+    column(12,hr()),
+
+    column(1,radioButtons("cpt_filet_vitesse",h4("Vitesse"),choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = character(0))),
+    column(1,radioButtons("cpt_filet_allure",h4("Allure"),choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]],selected = character(0))),
+    column(1,radioButtons("cpt_filet_lutte", h4("Lutte"), choices = choix[["cpt_filet_lutte"]], selected = character(0))),
+    column(1,radioButtons("cpt_filet_halete",h4("Halete"), choiceNames = choix[["names_oui_non"]], choiceValues = choix[["values_oui_non"]], selected = character(0))),
+    column(1,radioButtons("cpt_filet_cri",h4("Cri"),choiceNames = choix[["names_oui_non"]],choiceValues = choix[["values_oui_non"]], selected = character(0)))
+    # column(12,hr()),
+
+    #column(1),
+    # column(4,useShinyalert(),
+    #        actionButton("checklist_capture", "Checklist",icon('eye')))
+
+
+  ))
+
+
+##################           Rubrique Sabot                #################
+
+
+contentsabot = fluidPage(
+  # titlePanel("Comportement sabot"),
+  fluidRow(
+
+    #Heure de mise en sabot
+    column(3, timeInput("cpt_heure_mise_sabot", h4("Heure de mise en sabot:"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
+           #actionButton("time_sabot", "Afficher l'heure")),
+
+    #Fin de surveillance
+    column(3,timeInput("cpt_heure_fin_surv", h4("Fin de surveillance"), seconds = F, value = strptime("00:00",format = "%H:%M"))),
+           #actionButton("time_fin", "Afficher l'heure")),
+
+    column(12,hr()),
+
+    #Acepromazine
+    #column(2,selectizeInput("cpt_dose_acepromazine",h4("Acepromazine"), choices = "",options = (list(create = TRUE,placeholder='Choisir une valeur :', onInitialize = I('function() { this.setValue(""); }'))), selected = NULL)),
+    column(2,selectInput("cpt_dose_acepromazine",h4("Acepromazine"), choices = "",selectize =FALSE, selected = NULL)),
+
+    #Sur le dos
+    column(1,radioButtons("cpt_sabot_retournement",h4("Sur le dos"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected =c("None selected" = ""))),
+
+    #Couche
+    column(1, radioButtons("cpt_sabot_couche",h4("Couche"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected =c("None selected" = ""))),
+
+    #Agite
+    column(1, radioButtons("cpt_sabot_agitation",h4("Agite"),choiceNames = list("Oui","Non"),choiceValues = list(1,0), selected =c("None selected" = ""))),
+
+    column(12,hr()),
+
+    #Observateur
+    column(3,textInput("Observateur",label=h4("Observateurs",""))),
+
+    #Remarque
+    column(3,textInput("Remarques",label=h4("Remarque","")))
+
+    # column(12,hr()),
+
+    # column(4,useShinyalert(),
+    #        actionButton("checklist_sabot", "Checklist",icon('eye')))
+    #
+  )
+)
+
+
+##################           Rubrique Checklist 3          #################
+
+contentcheck3 = fluidPage(fluidRow(
+  uiOutput("checklist_capture"),
+  column(4, h3("Checklist - Capture"), offset = 1),
+  column(4, h3("Checklist - Sabot"), offset = 1),
+  column(4,tabPanel("Checklist Capture", DT::dataTableOutput("tablechecklist_capture")), offset=1),
+  column(4,tabPanel("Checklist Sabot", DT::dataTableOutput("tablechecklist_sabot")), offset=1),
+  column(12,hr()),
+  column(12,useShinyalert(), actionButton("valid_checklist3","ENREGISTRER LES DONNEES", width='50%'), offset = 1),
+  column(12,hr())
+))
+
 ##################        ORGANISATION DES RUBRIQUES       #################
 
 
@@ -461,9 +463,9 @@ historique = tabPanel("Historique captures",contenthistorique)
 checklist1 = tabPanel("checklist 1",contentcheck1)
 comporlacher = tabPanel("Comportement lâcher",contentlacher)
 checklist2 = tabPanel("checklist 2",contentcheck2)
-# comporcapture = tabPanel("Comportement capture",contentcapture)
-# comporsabot = tabPanel("Comportement sabot",contentsabot)
-# checklist3 = tabPanel("Checklist 3", contentcheck3)
+comporcapture = tabPanel("Comportement capture",contentcapture)
+comporsabot = tabPanel("Comportement sabot",contentsabot)
+checklist3 = tabPanel("Checklist3", contentcheck3)
 
 
 ##################                    UI                   #################
@@ -482,10 +484,10 @@ ui <- shinyUI(
     tabPanel  ("Historique",historique),
     tabPanel  ("Checklist 1",checklist1),
     tabPanel  ("Lâcher",comporlacher),
-    tabPanel  ("Checklist 2",checklist2)#,
-    # tabPanel  ("Capture",comporcapture),
-    # tabPanel  ("Sabot",comporsabot),
-    # tabPanel  ("Checklist 3",checklist3)
+    tabPanel  ("Checklist 2",checklist2),
+    tabPanel  ("Capture",comporcapture),
+    tabPanel  ("Sabot",comporsabot),
+    tabPanel  ("Checklist3",checklist3)
     )
 )
 
