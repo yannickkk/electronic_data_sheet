@@ -645,7 +645,7 @@ print(time)
   })
   
   observeEvent(input$ajout_prelev, {
-    if(input$solsol != ""){
+    wait (0.5)
     prelevement <<- rbind(prelevement, data.frame("Type" = c(input$typetype), "Localisation" =c(input$localoca), "Contenant" = c(input$condi),"Solvant" = c(input$solsol),"Nombre d'echantillons" = c(input$nbre_echant),  "Remarques" = c(input$remarques_prel)))
     output$tableprelevement = DT::renderDT(prelevement,server = F)
     #updateSelectizeInput(session,"typetype", options=list(selected=NULL))
@@ -655,7 +655,7 @@ print(time)
     updateTextInput(session, "remarques_prel", value = "", placeholder = "Remarque")
     #updateSelectizeInput(session,"nbre_echant", choices =list( 1,2,3,4,5) ,options=list(create=T), selected = as.character(1))
     updateSelectInput(session,"nbre_echant", choices =list( 1,2,3,4,5), selected = as.character(1))
-    }
+    
  })
   
   ### Mise en forme des prélevements en cascade :
