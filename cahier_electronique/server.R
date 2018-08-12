@@ -22,6 +22,7 @@ df_blessure <- data.frame(dbGetQuery(con,"select bll_localisation from lu_tables
 colnames(df_blessure)<-c("ble_local","ble_gravite")
 
 
+
 server <- function(input, output,session) {
   
   ##################              RUBRIQUE ANIMAL                       #################
@@ -1859,10 +1860,11 @@ observe({
             
           }
          
+           
           write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
-          setwd(tousb)
-          write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
-          setwd(tosd)
+          # setwd(tousb)
+          # write.table(save1 , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = TRUE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
+          # setwd(tosd)
           
         }}
       
@@ -1907,6 +1909,7 @@ observe({
           fichier_lu[select_line,"remise sabot"]<- remise_sabot
           fichier_lu[select_line,"remarque_generale"]<- remarque_tot
           
+          dbSendQuery(con, paste0("update lu_tables.tr_sabots_sab set sab_disponible = FALSE where sab_valeur =",input$numSabot,""))
           
           #print(fichier_lu)
           write.table(fichier_lu , file = paste0("captures_",gsub("-","_",Sys.Date()), ".csv"), append = FALSE, col.names=!file.exists(paste0("captures_",gsub("-","_",Sys.Date()), ".csv")), na="", row.names = F, sep=";")
@@ -1920,7 +1923,7 @@ observe({
           awe_radio_input<-c("sexe")
           radio_input<-c("lutte", "halete", "titube" ,"couche","tombe","gratte_collier","cabriole_saut","cri")
           check_input<-c("metal_tag_d","metal_tag_d2","metal_tag_g","metal_tag_g2","newRFIDbox","newTagD","newTagG", "suivi_temp")
-          select_input<-c("visibilite", "habitat", "habitat_perte","tiques","diarrhee","age","idRFID", "idRFID2", "idTagOrD2","idTagOrG2","lactation","nAnimal2","Nbre_pers_experimentes","nbre_personnes","Notation_euro", "Notation_euro_table","numSabot","numSabot_capture")
+          select_input<-c("visibilite", "habitat", "habitat_perte","tiques","diarrhee","age","idRFID", "idRFID2", "idTagOrD2","idTagOrG2","lactation","nAnimal2","Nbre_pers_experimentes","nbre_personnes","Notation_euro", "Notation_euro_table","numSabot_capture")
     
           updateRadioButtons(session,"estNouvelAnimal", selected = "oui")
           updateRadioButtons(session,"identifie", selected = "non")
@@ -1931,7 +1934,8 @@ observe({
           updateRadioButtons(session,"vitesse", choiceNames = choix[["vitesse"]],choiceValues = choix[["values_vitesse"]], selected = FALSE)
           updateRadioButtons(session,"allure", choiceNames = choix[["allure"]],choiceValues = choix[["values_allure"]], selected = FALSE)
           updateSelectInput(session,"typetype", choices = unique(df_prelevement$prel_type),selected = "")
-          
+          updateSelectInput(session,"numSabot", choices = c(choisir = "", dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab where sab_disponible is not FALSE order by sab_id")[,1]), selected = NULL)
+        
           for (i in 1:length(text_input)){
             updateTextInput(session, text_input[i], value = NA, placeholder = "Entrez un texte :")}
           for (i in 1:length(numeric_input)){
@@ -2097,7 +2101,7 @@ observe({
   
 }
 # ##################           BASE DE DONNEES                            ####
-#         
+# 
 #         date_mod = input$date_caract
 #         date_mod = format(date_mod, "%d/%m/%Y")
 #         date_mod = as.character(date_mod)
@@ -2119,11 +2123,9 @@ observe({
 #           else {faon= FALSE} }
 # 
 #         if (input$age == '<1' || input$age == '0.5' ) {
-#           cat_age_all = "jeune" }
-#         else if (input$age=='1.5' || input$age=='2' || input$age=='1') {
-#           cat_age_all = "yearling"}
-#         else if (input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {cat_age_all="adulte"}
-#         else {cat_age_all="" }
+#           cat_age_all = "jeune" } else if (input$age=='1.5' || input$age=='2' || input$age=='1') {
+#           cat_age_all = "yearling"} else if (input$age=='2.5' || input$age=='3' || input$age=='3.5' || input$age=='4.5-5.5' || input$age=='4-5' || input$age=='>=6' || input$age=='>6.5') {
+#           cat_age_all="adulte"} else {cat_age_all="" }
 # 
 #         if (input$nAnimal2!="") {
 #           cap_pertinent = dbGetQuery(con,paste0("select cap_annee_suivi from public.t_capture_cap, public.t_animal_ani where cap_ani_id=ani_id and ani_etiq = '",input$nAnimal2,"' order by cap_annee_suivi DESC"))
@@ -2142,11 +2144,10 @@ observe({
 #           if (input$criautre!='0' || (input$cribague=='1-2' || input$cribague=='>2'))
 #           {cri_total = 1}
 #           else {cri_total = 0}
-#         }
-#         else {cri_total=""}
+#         }else {cri_total=""}
 # 
 #         remarque_tot = paste0(input$remarques_capt, input$remarque_collier, input$remarques_table, input$remarques_lacher, collapse = "~")
-#         
+# 
 #         id_lgg = dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'longueur bois gauche' ")
 #         id_lgd = dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'longueur bois droit' ")
 #         id_etat_bois =  dbGetQuery(con, "select var_id from public.tr_variable_mesuree_var where var_nom_court = 'etat des bois' ")
@@ -2213,8 +2214,9 @@ observe({
 # 
 #           send_new2 = gsub("'NA'","NULL", send_new2)
 #           send_new2 = gsub("''","NULL", send_new2)
-# 
+#           
 #           dbSendQuery(con,send_new2)
+#           
 # 
 #           find_cap_id = dbGetQuery(con, "select cap_id from public.t_capture_cap order by cap_id desc limit 1")[1,1]
 # 
@@ -2377,11 +2379,14 @@ observe({
 #           send_old_lost2 = sprintf("INSERT INTO public.t_capture_cap(cap_ani_id, cap_sit_id, cap_bague, cap_date, cap_annee_suivi, cap_faon, cap_age, cap_age_corrige, cap_age_classe,cap_poids, cap_circou, cap_lpa, cap_etat_sante,cap_heure_lacher, cap_pertinent, cap_num_sabot, cap_tag_droit, cap_tag_gauche, cap_tag_droit_metal, cap_tag_gauche_metal) values ('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')",
 #                                    find_ani_id, find_site_id, cap_bague, as.character(input$date_caract), annee, faon, input$age, input$age, cat_age_all, (input$pSabotPlein - input$pSabotVide), input$cirCou, input$lPattArriere,
 #                                    bledia,gettime, cap_pertinent2, input$numSabot, input$idTagOrD, input$idTagOrG, input$metal_tag_d, input$metal_tag_g)
-# 
+#           
+#        
 #           send_old_lost2 = gsub("'NA'","NULL", send_old_lost2)
 #           send_old_lost2 = gsub("''","NULL", send_old_lost2)
 # 
 #           dbSendQuery(con,send_old_lost2)
+#
+#        
 # 
 #           send_old_lost3 = sprintf("INSERT INTO public.t_correspondance_animal_cor(cor_ancien, cor_valide) values ('%s','%s')", input$nAnimal, input$nAnimal)
 # 
@@ -2568,7 +2573,8 @@ observe({
 #             send2 = gsub("''","NULL", send2)
 # 
 #             dbSendQuery(con,send2) }
-# 
+#         
+#        
 # 
 #           else if (input$newTagG == F && input$newTagD == T) {
 # 

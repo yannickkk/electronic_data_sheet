@@ -18,6 +18,8 @@ source("connect.R")
 
 noms_colonnes<- c("N°Animal","ani_nom","N°Animal telemetrie","N° bague annee capture","Nombre capture","inconnue","Site Capture","capture faon","Date","jour","mois","annee","annee  de suivi","Sexe","Age cahier","Age corrige","categorie d'age","etat_sante","cap_tag_droit","cap_tag_gauche","cap_tag_droit_metal","cap_tag_gauche_metal","cap_pertinent","cap_lactation","RFID","Poids","Cir Cou","Long patte Ar","machoire","long bois gauche","long bois droit","glucose","T°C_ext","TIQUES FIXES","autres parasites", "Peau","poils","sang","feces","tiques","vaginal","Nasal","remarque","Collier","accelero","proximite","id_collier","date_deb","date_fin","date_fin arrondie","date_fin_capteur","suivi_GPS oui si>60jours","jrs_suivi","capteur Activite","probleme collier","site vie","secteur","Mort","Date mort","Date mort arrondie","Cause detaillle","cause categories","Pds mort","nom capteur","nombre d'experimentes (n)","arrivee filet course (1/0)","arrivee filet panique (1/0)","lutte","haletement (1/0)","cri (1/0)","acepromazine (1=0,3cc)","num_sabot","couche_sabot (1/0)","agitation (1/0)","retournement (1/0)","hre fin surv","surveillance (mn)","distance (KM)","lutte (1/0)","halete (1/0)","cri (1/0)","T°C 1","T°C 2","Cœur 1","Cœur 2","remarque_table","localisation sonde temperature","eurodeer","titube (1/0)","couche (1/0)","course (1/0)","tombe (1/0)","gratte collier (1/0)","cabriole (1/0)","bolide (1/0)","aboiement/cri (1/0)","filet","sabot sur place","transport+attente","marquage","total","capture","sabot","acepro","transport","table","lache","remarque_generale","bague","autre","stop","habitat lacher","habitat perte vue","visibilite","nb_public","eurodeer_lacher","remise sabot","hre_lacher_2")
 
+dbSendQuery(con, paste0("update lu_tables.tr_sabots_sab set sab_disponible = DEFAULT"))
+
 choix<- list()
 choix[["visibilite"]]<-c(choisir = "", "0-10","11-50","51-100",">100","Nuit")
 choix[["habitat"]]<-c(choisir = "", dbGetQuery(con,"select distinct (t_capture_cpt.cpt_lache_habitat_lache) from cmpt.t_capture_cpt order by cpt_lache_habitat_lache ASC")[,1])
@@ -49,7 +51,7 @@ choix[["idRFID2"]]<-c(choisir = "", dbGetQuery(con,"select rfi_tag_code from pub
 choix[["idSite2"]]<-c(choisir = "", dbGetQuery(con, "select sit_nom_court from public.tr_site_capture_sit where (sit_id in (select cap_sit_id from public.t_capture_cap, t_animal_ani))")[,1])
 choix[["idRFID_new"]]<-c(choisir = "", dbGetQuery(con,"select rfi_tag_code from public.t_rfid_rfi where rfi_cap_id is null")[,1])
 choix[["age"]]<-c(choisir = "", "0.5" = "<1", "1.5" = "1", "2.5" = "2", "3.5" = '3', "4.5-5.5"= "4-5", ">6.5" = ">=6")
-choix[["numSabot"]]<-c(choisir = "", dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab order by sab_id")[,1])
+choix[["numSabot"]]<-c(choisir = "", dbGetQuery(con,"select sab_valeur from lu_tables.tr_sabots_sab where sab_disponible order by sab_id")[,1])
 choix[["position_temp1"]]<-dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel")
 choix[["position_temp2"]]<-dbGetQuery(con,"select tel_localisation from lu_tables.tr_temperatures_localisation_tel")
 choix[["cpt_dose_acepromazine"]]<- c(choisir = "", dbGetQuery(con,"select distinct cpt_dose_acepromazine from cmpt.t_capture_cpt order by cpt_dose_acepromazine")[,1])
@@ -72,7 +74,8 @@ choix[["solsol"]]<-c(choisir = "",dbGetQuery(con, "select sas_solvant from lu_ta
 # tosd<-"/home/pi/Desktop/App"
 
 #decomment for pc
-tousb<-"H:/captures_chevreuils"
+#tousb<-"H:/captures_chevreuils"
+tousb<-"C:/Users/ychaval/Documents/Collegues/Etudiants/JEREMIE_Marie/Programmes/R/electronic_data_sheet/cahier_electronique"
 tosd<-"C:/Users/ychaval/Documents/Collegues/Etudiants/JEREMIE_Marie/Programmes/R/electronic_data_sheet/cahier_electronique"
 
 
