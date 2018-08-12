@@ -254,9 +254,21 @@ server <- function(input, output,session) {
   
   output$poids_ani = renderText({input$pSabotPlein-input$pSabotVide})
   
+  reactive_pSabotPlein <- reactive({ 
+    stock_pSabotPlein <- input$pSabotPlein
+  })
+  
+  slow_pSabotPlein <- debounce(reactive_pSabotPlein, 1500)
+  
+  reactive_pSabotVide <- reactive({ 
+    stock_pSabotVide <- input$pSabotVide
+  })
+  
+  slow_pSabotVide <- debounce(reactive_pSabotVide, 1500)
+  
   output$alert_poids <- renderUI({
-    if (!is.na(input$pSabotPlein) && !is.na(input$pSabotVide)) {
-      if ((input$pSabotPlein-input$pSabotVide)>40) {
+    if (!is.na(slow_pSabotPlein()) && !is.na(slow_pSabotVide())) {
+      if ((slow_pSabotPlein()-slow_pSabotVide())>40) {
         shinyalert("STOP!", "Poids supérieur à 40kgs!", type = "warning",confirmButtonText="Valider", showCancelButton=T,cancelButtonText="Annuler",html=TRUE )
       }} })
   
@@ -2022,7 +2034,7 @@ observe({
           updateTimeInput(session, "cpt_heure_fin_surv", value = strptime("00:00",format = "%H:%M"))
           updateTimeInput(session, "cpt_heure_debut_filet", value = strptime("00:00",format = "%H:%M"))
           updateTimeInput(session, "cpt_heure_mise_sabot", value = strptime("00:00",format = "%H:%M"))
-          
+
           for (i in 1:length(text_input)){
             updateTextInput(session, text_input[i], value = NA, placeholder = "Entrez un texte :")}
           for (i in 1:length(numeric_input)){
@@ -2049,7 +2061,7 @@ observe({
           output$collier_choisi = renderText("")  
           
           
-                  #  cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_num_sabot = '",input$numSabot_capture,"' and cap_date = '",as.character(input$date_capture),"' " ))
+         #  cap_id = dbGetQuery(con, paste0("select cap_id from public.t_capture_cap where cap_num_sabot = '",input$numSabot_capture,"' and cap_date = '",as.character(input$date_capture),"' " ))
          #  
          #  gettime= as.character(input$cpt_heure_debut_filet)
          #  gettime=strsplit(gettime, " ")[[1]]
